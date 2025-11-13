@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import type { Restaurant, Coordinates, FilterState } from '../types';
+import type { Restaurant, Coordinates } from '../types';
 import { QuotaExceededError, APIKeyError, NetworkError, InvalidResponseError } from '../types';
 
 const model = "gemini-2.0-flash-exp";
@@ -10,7 +10,43 @@ function cleanJsonString(str: string): string {
     return match ? match[0] : str;
 }
 
-// Note: Retry logic and fallback URLs removed per user requirement for real data only
+// Retry helper with exponential backoff
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  initialDelay: number = 2000
+): Promise<T> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error as Error;
+
+      // Don't retry non-quota errors
+      if (!(error instanceof QuotaExceededError)) {
+        throw error;
+      }
+
+      // Don't wait after last attempt
+      if (attempt < maxRetries - 1) {
+        const delay = initialDelay * Math.pow(2, attempt); // Exponential: 2s, 4s, 8s
+        console.log(`Quota exceeded. Retrying in ${delay / 1000}s... (Attempt ${attempt + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  throw lastError || new Error('Max retries exceeded');
+}
+
+// Generate fallback Google Maps URL when grounding metadata is missing
+function generateFallbackMapsUrl(restaurantName: string, location: Coordinates): string {
+  const query = encodeURIComponent(restaurantName);
+  const coords = `${location.latitude},${location.longitude}`;
+  return `https://www.google.com/maps/search/?api=1&query=${query}&query_place_id=${coords}`;
+}
 
 // Validate API key is configured (for early detection)
 export function validateAPIKey(): boolean {
@@ -21,8 +57,7 @@ export function validateAPIKey(): boolean {
 export const findRestaurants = async (
   location: Coordinates,
   query: string,
-  filters: FilterState, // Changed from string[] to FilterState
-  signal?: AbortSignal
+  filters: string[]
 ): Promise<Restaurant[]> => {
   const API_KEY = process.env.API_KEY;
   if (!API_KEY) {
@@ -33,45 +68,11 @@ export const findRestaurants = async (
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-  // Build filter descriptions for the prompt
-  const filterDescriptions: string[] = [];
-
-  if (filters.attributes.length > 0) {
-    filterDescriptions.push(`Atmosphere: ${filters.attributes.join(', ')}`);
-  }
-
-  if (filters.priceRanges.length > 0) {
-    const priceLabels: Record<string, string> = {
-      'budget': '$',
-      'moderate': '$$',
-      'upscale': '$$$',
-      'fine-dining': '$$$$'
-    };
-    const priceStrings = filters.priceRanges.map(p => priceLabels[p] || p);
-    filterDescriptions.push(`Price Range: ${priceStrings.join(', ')}`);
-  }
-
-  if (filters.cuisineTypes.length > 0) {
-    filterDescriptions.push(`Cuisine Types: ${filters.cuisineTypes.join(', ')}`);
-  }
-
-  if (filters.distance) {
-    filterDescriptions.push(`Maximum Distance: Within ${filters.distance} miles`);
-  }
-
-  if (filters.dietaryRestrictions.length > 0) {
-    filterDescriptions.push(`Dietary Requirements: ${filters.dietaryRestrictions.join(', ')}`);
-  }
-
-  const filtersText = filterDescriptions.length > 0
-    ? filterDescriptions.join('; ')
-    : 'None';
-
   const prompt = `
-    You are an expert restaurant recommender. Your task is to find and rank restaurants based on the user's request, location, and filters, analyze their Google reviews, and provide a structured summary. Your ranking must be sophisticated, considering not just the rating but also the number of reviews to determine reliability.
+    You are an expert restaurant recommender. Your task is to find and rank restaurants based on the user's request and location, analyze their Google reviews, and provide a structured summary. Your ranking must be sophisticated, considering not just the rating but also the number of reviews to determine reliability.
 
     User Request: "Find me the best ${query}."
-    Filters: ${filtersText}.
+    Filters: ${filters.length > 0 ? filters.join(', ') : 'None'}.
 
     Based on this, perform the following actions:
     1. Find relevant restaurants on Google Maps that match the request.
@@ -93,29 +94,39 @@ export const findRestaurants = async (
     IMPORTANT: Do not include any text, explanations, or markdown formatting like \`\`\`json before or after the JSON array. The entire response must be only the JSON data. Each pro and con MUST be a direct quote from a review.
   `;
 
-  // Check if request was cancelled before starting
-  if (signal?.aborted) {
-    throw new Error('Request was cancelled');
-  }
+  // Wrap API call in retry logic to handle temporary rate limits
+  const makeAPICall = async () => {
+    try {
+      return await ai.models.generateContent({
+        model,
+        contents: prompt,
+        config: {
+          tools: [{ googleMaps: {} }],
+          toolConfig: {
+            retrievalConfig: {
+              latLng: location
+            }
+          }
+        },
+      });
+    } catch (error: any) {
+      // Detect and throw specific error types for retry logic
+      const errorMessage = error?.message || String(error);
+      const errorString = JSON.stringify(error);
+
+      if (error?.status === 429 || error?.code === 429 ||
+          errorMessage.includes('429') || errorMessage.includes('quota') ||
+          errorMessage.includes('rate limit') || errorString.includes('RESOURCE_EXHAUSTED')) {
+        throw new QuotaExceededError('API rate limit exceeded.');
+      }
+
+      throw error;
+    }
+  };
 
   try {
-    const response = await ai.models.generateContent({
-      model,
-      contents: prompt,
-      config: {
-        tools: [{ googleMaps: {} }],
-        toolConfig: {
-          retrievalConfig: {
-            latLng: location
-          }
-        }
-      },
-    });
-
-    // Check if request was cancelled after API call
-    if (signal?.aborted) {
-      throw new Error('Request was cancelled');
-    }
+    // Use retry logic - will auto-retry up to 3 times on quota errors
+    const response = await retryWithBackoff(makeAPICall);
 
     const cleanedText = cleanJsonString(response.text);
     let parsedRestaurants: Omit<Restaurant, 'mapsUrl' | 'title'>[] = [];
@@ -131,44 +142,31 @@ export const findRestaurants = async (
     }
 
     const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-    const mapsData = new Map<string, { uri: string, title: string, photo?: string }>();
+    const mapsData = new Map<string, { uri: string, title: string }>();
     groundingChunks.forEach(chunk => {
       if (chunk.maps) {
         // Normalize names for better matching
         const normalizedTitle = chunk.maps.title.toLowerCase().trim();
-        // Extract photo URL if available (Google Maps photo reference)
-        const photo = chunk.maps.photoUri || chunk.maps.photo || undefined;
-        mapsData.set(normalizedTitle, {
-          uri: chunk.maps.uri,
-          title: chunk.maps.title,
-          photo
-        });
+        mapsData.set(normalizedTitle, { uri: chunk.maps.uri, title: chunk.maps.title });
       }
     });
 
-    // Only include restaurants with real Google Maps data (no fallbacks per user requirement)
-    const enrichedRestaurants: Restaurant[] = parsedRestaurants
-      .filter(restaurant => {
-        const normalizedName = restaurant.name.toLowerCase().trim();
-        const mapInfo = mapsData.get(normalizedName);
+    const enrichedRestaurants: Restaurant[] = parsedRestaurants.map(restaurant => {
+      const normalizedName = restaurant.name.toLowerCase().trim();
+      const mapInfo = mapsData.get(normalizedName);
 
-        if (!mapInfo) {
-          console.warn(`Skipping "${restaurant.name}" - no Google Maps grounding data available`);
-          return false;
-        }
-        return true;
-      })
-      .map(restaurant => {
-        const normalizedName = restaurant.name.toLowerCase().trim();
-        const mapInfo = mapsData.get(normalizedName)!;
+      // Use fallback Maps URL if grounding metadata is missing
+      const fallbackUrl = generateFallbackMapsUrl(restaurant.name, location);
+      if (!mapInfo) {
+        console.warn(`Grounding metadata missing for "${restaurant.name}", using fallback URL`);
+      }
 
-        return {
-          ...restaurant,
-          mapsUrl: mapInfo.uri,
-          title: mapInfo.title,
-          photo: mapInfo.photo, // Add photo URL from grounding data
-        };
-      });
+      return {
+        ...restaurant,
+        mapsUrl: mapInfo?.uri || fallbackUrl,
+        title: mapInfo?.title || restaurant.name,
+      };
+    });
 
     return enrichedRestaurants;
   } catch (error: any) {
