@@ -22,9 +22,33 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 };
 
 const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isTopPick = false }) => (
-  <Card className={`shadow hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 h-full flex flex-col ${isTopPick ? 'border-2 border-primary' : ''}`}>
+  <Card className={`shadow hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 h-full flex flex-col overflow-hidden ${isTopPick ? 'border-2 border-primary' : ''}`}>
+    {/* Restaurant Image */}
+    {restaurant.photo && (
+      <div className="relative w-full h-48 overflow-hidden bg-muted">
+        <img
+          src={restaurant.photo}
+          alt={restaurant.title}
+          loading="lazy"
+          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          onError={(e) => {
+            // Hide image if it fails to load
+            e.currentTarget.style.display = 'none';
+            if (e.currentTarget.parentElement) {
+              e.currentTarget.parentElement.style.display = 'none';
+            }
+          }}
+        />
+        {isTopPick && (
+          <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground shadow-md">
+            🏆 Top Pick
+          </Badge>
+        )}
+      </div>
+    )}
+
     <CardHeader className="pb-3">
-      {isTopPick && (
+      {isTopPick && !restaurant.photo && (
         <Badge className="mb-2 w-fit bg-primary text-primary-foreground">🏆 Top Pick</Badge>
       )}
       <h3 className="font-display text-xl font-semibold text-foreground leading-tight line-clamp-2">
@@ -52,6 +76,19 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
           ))}
         </ul>
       </div>
+
+      {restaurant.cons && restaurant.cons.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">💭 Considerations</p>
+          <ul className="space-y-1">
+            {restaurant.cons.slice(0, 1).map((con, i) => (
+              <li key={i} className="text-xs text-muted-foreground line-clamp-2 italic">
+                "{con}"
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </CardContent>
 
     <CardFooter className="pt-3">

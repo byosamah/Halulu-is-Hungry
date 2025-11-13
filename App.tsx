@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import type { Restaurant, Coordinates } from './types';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import type { Restaurant, Coordinates, FilterState } from './types';
 import { QuotaExceededError, APIKeyError, NetworkError, InvalidResponseError } from './types';
 import { findRestaurants, validateAPIKey } from './services/geminiService';
 import LuxuryHeader from './components/luxury-header';
@@ -15,7 +15,15 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  // Initialize FilterState with empty arrays/null for all filter categories
+  const [filters, setFilters] = useState<FilterState>({
+    attributes: [],
+    priceRanges: [],
+    cuisineTypes: [],
+    distance: null,
+    dietaryRestrictions: []
+  });
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const getLocation = useCallback(() => {
     setIsLoading(true);
@@ -58,12 +66,21 @@ const App: React.FC = () => {
       return;
     }
 
+    // Cancel any in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller for this request
+    abortControllerRef.current = new AbortController();
+
     setIsLoading(true);
     setError(null);
     setRestaurants([]);
 
     try {
-      const results = await findRestaurants(location, searchQuery, activeFilters);
+      // Pass the FilterState to findRestaurants
+      const results = await findRestaurants(location, searchQuery, filters, abortControllerRef.current.signal);
 
       if (results.length === 0) {
         setError(`No restaurants found for "${searchQuery}". Try refining your search or exploring a different cuisine.`);
@@ -72,6 +89,11 @@ const App: React.FC = () => {
         setRestaurants(results);
       }
     } catch (e) {
+      // Ignore abort errors (user cancelled the request)
+      if (e instanceof Error && e.name === 'AbortError') {
+        return;
+      }
+
       if (e instanceof QuotaExceededError) {
         setError('API rate limit reached. Please wait a few minutes before searching again.');
       } else if (e instanceof APIKeyError) {
@@ -88,7 +110,7 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [location, searchQuery, activeFilters]);
+  }, [location, searchQuery, filters]);
 
   const renderContent = () => {
     if (isLoading && !location) {
@@ -148,8 +170,8 @@ const App: React.FC = () => {
           <PremiumSearch
             query={searchQuery}
             setQuery={setSearchQuery}
-            activeFilters={activeFilters}
-            setActiveFilters={setActiveFilters}
+            filters={filters}
+            setFilters={setFilters}
             onSearch={handleSearch}
             onRefreshLocation={getLocation}
             disabled={isLoading}
