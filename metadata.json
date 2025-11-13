@@ -1,0 +1,7 @@
+{
+  "name": "Halulu is Hungry AI",
+  "description": "An AI-powered app to find the best local restaurants. It analyzes Google reviews to provide AI-calculated ratings and summaries of pros and cons.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
