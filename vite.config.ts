@@ -10,6 +10,14 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
       },
       plugins: [react()],
+      // ⚠️ SECURITY WARNING:
+      // This configuration exposes the API key in the client-side JavaScript bundle
+      // The key will be visible to anyone who inspects the deployed website
+      //
+      // For production, consider:
+      // 1. Using a backend proxy to hide the API key
+      // 2. Adding HTTP referrer restrictions to the API key
+      // 3. Using environment-specific keys (dev vs. production)
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)

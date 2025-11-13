@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Restaurant, Coordinates } from './types';
-import { findRestaurants } from './services/geminiService';
-import Header from './components/Header';
-import SearchBar from './components/SearchBar';
-import RestaurantCard from './components/RestaurantCard';
-import LoadingSpinner from './components/LoadingSpinner';
-import ErrorDisplay from './components/ErrorDisplay';
-import { LocationIcon } from './components/icons';
+import { QuotaExceededError, APIKeyError, NetworkError, InvalidResponseError } from './types';
+import { findRestaurants, validateAPIKey } from './services/geminiService';
+import LuxuryHeader from './components/luxury-header';
+import PremiumSearch from './components/premium-search';
+import RestaurantGridCard from './components/restaurant-grid-card';
+import LuxuryLoading from './components/luxury-loading';
+import LuxuryError from './components/luxury-error';
+import { MapPin } from 'lucide-react';
 
 const App: React.FC = () => {
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
@@ -30,8 +30,8 @@ const App: React.FC = () => {
         setIsLoading(false);
       },
       (error) => {
-        setError(`Error getting location: ${error.message}. Please enable location services and refresh.`);
-        setLocation(null); // Clear old location on error
+        setError(`Location access required: ${error.message}. Please enable location services.`);
+        setLocation(null);
         setIsLoading(false);
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -42,13 +42,19 @@ const App: React.FC = () => {
     getLocation();
   }, [getLocation]);
 
+  useEffect(() => {
+    if (!validateAPIKey()) {
+      setError('API key not configured. Please add GEMINI_API_KEY to your .env.local file.');
+    }
+  }, []);
+
   const handleSearch = useCallback(async () => {
     if (!location) {
-      setError("Cannot search without your location. Please enable location services.");
+      setError("Location required. Please enable location services to discover restaurants.");
       return;
     }
     if (!searchQuery.trim()) {
-      setError("Please enter a search query, like 'sushi' or 'brunch spots'.");
+      setError("Please enter a search query to begin your culinary discovery.");
       return;
     }
 
@@ -58,65 +64,98 @@ const App: React.FC = () => {
 
     try {
       const results = await findRestaurants(location, searchQuery, activeFilters);
-      setRestaurants(results);
+
+      if (results.length === 0) {
+        setError(`No restaurants found for "${searchQuery}". Try refining your search or exploring a different cuisine.`);
+        setRestaurants([]);
+      } else {
+        setRestaurants(results);
+      }
     } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-      setError(`Failed to fetch restaurant data: ${errorMessage}`);
-      console.error(e);
+      if (e instanceof QuotaExceededError) {
+        setError('API rate limit reached. Please wait a few minutes before searching again.');
+      } else if (e instanceof APIKeyError) {
+        setError('API key error. Please verify your GEMINI_API_KEY configuration.');
+      } else if (e instanceof NetworkError) {
+        setError('Network connection issue. Please check your internet and try again.');
+      } else if (e instanceof InvalidResponseError) {
+        setError('Unexpected response from AI. Please try rephrasing your query.');
+      } else {
+        const errorMessage = e instanceof Error ? e.message : 'An unexpected error occurred.';
+        setError(`Search failed: ${errorMessage}`);
+      }
+      setRestaurants([]);
     } finally {
       setIsLoading(false);
     }
   }, [location, searchQuery, activeFilters]);
 
   const renderContent = () => {
-    if (isLoading) {
-      return <LoadingSpinner />;
-    }
-    if (error) {
-      return <div className="mt-8"><ErrorDisplay message={error} /></div>;
-    }
-    if (restaurants.length > 0) {
+    if (isLoading && !location) {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mt-8">
-          {restaurants.map((restaurant, index) => (
-            <RestaurantCard key={`${restaurant.name}-${index}`} restaurant={restaurant} />
-          ))}
+        <div className="flex flex-col items-center justify-center py-16 animate-fade-in">
+          <MapPin className="h-12 w-12 text-primary mb-4" />
+          <h3 className="font-display text-xl text-foreground">Acquiring your location...</h3>
+          <p className="text-muted-foreground mt-2">Please allow location access</p>
         </div>
       );
     }
-    if(!location && !isLoading){
-        return null;
+
+    if (error) {
+      return <LuxuryError message={error} />;
     }
+
+    if (isLoading) {
+      return <LuxuryLoading />;
+    }
+
+    if (restaurants.length > 0) {
+      return (
+        <div className="space-y-8 animate-slide-up">
+          {/* All Cards in Uniform Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {restaurants.map((restaurant, index) => (
+              <RestaurantGridCard
+                key={`${restaurant.name}-${index}`}
+                restaurant={restaurant}
+                isTopPick={index === 0}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div className="text-center py-16 px-6 bg-gray-50 rounded-lg mt-8">
-        <h2 className="text-xl font-semibold text-gray-800">Welcome to Halulu is Hungry AI</h2>
-        <p className="text-gray-500 mt-2 max-w-md mx-auto">
-          Tell us what you're craving, add some filters, and let our AI discover the perfect dining spot for you based on real customer reviews.
+      <div className="text-center py-20 animate-fade-in">
+        <h2 className="font-display text-3xl font-semibold text-foreground mb-4">
+          Welcome to Halulu is Hungry
+        </h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          Discover exceptional dining experiences curated by AI. Enter your culinary preferences,
+          and let us analyze thousands of reviews to recommend the perfect restaurant for you.
         </p>
       </div>
     );
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <SearchBar
-          query={searchQuery}
-          setQuery={setSearchQuery}
-          activeFilters={activeFilters}
-          setActiveFilters={setActiveFilters}
-          onSearch={handleSearch}
-          onRefreshLocation={getLocation}
-          disabled={isLoading}
-        />
-        { !location && !isLoading && !error && (
-            <div className="mt-8 flex flex-col items-center justify-center p-8 bg-white rounded-lg shadow-sm border border-gray-200">
-                <LocationIcon className="w-12 h-12 text-rose-500 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-700">Waiting for your location...</h3>
-                <p className="text-gray-500 mt-1">Please allow location access to find restaurants near you.</p>
-            </div>
-        )}
+    <div className="min-h-screen bg-background">
+      <LuxuryHeader />
+
+      <main className="max-w-[1400px] mx-auto px-6 py-12">
+        <div className="max-w-4xl mx-auto mb-12">
+          <PremiumSearch
+            query={searchQuery}
+            setQuery={setSearchQuery}
+            activeFilters={activeFilters}
+            setActiveFilters={setActiveFilters}
+            onSearch={handleSearch}
+            onRefreshLocation={getLocation}
+            disabled={isLoading}
+          />
+        </div>
+
         {renderContent()}
       </main>
     </div>

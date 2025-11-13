@@ -1,12 +1,56 @@
 import { GoogleGenAI } from "@google/genai";
 import type { Restaurant, Coordinates } from '../types';
+import { QuotaExceededError, APIKeyError, NetworkError, InvalidResponseError } from '../types';
 
-const model = "gemini-2.5-flash";
+const model = "gemini-2.0-flash-exp";
 
 function cleanJsonString(str: string): string {
     // Attempts to remove markdown formatting and extraneous text around a JSON object/array
     const match = str.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
     return match ? match[0] : str;
+}
+
+// Retry helper with exponential backoff
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  initialDelay: number = 2000
+): Promise<T> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error as Error;
+
+      // Don't retry non-quota errors
+      if (!(error instanceof QuotaExceededError)) {
+        throw error;
+      }
+
+      // Don't wait after last attempt
+      if (attempt < maxRetries - 1) {
+        const delay = initialDelay * Math.pow(2, attempt); // Exponential: 2s, 4s, 8s
+        console.log(`Quota exceeded. Retrying in ${delay / 1000}s... (Attempt ${attempt + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  throw lastError || new Error('Max retries exceeded');
+}
+
+// Generate fallback Google Maps URL when grounding metadata is missing
+function generateFallbackMapsUrl(restaurantName: string, location: Coordinates): string {
+  const query = encodeURIComponent(restaurantName);
+  const coords = `${location.latitude},${location.longitude}`;
+  return `https://www.google.com/maps/search/?api=1&query=${query}&query_place_id=${coords}`;
+}
+
+// Validate API key is configured (for early detection)
+export function validateAPIKey(): boolean {
+  return !!process.env.API_KEY;
 }
 
 
@@ -19,7 +63,7 @@ export const findRestaurants = async (
   if (!API_KEY) {
     // This provides a more user-friendly error in the console.
     console.error("API_KEY environment variable not set. Please ensure your project is configured correctly.");
-    throw new Error("API key is not configured. Please contact support.");
+    throw new APIKeyError("API key is not configured. Please add GEMINI_API_KEY to your .env.local file.");
   }
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
@@ -50,19 +94,39 @@ export const findRestaurants = async (
     IMPORTANT: Do not include any text, explanations, or markdown formatting like \`\`\`json before or after the JSON array. The entire response must be only the JSON data. Each pro and con MUST be a direct quote from a review.
   `;
 
-  try {
-    const response = await ai.models.generateContent({
-      model,
-      contents: prompt,
-      config: {
-        tools: [{ googleMaps: {} }],
-        toolConfig: {
-          retrievalConfig: {
-            latLng: location
+  // Wrap API call in retry logic to handle temporary rate limits
+  const makeAPICall = async () => {
+    try {
+      return await ai.models.generateContent({
+        model,
+        contents: prompt,
+        config: {
+          tools: [{ googleMaps: {} }],
+          toolConfig: {
+            retrievalConfig: {
+              latLng: location
+            }
           }
-        }
-      },
-    });
+        },
+      });
+    } catch (error: any) {
+      // Detect and throw specific error types for retry logic
+      const errorMessage = error?.message || String(error);
+      const errorString = JSON.stringify(error);
+
+      if (error?.status === 429 || error?.code === 429 ||
+          errorMessage.includes('429') || errorMessage.includes('quota') ||
+          errorMessage.includes('rate limit') || errorString.includes('RESOURCE_EXHAUSTED')) {
+        throw new QuotaExceededError('API rate limit exceeded.');
+      }
+
+      throw error;
+    }
+  };
+
+  try {
+    // Use retry logic - will auto-retry up to 3 times on quota errors
+    const response = await retryWithBackoff(makeAPICall);
 
     const cleanedText = cleanJsonString(response.text);
     let parsedRestaurants: Omit<Restaurant, 'mapsUrl' | 'title'>[] = [];
@@ -70,11 +134,11 @@ export const findRestaurants = async (
         parsedRestaurants = JSON.parse(cleanedText);
     } catch(e) {
         console.error("Failed to parse JSON response:", cleanedText);
-        throw new Error("AI returned an invalid data format. Please try your search again.");
+        throw new InvalidResponseError("AI returned an invalid data format. Please try your search again.");
     }
-    
+
     if(!Array.isArray(parsedRestaurants)) {
-        throw new Error("AI response was not an array. Please try again.");
+        throw new InvalidResponseError("AI response was not an array. Please try again.");
     }
 
     const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
@@ -90,17 +154,54 @@ export const findRestaurants = async (
     const enrichedRestaurants: Restaurant[] = parsedRestaurants.map(restaurant => {
       const normalizedName = restaurant.name.toLowerCase().trim();
       const mapInfo = mapsData.get(normalizedName);
-      
+
+      // Use fallback Maps URL if grounding metadata is missing
+      const fallbackUrl = generateFallbackMapsUrl(restaurant.name, location);
+      if (!mapInfo) {
+        console.warn(`Grounding metadata missing for "${restaurant.name}", using fallback URL`);
+      }
+
       return {
         ...restaurant,
-        mapsUrl: mapInfo?.uri || '#',
+        mapsUrl: mapInfo?.uri || fallbackUrl,
         title: mapInfo?.title || restaurant.name,
       };
     });
 
     return enrichedRestaurants;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error calling Gemini API:", error);
-    throw new Error("Could not retrieve data from the AI service.");
+
+    // Detect specific error types
+    const errorMessage = error?.message || String(error);
+    const errorString = JSON.stringify(error);
+
+    // Check for 429 quota errors
+    if (error?.status === 429 || error?.code === 429 ||
+        errorMessage.includes('429') || errorMessage.includes('quota') ||
+        errorMessage.includes('rate limit') || errorString.includes('RESOURCE_EXHAUSTED')) {
+      throw new QuotaExceededError('API rate limit exceeded. Please wait a few minutes and try again.');
+    }
+
+    // Check for API key errors
+    if (error?.status === 401 || error?.status === 403 ||
+        errorMessage.includes('API key') || errorMessage.includes('unauthorized')) {
+      throw new APIKeyError('Invalid API key. Please check your configuration.');
+    }
+
+    // Check for network errors
+    if (errorMessage.includes('network') || errorMessage.includes('fetch') ||
+        error?.name === 'NetworkError' || !navigator.onLine) {
+      throw new NetworkError('Network error. Please check your internet connection.');
+    }
+
+    // If we already threw a specific error type, re-throw it
+    if (error instanceof QuotaExceededError || error instanceof APIKeyError ||
+        error instanceof NetworkError || error instanceof InvalidResponseError) {
+      throw error;
+    }
+
+    // Default fallback for unknown errors
+    throw new Error(`Could not retrieve restaurant data: ${errorMessage}`);
   }
 };
