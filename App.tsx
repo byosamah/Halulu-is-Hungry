@@ -7,9 +7,15 @@ import PremiumSearch from './components/premium-search';
 import RestaurantGridCard from './components/restaurant-grid-card';
 import LuxuryLoading from './components/luxury-loading';
 import LuxuryError from './components/luxury-error';
+import PasswordWall from './components/PasswordWall';
 import { MapPin } from 'lucide-react';
 
 const App: React.FC = () => {
+  // 🔒 PASSWORD PROTECTION STATE
+  // When true, the PasswordWall component is shown
+  // When false, the normal app content is displayed
+  const [isLocked, setIsLocked] = useState<boolean>(true);
+
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -139,6 +145,15 @@ const App: React.FC = () => {
     );
   };
 
+  // 🔒 CONDITIONAL RENDERING LOGIC
+  // If the app is locked, show the PasswordWall component
+  // Once the correct PIN is entered, setIsLocked(false) will be called
+  // and the normal app will be displayed
+  if (isLocked) {
+    return <PasswordWall onUnlock={() => setIsLocked(false)} />;
+  }
+
+  // ✅ Normal app content (shown after correct PIN is entered)
   return (
     <div className="min-h-screen bg-background">
       <LuxuryHeader />
