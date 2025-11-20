@@ -81,45 +81,50 @@ const PremiumSearch: React.FC<PremiumSearchProps> = ({
             />
           </motion.div>
 
-          {/* 🎯 Action Buttons - Beside search */}
-          <div className="flex gap-3">
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              onClick={onSearch}
-              disabled={disabled}
-              variant="outline"
-              size="lg"
-              className="flex-shrink-0 h-14 px-6 rounded-2xl border-2 border-primary/40 bg-gradient-to-r from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10 text-foreground font-semibold transition-all shadow-md hover:shadow-lg"
-            >
-              <Search className="h-5 w-5 mr-2 text-primary" />
-              Let's Eat! 🔍
-            </Button>
-          </motion.div>
+          {/* 🎯 Action Buttons - Intentional mobile-first layout */}
+          <div className="flex flex-col gap-3 w-full md:w-auto">
+            {/* Primary CTA - Full width on mobile, prominent */}
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
+              <Button
+                onClick={onSearch}
+                disabled={disabled}
+                variant="outline"
+                size="lg"
+                className="w-full h-14 px-6 rounded-2xl border-2 border-primary/40 bg-gradient-to-r from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10 text-foreground font-semibold transition-all shadow-md hover:shadow-lg"
+              >
+                <Search className="h-5 w-5 mr-2 text-primary" />
+                Let's Eat! 🔍
+              </Button>
+            </motion.div>
 
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              onClick={handleInspireMe}
-              disabled={disabled}
-              variant="outline"
-              size="lg"
-              className="flex-shrink-0 h-14 px-6 rounded-2xl border-2 border-accent/40 bg-gradient-to-r from-accent/10 to-accent/5 hover:from-accent/20 hover:to-accent/10 text-foreground font-semibold transition-all shadow-md hover:shadow-lg"
-            >
-              <Sparkles className="h-5 w-5 mr-2 text-accent" />
-              Inspire Me! ✨
-            </Button>
-          </motion.div>
+            {/* Secondary Actions - Side by side */}
+            <div className="grid grid-cols-2 gap-3">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  onClick={handleInspireMe}
+                  disabled={disabled}
+                  variant="outline"
+                  size="lg"
+                  className="w-full h-14 px-4 rounded-2xl border-2 border-accent/40 bg-gradient-to-r from-accent/10 to-accent/5 hover:from-accent/20 hover:to-accent/10 text-foreground font-semibold transition-all shadow-md hover:shadow-lg text-sm"
+                >
+                  <Sparkles className="h-5 w-5 mr-1 text-accent" />
+                  Inspire Me! ✨
+                </Button>
+              </motion.div>
 
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              onClick={onRefreshLocation}
-              disabled={disabled}
-              variant="outline"
-              size="icon"
-              className="flex-shrink-0 h-14 w-14 rounded-2xl border-2 border-secondary/40 bg-gradient-to-br from-secondary/20 to-secondary/10 hover:from-secondary/30 hover:to-secondary/20 transition-all shadow-md hover:shadow-lg"
-            >
-              <MapPin className="h-5 w-5 text-secondary-foreground" />
-            </Button>
-          </motion.div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  onClick={onRefreshLocation}
+                  disabled={disabled}
+                  variant="outline"
+                  size="lg"
+                  className="w-full h-14 px-4 rounded-2xl border-2 border-secondary/40 bg-gradient-to-br from-secondary/20 to-secondary/10 hover:from-secondary/30 hover:to-secondary/20 transition-all shadow-md hover:shadow-lg text-sm"
+                >
+                  <MapPin className="h-5 w-5 mr-1 text-secondary-foreground" />
+                  Refresh 📍
+                </Button>
+              </motion.div>
+            </div>
           </div>
         </div>
       </div>
