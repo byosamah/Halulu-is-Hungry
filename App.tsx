@@ -117,15 +117,35 @@ const App: React.FC = () => {
 
     if (restaurants.length > 0) {
       return (
-        <div className="space-y-8 animate-slide-up">
-          {/* All Cards in Uniform Grid */}
+        <div className="space-y-8">
+          {/* Fun results count */}
+          <div className="text-center animate-fade-in">
+            <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 rounded-3xl p-4 inline-block border-2 border-primary/20">
+              <p className="text-lg text-foreground font-body font-bold flex items-center gap-2">
+                <span className="text-2xl">🎉</span>
+                Found {restaurants.length} amazing {restaurants.length === 1 ? 'spot' : 'spots'} for you!
+                <span className="text-2xl">✨</span>
+              </p>
+            </div>
+          </div>
+
+          {/* All Cards in Uniform Grid with staggered animation */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {restaurants.map((restaurant, index) => (
-              <RestaurantGridCard
+              <div
                 key={`${restaurant.name}-${index}`}
-                restaurant={restaurant}
-                isTopPick={index === 0}
-              />
+                className="animate-slide-up"
+                style={{
+                  animationDelay: `${index * 0.1}s`,
+                  opacity: 0,
+                  animationFillMode: 'forwards'
+                }}
+              >
+                <RestaurantGridCard
+                  restaurant={restaurant}
+                  isTopPick={index === 0}
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -133,14 +153,40 @@ const App: React.FC = () => {
     }
 
     return (
-      <div className="text-center py-20 animate-fade-in">
-        <h2 className="font-display text-3xl font-semibold text-foreground mb-4">
-          Welcome to Halulu is Hungry
-        </h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Discover exceptional dining experiences curated by AI. Enter your culinary preferences,
-          and let us analyze thousands of reviews to recommend the perfect restaurant for you.
-        </p>
+      <div className="text-center py-24 animate-fade-in max-w-3xl mx-auto space-y-8">
+        {/* Fun welcome with emoji */}
+        <div className="space-y-6">
+          <div className="text-7xl animate-bounce-in mb-6">
+            🍽️
+          </div>
+          <h2 className="font-display text-5xl md:text-6xl font-bold text-foreground leading-tight">
+            Let's Find Your Next
+            <span className="text-primary block mt-2">
+              Food Adventure!
+            </span>
+            <span className="text-5xl md:text-6xl inline-block animate-wiggle ml-2">🎉</span>
+          </h2>
+          <p className="text-foreground/80 text-xl font-body leading-relaxed max-w-2xl mx-auto font-medium">
+            Tell Halulu what your tummy is craving, and I'll dig through <span className="text-primary font-bold">thousands of reviews</span> to find the <span className="text-secondary font-bold">perfect spot</span> just for you!
+            <span className="inline-block ml-1">🔍✨</span>
+          </p>
+        </div>
+
+        {/* Fun decorative food emojis */}
+        <div className="flex items-center justify-center gap-6 py-8">
+          <span className="text-4xl animate-float">🍕</span>
+          <span className="text-4xl animate-float" style={{ animationDelay: '0.5s' }}>🍜</span>
+          <span className="text-4xl animate-float" style={{ animationDelay: '1s' }}>🍔</span>
+          <span className="text-4xl animate-float" style={{ animationDelay: '1.5s' }}>🌮</span>
+          <span className="text-4xl animate-float" style={{ animationDelay: '2s' }}>🍣</span>
+        </div>
+
+        {/* Fun call to action */}
+        <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 rounded-3xl p-6 border-2 border-primary/20">
+          <p className="text-base text-foreground font-body font-semibold">
+            👆 Start by typing what you're craving above! <span className="inline-block">😋</span>
+          </p>
+        </div>
       </div>
     );
   };

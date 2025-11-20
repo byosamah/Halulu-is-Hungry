@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 /**
  * PasswordWall Component
@@ -99,18 +100,19 @@ export default function PasswordWall({ onUnlock, correctPin = "2014" }: Password
     const dots = [];
 
     for (let i = 0; i < 4; i++) {
-      // If a digit has been entered for this position, show filled dot
-      // Otherwise show empty circle
       const isFilled = i < enteredDigits.length;
 
       dots.push(
-        <div
+        <motion.div
           key={i}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: i * 0.1 }}
           className={`
-            w-4 h-4 rounded-full border-2 transition-all duration-200
+            w-5 h-5 rounded-full border-2 transition-all duration-300
             ${isFilled
-              ? 'bg-pink-500 border-pink-500 scale-110' // Filled dot (pink)
-              : 'bg-white border-gray-300'               // Empty circle
+              ? 'bg-gradient-to-br from-orange-500 to-orange-600 border-orange-600 scale-125 shadow-lg' // Filled dot (orange!)
+              : 'bg-white border-gray-300 shadow-sm'  // Empty circle
             }
           `}
         />
@@ -121,56 +123,109 @@ export default function PasswordWall({ onUnlock, correctPin = "2014" }: Password
   };
 
   /**
-   * Renders a single number button for the keypad
+   * Renders a single number button for the keypad - Colorful!
    */
   const renderNumberButton = (digit: string) => (
-    <button
+    <motion.button
       key={digit}
       onClick={() => handleNumberClick(digit)}
-      disabled={enteredDigits.length >= 4} // Disable when 4 digits entered
+      disabled={enteredDigits.length >= 4}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.95 }}
       className="
-        w-20 h-20 rounded-2xl bg-white text-gray-900 text-2xl font-semibold
-        shadow-md hover:shadow-lg hover:scale-105 active:scale-95
+        w-20 h-20 rounded-2xl bg-gradient-to-br from-white to-primary/10 text-foreground text-2xl font-bold font-display
+        shadow-lg hover:shadow-xl border-2 border-primary/20 hover:border-primary/40
         transition-all duration-200
         disabled:opacity-50 disabled:cursor-not-allowed
       "
     >
       {digit}
-    </button>
+    </motion.button>
   );
 
   // MAIN COMPONENT RENDER
   // =====================
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        {/* HEADER SECTION */}
-        <div className="text-center mb-12">
-          <div className="text-6xl mb-4">🔒</div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Enter PIN
-          </h1>
-          <p className="text-gray-600">
-            Enter the 4-digit code to continue
-          </p>
-        </div>
+    <div className="fixed inset-0 z-50 bg-gradient-to-br from-orange-50 via-yellow-50 to-green-50 flex items-center justify-center p-4">
+      {/* Fun floating food emojis in background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute top-20 left-20 text-6xl opacity-20"
+          animate={{ y: [0, -20, 0], rotate: [0, 10, -10, 0] }}
+          transition={{ duration: 5, repeat: Infinity }}
+        >
+          🍕
+        </motion.div>
+        <motion.div
+          className="absolute top-40 right-32 text-5xl opacity-20"
+          animate={{ y: [0, -15, 0], rotate: [0, -10, 10, 0] }}
+          transition={{ duration: 4, repeat: Infinity, delay: 1 }}
+        >
+          🍜
+        </motion.div>
+        <motion.div
+          className="absolute bottom-32 left-40 text-6xl opacity-20"
+          animate={{ y: [0, -25, 0], rotate: [0, 10, -10, 0] }}
+          transition={{ duration: 6, repeat: Infinity, delay: 2 }}
+        >
+          🍔
+        </motion.div>
+        <motion.div
+          className="absolute bottom-40 right-20 text-5xl opacity-20"
+          animate={{ y: [0, -20, 0], rotate: [0, -10, 10, 0] }}
+          transition={{ duration: 5.5, repeat: Infinity, delay: 0.5 }}
+        >
+          🌮
+        </motion.div>
+      </div>
 
-        {/* PIN DISPLAY AREA */}
-        <div
+      <div className="max-w-md w-full relative z-10">
+        {/* HEADER SECTION - Playful! */}
+        <motion.div
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <motion.div
+            className="text-7xl mb-6"
+            animate={{ rotate: [0, -10, 10, -10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+          >
+            🔐
+          </motion.div>
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 font-display">
+            <span className="text-primary">Halulu</span> is Locked! 😋
+          </h1>
+          <p className="text-lg text-foreground/70 font-body">
+            Enter the secret 4-digit code to start your food adventure! 🍴
+          </p>
+        </motion.div>
+
+        {/* PIN DISPLAY AREA - Colorful! */}
+        <motion.div
           className={`
-            bg-white rounded-3xl p-8 mb-8 shadow-lg
-            ${isShaking ? 'animate-shake' : ''}         // Shake on wrong PIN
-            ${isSuccess ? 'animate-success' : ''}       // Success animation
+            bg-gradient-to-br from-white via-white to-primary/5 rounded-3xl p-8 mb-8 shadow-xl border-2 border-primary/20
+            ${isShaking ? 'animate-shake' : ''}
+            ${isSuccess ? 'animate-success' : ''}
           `}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="flex justify-center gap-6">
             {renderPinDisplay()}
           </div>
-        </div>
+        </motion.div>
 
-        {/* NUMERIC KEYPAD */}
-        <div className="bg-white rounded-3xl p-6 shadow-lg">
+        {/* NUMERIC KEYPAD - Colorful! */}
+        <motion.div
+          className="bg-gradient-to-br from-white via-white to-accent/5 rounded-3xl p-6 shadow-xl border-2 border-accent/20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
           {/* Number grid: 1-9 */}
           <div className="grid grid-cols-3 gap-4 mb-4">
             {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(renderNumberButton)}
@@ -178,19 +233,21 @@ export default function PasswordWall({ onUnlock, correctPin = "2014" }: Password
 
           {/* Bottom row: Delete, 0, Empty space */}
           <div className="grid grid-cols-3 gap-4">
-            {/* Delete button */}
-            <button
+            {/* Delete button - Fun! */}
+            <motion.button
               onClick={handleDelete}
               disabled={enteredDigits.length === 0}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
               className="
-                w-20 h-20 rounded-2xl bg-red-50 text-red-500 text-xl font-semibold
-                shadow-md hover:shadow-lg hover:scale-105 active:scale-95
+                w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-100 to-orange-200 text-orange-600 text-2xl font-bold
+                shadow-lg hover:shadow-xl border-2 border-orange-300 hover:border-orange-400
                 transition-all duration-200
                 disabled:opacity-50 disabled:cursor-not-allowed
               "
             >
               ⌫
-            </button>
+            </motion.button>
 
             {/* Zero button */}
             {renderNumberButton('0')}
@@ -198,7 +255,7 @@ export default function PasswordWall({ onUnlock, correctPin = "2014" }: Password
             {/* Empty space for visual balance */}
             <div />
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* CUSTOM ANIMATIONS - Added to the page via inline styles */}
@@ -214,11 +271,19 @@ export default function PasswordWall({ onUnlock, correctPin = "2014" }: Password
           animation: shake 0.5s;
         }
 
-        /* Success animation for correct PIN */
+        /* Success animation for correct PIN - Green! */
         @keyframes success {
           0% { transform: scale(1); }
-          50% { transform: scale(1.05); background-color: #bbf7d0; }
-          100% { transform: scale(1); background-color: #bbf7d0; }
+          50% {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #86efac 0%, #4ade80 100%);
+            border-color: #22c55e;
+          }
+          100% {
+            transform: scale(1);
+            background: linear-gradient(135deg, #86efac 0%, #4ade80 100%);
+            border-color: #22c55e;
+          }
         }
 
         .animate-success {

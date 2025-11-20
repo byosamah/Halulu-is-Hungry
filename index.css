@@ -2,26 +2,38 @@
 
 @layer base {
   :root {
-    --background: 40 20% 98%;
-    --foreground: 0 0% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    /* 🎨 PLAYFUL FOOD DISCOVERY COLOR SYSTEM 🍊🌿☀️ */
+    /* Vibrant, appetite-inducing palette that makes you smile! */
+
+    --background: 30 40% 98%;         /* 🥐 Soft cream - warm & inviting */
+    --foreground: 25 15% 20%;         /* 🍫 Rich dark brown - cozy */
+
+    --card: 0 0% 100%;                /* 📄 Pure white - cards pop! */
+    --card-foreground: 25 15% 20%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 43 74% 49%;
-    --primary-foreground: 43 10% 10%;
-    --secondary: 40 10% 93%;
-    --secondary-foreground: 0 0% 10%;
-    --muted: 40 10% 93%;
-    --muted-foreground: 0 0% 40%;
-    --accent: 43 74% 49%;
-    --accent-foreground: 43 10% 10%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89%;
-    --input: 0 0% 89%;
-    --ring: 43 74% 49%;
-    --radius: 0.75rem;
+    --popover-foreground: 25 15% 20%;
+
+    --primary: 16 90% 60%;            /* 🍊 Juicy coral orange - yummy! */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 158 45% 65%;         /* 🌿 Fresh mint green - healthy vibes */
+    --secondary-foreground: 25 15% 20%;
+
+    --muted: 30 30% 92%;              /* 🧈 Butter yellow tint - subtle */
+    --muted-foreground: 25 10% 50%;   /* 🥜 Warm gray - readable */
+
+    --accent: 48 100% 60%;            /* ☀️ Sunny yellow - happiness! */
+    --accent-foreground: 25 15% 20%;
+
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 20% 88%;             /* 🍯 Honey border - soft */
+    --input: 30 25% 90%;
+    --ring: 16 90% 60%;
+
+    --radius: 20px;                   /* 🎈 Extra rounded - playful! */
   }
 
   * {
@@ -31,5 +43,144 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    /* 🎈 Fun floating food pattern! */
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(255, 127, 80, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 85% 60%, rgba(255, 215, 0, 0.06) 0%, transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(72, 209, 204, 0.07) 0%, transparent 40%);
   }
+}
+
+/* 🎪 BOUNCY, PLAYFUL ANIMATIONS! */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 🎈 Bouncy entrance - like food appearing! */
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(40px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateY(-5px);
+  }
+  70% {
+    transform: scale(0.97) translateY(2px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 🌟 Floating animation - subtle hover */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ✨ Wiggle animation - playful! */
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(3deg);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+/* ✨ Staggered animation delays for cards */
+.animate-stagger-1 {
+  animation-delay: 0.1s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.animate-stagger-2 {
+  animation-delay: 0.2s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.animate-stagger-3 {
+  animation-delay: 0.3s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+/* 🎨 PLAYFUL FONT UTILITIES! */
+.font-display {
+  font-family: 'Outfit', 'Nunito', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.font-body {
+  font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+}
+
+.font-emoji {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 }
