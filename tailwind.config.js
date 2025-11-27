@@ -7,8 +7,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['"Playfair Display"', 'serif'],
-        body: ['Geist', 'system-ui', 'sans-serif'],
+        // Bubbly, rounded for headlines - Fredoka
+        display: ['Fredoka', 'system-ui', 'sans-serif'],
+        // Same Fredoka for body text - consistent playful feel
+        body: ['Fredoka', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -43,6 +45,19 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        // Brand colors - Use HEX directly for proper Tailwind class generation
+        // Keep in sync with CSS variables in index.css for arbitrary values
+        brand: {
+          dark: "#1a1a2e",
+          coral: "#FF6B6B",
+          teal: "#00CEC9",
+          yellow: "#FFD93D",
+          pink: "#FD79A8",
+          purple: "#A855F7",
+          green: "#00B894",
+          cream: "#FFF8F0",
+          muted: "#6B7280",
         },
       },
       borderRadius: {

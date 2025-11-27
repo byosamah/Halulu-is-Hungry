@@ -4,13 +4,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 const LuxuryLoading: React.FC = () => (
-  <div className="space-y-12 animate-fade-in">
+  <div className="space-y-6 sm:space-y-8 md:space-y-12 animate-fade-in">
     {/* 🎪 Fun Loading Animation */}
-    <div className="text-center py-16 space-y-8">
+    <div className="text-center py-8 sm:py-12 md:py-16 space-y-6 sm:space-y-8">
       {/* 🍔 Bouncing food emojis instead of boring spinner! */}
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-3 sm:gap-4">
         <motion.div
-          className="text-6xl"
+          className="text-4xl sm:text-5xl md:text-6xl"
           animate={{
             y: [0, -30, 0],
             rotate: [0, 10, -10, 0],
@@ -25,7 +25,7 @@ const LuxuryLoading: React.FC = () => (
           🍕
         </motion.div>
         <motion.div
-          className="text-6xl"
+          className="text-4xl sm:text-5xl md:text-6xl"
           animate={{
             y: [0, -30, 0],
             rotate: [0, -10, 10, 0],
@@ -40,7 +40,7 @@ const LuxuryLoading: React.FC = () => (
           🍜
         </motion.div>
         <motion.div
-          className="text-6xl"
+          className="text-4xl sm:text-5xl md:text-6xl"
           animate={{
             y: [0, -30, 0],
             rotate: [0, 10, -10, 0],
@@ -63,7 +63,7 @@ const LuxuryLoading: React.FC = () => (
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <p className="font-display text-3xl md:text-4xl text-foreground font-bold">
+        <p className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl text-foreground font-bold">
           Finding your perfect bite! 😋
         </p>
         <p className="text-lg text-muted-foreground font-body">

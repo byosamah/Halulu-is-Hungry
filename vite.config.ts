@@ -19,8 +19,8 @@ export default defineConfig(({ mode }) => {
       // 2. Adding HTTP referrer restrictions to the API key
       // 3. Using environment-specific keys (dev vs. production)
       define: {
+        // Only API_KEY is used in the codebase
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
       },
       resolve: {
         alias: {

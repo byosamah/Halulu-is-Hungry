@@ -1,8 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import type { Restaurant, Coordinates } from '../types';
 import { QuotaExceededError, APIKeyError, NetworkError, InvalidResponseError } from '../types';
-
-const model = "gemini-2.0-flash-exp";
+import { AI_MODEL_NAME } from '../constants';
 
 function cleanJsonString(str: string): string {
     // Attempts to remove markdown formatting and extraneous text around a JSON object/array
@@ -41,13 +40,6 @@ async function retryWithBackoff<T>(
   throw lastError || new Error('Max retries exceeded');
 }
 
-// Generate fallback Google Maps URL when grounding metadata is missing
-function generateFallbackMapsUrl(restaurantName: string, location: Coordinates): string {
-  const query = encodeURIComponent(restaurantName);
-  const coords = `${location.latitude},${location.longitude}`;
-  return `https://www.google.com/maps/search/?api=1&query=${query}&query_place_id=${coords}`;
-}
-
 // Validate API key is configured (for early detection)
 export function validateAPIKey(): boolean {
   return !!process.env.API_KEY;
@@ -82,6 +74,7 @@ export const findRestaurants = async (
     5. Extract three representative **direct quotes** for "pros" from the reviews. These should be actual snippets that capture common positive feedback.
     6. Extract three representative **direct quotes** for "cons" from the reviews. These should be actual snippets that capture common negative feedback.
     7. Extract the official Google Maps star rating and the total number of reviews.
+    8. **IMPORTANT: Return only UNIQUE restaurants. Do not include the same restaurant twice, even if it appears multiple times in search results. Each restaurant in your response must be distinct.**
 
     Return your findings as a VALID JSON array of objects, ordered by your calculated reliable ranking. Each object must have the following keys and data types:
     - "name": string (The full name of the restaurant)
@@ -98,7 +91,7 @@ export const findRestaurants = async (
   const makeAPICall = async () => {
     try {
       return await ai.models.generateContent({
-        model,
+        model: AI_MODEL_NAME,
         contents: prompt,
         config: {
           tools: [{ googleMaps: {} }],
@@ -155,20 +148,46 @@ export const findRestaurants = async (
       const normalizedName = restaurant.name.toLowerCase().trim();
       const mapInfo = mapsData.get(normalizedName);
 
-      // Use fallback Maps URL if grounding metadata is missing
-      const fallbackUrl = generateFallbackMapsUrl(restaurant.name, location);
-      if (!mapInfo) {
-        console.warn(`Grounding metadata missing for "${restaurant.name}", using fallback URL`);
+      // Require valid Maps data - no fallback URLs
+      if (!mapInfo?.uri) {
+        throw new InvalidResponseError(
+          `Maps data unavailable for "${restaurant.name}". Please try your search again.`
+        );
       }
 
       return {
         ...restaurant,
-        mapsUrl: mapInfo?.uri || fallbackUrl,
-        title: mapInfo?.title || restaurant.name,
+        mapsUrl: mapInfo.uri,
+        title: mapInfo.title || restaurant.name,
       };
     });
 
-    return enrichedRestaurants;
+    // ===================
+    // DEDUPLICATION
+    // ===================
+    // Gemini sometimes returns the same restaurant multiple times with different data.
+    // We deduplicate by Google Maps URL (unique identifier) and keep the entry
+    // with the highest review count (most reliable data).
+    const seenUrls = new Map<string, Restaurant>();
+
+    for (const restaurant of enrichedRestaurants) {
+      const existing = seenUrls.get(restaurant.mapsUrl);
+
+      if (!existing) {
+        // First time seeing this URL
+        seenUrls.set(restaurant.mapsUrl, restaurant);
+      } else if (restaurant.googleReviewsCount > existing.googleReviewsCount) {
+        // Keep the one with more reviews (more reliable data)
+        seenUrls.set(restaurant.mapsUrl, restaurant);
+      }
+    }
+
+    // Convert back to array, preserving original order by AI ranking
+    const dedupedRestaurants = enrichedRestaurants.filter(r =>
+      seenUrls.get(r.mapsUrl) === r
+    );
+
+    return dedupedRestaurants;
   } catch (error: any) {
     console.error("Error calling Gemini API:", error);
 

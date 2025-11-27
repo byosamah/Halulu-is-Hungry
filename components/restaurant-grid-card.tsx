@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Star } from 'lucide-react';
 import type { Restaurant } from '../types';
+import { DISPLAY_LIMITS, UI_STRINGS } from '../constants';
 
 interface RestaurantGridCardProps {
   restaurant: Restaurant;
@@ -60,18 +61,18 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
     initial={{ opacity: 0, y: 30 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.5, type: "spring" }}
-    whileHover={{ y: -8, scale: 1.02 }}
+    whileHover={{ y: -4 }}
     className="h-full relative"
   >
-    {/* Top Pick Badge - Small and outside the card */}
+    {/* Top Pick Badge - Neobrutalist style */}
     {isTopPick && (
       <motion.div
-        initial={{ scale: 0, rotate: -45 }}
+        initial={{ scale: 0, rotate: -10 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 200 }}
         className="absolute -top-3 left-4 z-10"
       >
-        <Badge className="bg-gradient-to-r from-orange-500 to-orange-600 text-white font-body font-bold px-3 py-1 text-xs tracking-wide shadow-lg rounded-xl border-2 border-orange-700">
+        <Badge className="bg-brand-coral text-white font-display font-bold px-4 py-1.5 text-sm border-2 border-brand-dark shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-xl">
           🏆 Top Pick
         </Badge>
       </motion.div>
@@ -79,61 +80,61 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
 
     <Card className={`
       group overflow-hidden h-full flex flex-col
-      bg-gradient-to-br from-white via-white to-primary/5
-      border-2 transition-all duration-300 ease-out
-      shadow-lg hover:shadow-2xl rounded-3xl
+      bg-white rounded-2xl transition-all duration-300 ease-out
+      border-4 border-brand-dark
       ${isTopPick
-        ? 'border-accent bg-gradient-to-br from-accent/5 via-white to-accent/10 shadow-accent/20'
-        : 'border-primary/20 hover:border-primary/40'
+        ? 'shadow-[6px_6px_0px_0px_var(--brand-coral)] hover:shadow-[8px_8px_0px_0px_var(--brand-coral)]'
+        : 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]'
       }
+      hover:-translate-x-0.5 hover:-translate-y-0.5
     `}>
-      <CardHeader className="pb-4 space-y-4 relative">
+      <CardHeader className="pb-3 space-y-3 relative">
 
-        {/* Restaurant Name - Fun and bold */}
-        <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+        {/* Restaurant Name */}
+        <h3 className="font-display text-xl sm:text-2xl font-bold text-brand-dark leading-tight line-clamp-2">
           {restaurant.title}
         </h3>
 
-        {/* AI Rating - Super prominent with fun design */}
-        <div className="flex items-center gap-3 bg-gradient-to-r from-accent/10 to-accent/5 rounded-2xl p-3 border-2 border-accent/20">
-          <span className="text-xs text-foreground/70 font-body font-bold uppercase tracking-wider">
+        {/* AI Rating - Neobrutalist box */}
+        <div className="flex items-center gap-3 bg-brand-yellow rounded-xl p-3 border-2 border-brand-dark">
+          <span className="text-xs text-brand-dark font-display font-bold uppercase tracking-wider">
             ⭐ AI Score
           </span>
-          <span className="font-display text-3xl font-bold text-foreground tabular-nums">
+          <span className="font-display text-2xl sm:text-3xl font-bold text-brand-dark tabular-nums">
             {restaurant.aiRating.toFixed(1)}
           </span>
         </div>
 
-        {/* Google Rating - Fun secondary info */}
+        {/* Google Rating */}
         {restaurant.googleRating && restaurant.googleReviewsCount && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground font-body bg-secondary/10 rounded-xl px-3 py-2 border border-secondary/20">
-            <span className="font-semibold">Google Maps Rating:</span>
-            <span className="font-bold text-foreground">{restaurant.googleRating.toFixed(1)}</span>
-            <span className="text-secondary-foreground">•</span>
+          <div className="flex flex-wrap items-center gap-2 text-sm text-brand-dark font-body bg-gray-100 rounded-xl px-3 py-2 border-2 border-brand-dark/20">
+            <span className="font-semibold">Google:</span>
+            <span className="font-bold">{restaurant.googleRating.toFixed(1)}</span>
+            <span>•</span>
             <span className="font-medium">{restaurant.googleReviewsCount.toLocaleString()} reviews 💬</span>
           </div>
         )}
       </CardHeader>
 
-      {/* Fun wavy divider */}
+      {/* Divider */}
       <div className="px-6">
-        <div className="h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent rounded-full" />
+        <div className="h-1 bg-brand-dark/10 rounded-full" />
       </div>
 
-      <CardContent className="flex-1 pt-5 pb-4 space-y-4">
-        {/* Highlights Section - More fun! */}
-        <div className="space-y-3 bg-primary/5 rounded-2xl p-4 border border-primary/20">
-          <h4 className="text-sm font-bold text-primary uppercase tracking-wider font-display flex items-center gap-2">
+      <CardContent className="flex-1 pt-4 pb-4 space-y-3">
+        {/* Highlights Section */}
+        <div className="space-y-2 bg-brand-teal/10 rounded-xl p-4 border-2 border-brand-teal/30">
+          <h4 className="text-sm font-bold text-brand-dark uppercase tracking-wider font-display flex items-center gap-2">
             <span className="text-lg">😍</span> People Love This!
           </h4>
           <ul className="space-y-2">
-            {restaurant.pros.slice(0, 2).map((pro, i) => (
+            {restaurant.pros.slice(0, DISPLAY_LIMITS.PROS_COUNT).map((pro, i) => (
               <motion.li
                 key={i}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="text-sm text-foreground/80 leading-relaxed font-body line-clamp-2 pl-3 border-l-2 border-primary/40"
+                className="text-sm text-brand-dark/80 leading-relaxed font-body line-clamp-2 pl-3 border-l-4 border-brand-teal"
               >
                 "{pro}"
               </motion.li>
@@ -141,15 +142,15 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
           </ul>
         </div>
 
-        {/* Cons section - friendlier design */}
+        {/* Cons section */}
         {restaurant.cons && restaurant.cons.length > 0 && (
-          <div className="space-y-2 bg-muted/30 rounded-2xl p-4 border border-border/40">
-            <h4 className="text-xs font-bold text-foreground/70 uppercase tracking-wider font-display flex items-center gap-2">
+          <div className="space-y-2 bg-gray-100 rounded-xl p-4 border-2 border-brand-dark/10">
+            <h4 className="text-xs font-bold text-brand-muted uppercase tracking-wider font-display flex items-center gap-2">
               <span>💭</span> Heads Up
             </h4>
             <ul className="space-y-1">
-              {restaurant.cons.slice(0, 1).map((con, i) => (
-                <li key={i} className="text-xs text-muted-foreground leading-relaxed font-body line-clamp-2">
+              {restaurant.cons.slice(0, DISPLAY_LIMITS.CONS_COUNT).map((con, i) => (
+                <li key={i} className="text-xs text-brand-muted leading-relaxed font-body line-clamp-2">
                   "{con}"
                 </li>
               ))}
@@ -158,10 +159,10 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
         )}
       </CardContent>
 
-      {/* Fun CTA Footer with gradient */}
-      <CardFooter className="pt-4 pb-5 bg-gradient-to-t from-primary/10 to-transparent">
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full">
-          <Button asChild variant="outline" size="lg" className="w-full h-12 bg-white hover:bg-gray-50 text-orange-600 hover:text-orange-700 font-bold rounded-2xl shadow-md hover:shadow-lg transition-all border-2 border-gray-300">
+      {/* CTA Footer - Neobrutalist button */}
+      <CardFooter className="pt-2 pb-5 px-6">
+        <motion.div whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }} className="w-full">
+          <Button asChild size="lg" className="w-full h-12 bg-brand-coral hover:bg-brand-coral text-white font-display font-bold rounded-xl border-4 border-brand-dark shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all">
             <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
               🗺️ Let's Go Here!
               <ExternalLink className="h-4 w-4" />

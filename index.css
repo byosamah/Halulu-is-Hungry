@@ -1,39 +1,87 @@
 @import "tailwindcss";
 
+/* ===========================================
+   TAILWIND v4 THEME CONFIGURATION
+   These --color-* variables create Tailwind utilities:
+   bg-brand-coral, text-brand-dark, border-brand-teal, etc.
+   =========================================== */
+@theme {
+  /* Brand colors */
+  --color-brand-dark: #1a1a2e;
+  --color-brand-coral: #FF6B6B;
+  --color-brand-teal: #00CEC9;
+  --color-brand-yellow: #FFD93D;
+  --color-brand-pink: #FD79A8;
+  --color-brand-purple: #A855F7;
+  --color-brand-green: #00B894;
+  --color-brand-cream: #FFF8F0;
+  --color-brand-muted: #6B7280;
+}
+
 @layer base {
   :root {
-    /* 🎨 PLAYFUL FOOD DISCOVERY COLOR SYSTEM 🍊🌿☀️ */
-    /* Vibrant, appetite-inducing palette that makes you smile! */
+    /* 🎪 HALULU IS HUNGRY - PLAYFUL & COLORFUL PALETTE */
+    /* Bold, vibrant, fun - like a food playground! */
 
-    --background: 30 40% 98%;         /* 🥐 Soft cream - warm & inviting */
-    --foreground: 25 15% 20%;         /* 🍫 Rich dark brown - cozy */
+    /* ==========================================
+       BRAND COLORS (HEX) - For arbitrary values
+       Use in: shadow-[...var(--brand-teal)]
+       ========================================== */
+    --brand-dark: #1a1a2e;
+    --brand-coral: #FF6B6B;
+    --brand-teal: #00CEC9;
+    --brand-yellow: #FFD93D;
+    --brand-pink: #FD79A8;
+    --brand-purple: #A855F7;
+    --brand-green: #00B894;
+    --brand-cream: #FFF8F0;
+    --brand-muted: #6B7280;
 
-    --card: 0 0% 100%;                /* 📄 Pure white - cards pop! */
-    --card-foreground: 25 15% 20%;
+    /* Primary Colors - BOLD and PUNCHY (HSL for Tailwind) */
+    --hot-coral: 0 100% 70%;          /* #FF6B6B - Main brand color */
+    --electric-teal: 174 100% 40%;    /* #00CEC9 - Fresh, energetic */
+    --sunshine: 45 100% 70%;          /* #FFD93D - Happy, warm */
+    --hot-pink: 340 98% 73%;          /* #FD79A8 - Playful pop */
+    --lime: 160 100% 36%;             /* #00B894 - Fresh accent */
+    --purple-pop: 270 70% 60%;        /* #A855F7 - Fun accent */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 25 15% 20%;
+    /* Neutrals */
+    --pure-white: 0 0% 100%;          /* #FFFFFF */
+    --off-white: 40 33% 98%;          /* #FEFCF9 */
+    --dark-text: 240 17% 14%;         /* #1a1a2e - Near black */
+    --gray-text: 220 10% 45%;         /* #6B7280 */
+    --light-gray: 220 14% 96%;        /* #F3F4F6 */
 
-    --primary: 16 90% 60%;            /* 🍊 Juicy coral orange - yummy! */
-    --primary-foreground: 0 0% 100%;
+    /* Semantic mappings */
+    --background: var(--pure-white);
+    --foreground: var(--dark-text);
 
-    --secondary: 158 45% 65%;         /* 🌿 Fresh mint green - healthy vibes */
-    --secondary-foreground: 25 15% 20%;
+    --card: var(--pure-white);
+    --card-foreground: var(--dark-text);
 
-    --muted: 30 30% 92%;              /* 🧈 Butter yellow tint - subtle */
-    --muted-foreground: 25 10% 50%;   /* 🥜 Warm gray - readable */
+    --popover: var(--pure-white);
+    --popover-foreground: var(--dark-text);
 
-    --accent: 48 100% 60%;            /* ☀️ Sunny yellow - happiness! */
-    --accent-foreground: 25 15% 20%;
+    --primary: var(--hot-coral);
+    --primary-foreground: var(--pure-white);
 
-    --destructive: 0 75% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --secondary: var(--electric-teal);
+    --secondary-foreground: var(--pure-white);
 
-    --border: 30 20% 88%;             /* 🍯 Honey border - soft */
-    --input: 30 25% 90%;
-    --ring: 16 90% 60%;
+    --accent: var(--sunshine);
+    --accent-foreground: var(--dark-text);
 
-    --radius: 20px;                   /* 🎈 Extra rounded - playful! */
+    --muted: var(--light-gray);
+    --muted-foreground: var(--gray-text);
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: var(--pure-white);
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: var(--hot-coral);
+
+    --radius: 16px;
   }
 
   * {
@@ -43,30 +91,21 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-
-    /* 🎈 Fun floating food pattern! */
-    background-image:
-      radial-gradient(circle at 15% 20%, rgba(255, 127, 80, 0.08) 0%, transparent 40%),
-      radial-gradient(circle at 85% 60%, rgba(255, 215, 0, 0.06) 0%, transparent 40%),
-      radial-gradient(circle at 50% 90%, rgba(72, 209, 204, 0.07) 0%, transparent 40%);
+    font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 }
 
-/* 🎪 BOUNCY, PLAYFUL ANIMATIONS! */
+/* 🎪 PLAYFUL ANIMATIONS */
+
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slide-up {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(40px);
   }
   to {
     opacity: 1;
@@ -74,113 +113,266 @@
   }
 }
 
-@keyframes scale-in {
+@keyframes slide-in-left {
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: translateX(-40px);
   }
   to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
     opacity: 1;
     transform: scale(1);
   }
 }
 
-/* 🎈 Bouncy entrance - like food appearing! */
-@keyframes bounce-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.3) translateY(40px);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.05) translateY(-5px);
-  }
-  70% {
-    transform: scale(0.97) translateY(2px);
-  }
-  100% {
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* 🌟 Floating animation - subtle hover */
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
 }
 
-/* ✨ Wiggle animation - playful! */
 @keyframes wiggle {
-  0%, 100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-3deg);
-  }
-  75% {
-    transform: rotate(3deg);
-  }
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 107, 0.4); }
+  50% { box-shadow: 0 0 40px rgba(255, 107, 107, 0.8); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .animate-fade-in {
-  animation: fade-in 0.6s ease-out;
+  animation: fade-in 0.6s ease-out forwards;
 }
 
 .animate-slide-up {
-  animation: slide-up 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-scale-in {
-  animation: scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+.animate-slide-in-left {
+  animation: slide-in-left 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-bounce-in {
-  animation: bounce-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: bounce-in 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }
 
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: float 4s ease-in-out infinite;
 }
 
 .animate-wiggle {
-  animation: wiggle 0.5s ease-in-out;
+  animation: wiggle 1s ease-in-out infinite;
 }
 
-/* ✨ Staggered animation delays for cards */
-.animate-stagger-1 {
-  animation-delay: 0.1s;
-  opacity: 0;
-  animation-fill-mode: forwards;
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
-.animate-stagger-2 {
-  animation-delay: 0.2s;
-  opacity: 0;
-  animation-fill-mode: forwards;
+/* 🔐 PASSWORD WALL ANIMATIONS */
+
+/* Shake animation for wrong PIN */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+  20%, 40%, 60%, 80% { transform: translateX(10px); }
 }
 
-.animate-stagger-3 {
-  animation-delay: 0.3s;
-  opacity: 0;
-  animation-fill-mode: forwards;
+.animate-shake {
+  animation: shake 0.5s;
 }
 
-/* 🎨 PLAYFUL FONT UTILITIES! */
+/* Success animation for correct PIN */
+@keyframes success {
+  0% { transform: scale(1); }
+  50% {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #86efac 0%, #4ade80 100%);
+    border-color: #22c55e;
+  }
+  100% {
+    transform: scale(1);
+    background: linear-gradient(135deg, #86efac 0%, #4ade80 100%);
+    border-color: #22c55e;
+  }
+}
+
+.animate-success {
+  animation: success 0.8s;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* Stagger delays */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* 🎨 TYPOGRAPHY */
+
+/* Bold, bubbly headlines - Fredoka */
 .font-display {
-  font-family: 'Outfit', 'Nunito', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-weight: 700;
+  font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
   letter-spacing: -0.01em;
+  line-height: 1.1;
 }
 
+/* Extra bold for hero - Fredoka */
+.font-display-black {
+  font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+/* Body text - Fredoka */
 .font-body {
-  font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 400;
 }
 
-.font-emoji {
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+.font-body-medium {
+  font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+}
+
+.font-body-bold {
+  font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
+}
+
+/* 🌈 COLOR UTILITIES */
+
+.bg-coral { background-color: hsl(var(--hot-coral)); }
+.bg-teal { background-color: hsl(var(--electric-teal)); }
+.bg-sunshine { background-color: hsl(var(--sunshine)); }
+.bg-pink { background-color: hsl(var(--hot-pink)); }
+.bg-lime { background-color: hsl(var(--lime)); }
+.bg-purple { background-color: hsl(var(--purple-pop)); }
+
+.text-coral { color: hsl(var(--hot-coral)); }
+.text-teal { color: hsl(var(--electric-teal)); }
+.text-sunshine { color: hsl(var(--sunshine)); }
+.text-pink { color: hsl(var(--hot-pink)); }
+.text-lime { color: hsl(var(--lime)); }
+.text-purple { color: hsl(var(--purple-pop)); }
+
+/* Gradient backgrounds */
+.bg-gradient-playful {
+  background: linear-gradient(135deg,
+    hsl(var(--hot-coral)) 0%,
+    hsl(var(--hot-pink)) 50%,
+    hsl(var(--purple-pop)) 100%
+  );
+}
+
+.bg-gradient-fresh {
+  background: linear-gradient(135deg,
+    hsl(var(--electric-teal)) 0%,
+    hsl(var(--lime)) 100%
+  );
+}
+
+.bg-gradient-sunny {
+  background: linear-gradient(135deg,
+    hsl(var(--sunshine)) 0%,
+    hsl(var(--hot-coral)) 100%
+  );
+}
+
+/* 🎯 SPECIAL EFFECTS */
+
+/* Blob shapes */
+.blob {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+/* Card with playful shadow */
+.card-playful {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 10px 30px -5px rgba(255, 107, 107, 0.2);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-playful:hover {
+  transform: translateY(-8px) rotate(1deg);
+  box-shadow:
+    0 20px 40px -10px rgba(0, 0, 0, 0.15),
+    0 30px 50px -15px rgba(255, 107, 107, 0.3);
+}
+
+/* Button with punch */
+.btn-punch {
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 0 hsl(0 80% 50%);
+}
+
+.btn-punch:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 hsl(0 80% 50%);
+}
+
+.btn-punch:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 hsl(0 80% 50%);
+}
+
+/* Text with gradient */
+.text-gradient {
+  background: linear-gradient(135deg,
+    hsl(var(--hot-coral)) 0%,
+    hsl(var(--hot-pink)) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Decorative underline */
+.underline-playful {
+  position: relative;
+  display: inline-block;
+}
+
+.underline-playful::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: hsl(var(--sunshine));
+  border-radius: 4px;
+  z-index: -1;
+  transform: rotate(-1deg);
 }
