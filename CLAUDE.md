@@ -87,7 +87,7 @@ AI integration:
 - `validateAPIKey()` - Check if key exists
 - `findRestaurants(location, query, filters)` - Main search
 
-**Model:** `gemini-2.0-flash-exp`
+**Model:** `gemini-2.5-pro`
 
 **Features:**
 - Retry with exponential backoff (max 3 retries)
@@ -118,7 +118,7 @@ QuotaExceededError, APIKeyError, NetworkError, InvalidResponseError
 
 ### constants.ts
 ```typescript
-AI_MODEL_NAME: 'gemini-2.0-flash-exp'
+AI_MODEL_NAME: 'gemini-2.5-pro'
 ATTRIBUTE_FILTERS: ['Cozy', 'Romantic', 'Family Friendly', 'Good for groups', 'Outdoor seating']
 INSPIRATIONS: Array<string>  // 33 search suggestions
 DISPLAY_LIMITS: { PROS_COUNT: 2, CONS_COUNT: 1 }

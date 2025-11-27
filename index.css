@@ -376,3 +376,290 @@
   z-index: -1;
   transform: rotate(-1deg);
 }
+
+/* ===========================================
+   🌍 RTL (RIGHT-TO-LEFT) SUPPORT FOR ARABIC
+   =========================================== */
+
+/* ====== SHADOW DIRECTION VARIABLE ====== */
+/* Shadows always point bottom-right for consistent neobrutalist design */
+/* Layout direction is handled by flexbox/grid, shadows stay consistent */
+:root {
+  --shadow-direction: 1;
+}
+
+/* Removed RTL shadow flip - shadows stay on right side for visual consistency */
+
+/* ====== ARABIC FONT ====== */
+[dir="rtl"] {
+  font-family: 'Playpen Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+[dir="rtl"] body {
+  font-family: 'Playpen Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* RTL Typography - same weights, Arabic font */
+[dir="rtl"] .font-display,
+[dir="rtl"] .font-display-black,
+[dir="rtl"] .font-body,
+[dir="rtl"] .font-body-medium,
+[dir="rtl"] .font-body-bold {
+  font-family: 'Playpen Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ====== NEOBRUTALIST SHADOW UTILITIES ====== */
+/* These flip automatically in RTL via --shadow-direction */
+
+.shadow-neo-xs {
+  box-shadow: calc(2px * var(--shadow-direction)) 2px 0px 0px rgba(0,0,0,1);
+}
+
+.shadow-neo-sm {
+  box-shadow: calc(3px * var(--shadow-direction)) 3px 0px 0px rgba(0,0,0,1);
+}
+
+.shadow-neo-md {
+  box-shadow: calc(4px * var(--shadow-direction)) 4px 0px 0px rgba(0,0,0,1);
+}
+
+.shadow-neo-lg {
+  box-shadow: calc(6px * var(--shadow-direction)) 6px 0px 0px rgba(0,0,0,1);
+}
+
+.shadow-neo-xl {
+  box-shadow: calc(8px * var(--shadow-direction)) 8px 0px 0px rgba(0,0,0,1);
+}
+
+.shadow-neo-2xl {
+  box-shadow: calc(12px * var(--shadow-direction)) 12px 0px 0px rgba(0,0,0,1);
+}
+
+/* Colored neobrutalist shadows - also flip automatically */
+.shadow-neo-coral-sm {
+  box-shadow: calc(3px * var(--shadow-direction)) 3px 0px 0px var(--brand-coral);
+}
+
+.shadow-neo-coral-md {
+  box-shadow: calc(4px * var(--shadow-direction)) 4px 0px 0px var(--brand-coral);
+}
+
+.shadow-neo-coral {
+  box-shadow: calc(6px * var(--shadow-direction)) 6px 0px 0px var(--brand-coral);
+}
+
+.shadow-neo-coral-lg {
+  box-shadow: calc(8px * var(--shadow-direction)) 8px 0px 0px var(--brand-coral);
+}
+
+.shadow-neo-coral-xl {
+  box-shadow: calc(12px * var(--shadow-direction)) 12px 0px 0px var(--brand-coral);
+}
+
+.shadow-neo-teal {
+  box-shadow: calc(6px * var(--shadow-direction)) 6px 0px 0px var(--brand-teal);
+}
+
+.shadow-neo-teal-sm {
+  box-shadow: calc(3px * var(--shadow-direction)) 3px 0px 0px var(--brand-teal);
+}
+
+.shadow-neo-teal-lg {
+  box-shadow: calc(8px * var(--shadow-direction)) 8px 0px 0px var(--brand-teal);
+}
+
+.shadow-neo-teal-xl {
+  box-shadow: calc(12px * var(--shadow-direction)) 12px 0px 0px var(--brand-teal);
+}
+
+.shadow-neo-yellow {
+  box-shadow: calc(6px * var(--shadow-direction)) 6px 0px 0px var(--brand-yellow);
+}
+
+.shadow-neo-yellow-md {
+  box-shadow: calc(4px * var(--shadow-direction)) 4px 0px 0px var(--brand-yellow);
+}
+
+.shadow-neo-yellow-lg {
+  box-shadow: calc(8px * var(--shadow-direction)) 8px 0px 0px var(--brand-yellow);
+}
+
+.shadow-neo-yellow-xl {
+  box-shadow: calc(12px * var(--shadow-direction)) 12px 0px 0px var(--brand-yellow);
+}
+
+.shadow-neo-purple {
+  box-shadow: calc(4px * var(--shadow-direction)) 4px 0px 0px var(--brand-purple);
+}
+
+.shadow-neo-green {
+  box-shadow: calc(4px * var(--shadow-direction)) 4px 0px 0px var(--brand-green);
+}
+
+/* Hover shadow states */
+.hover\:shadow-neo-md:hover {
+  box-shadow: calc(5px * var(--shadow-direction)) 5px 0px 0px rgba(0,0,0,1);
+}
+
+.hover\:shadow-neo-lg:hover {
+  box-shadow: calc(8px * var(--shadow-direction)) 8px 0px 0px rgba(0,0,0,1);
+}
+
+.hover\:shadow-neo-xl:hover {
+  box-shadow: calc(10px * var(--shadow-direction)) 10px 0px 0px rgba(0,0,0,1);
+}
+
+.hover\:shadow-neo-2xl:hover {
+  box-shadow: calc(14px * var(--shadow-direction)) 14px 0px 0px rgba(0,0,0,1);
+}
+
+.hover\:shadow-neo-teal-lg:hover {
+  box-shadow: calc(10px * var(--shadow-direction)) 10px 0px 0px var(--brand-teal);
+}
+
+.hover\:shadow-neo-coral-lg:hover {
+  box-shadow: calc(10px * var(--shadow-direction)) 10px 0px 0px var(--brand-coral);
+}
+
+/* ====== RESPONSIVE SHADOW VARIANTS ====== */
+/* sm: breakpoint (640px+) */
+@media (min-width: 640px) {
+  .sm\:shadow-neo-xl {
+    box-shadow: calc(8px * var(--shadow-direction)) 8px 0px 0px rgba(0,0,0,1);
+  }
+  .sm\:shadow-neo-2xl {
+    box-shadow: calc(12px * var(--shadow-direction)) 12px 0px 0px rgba(0,0,0,1);
+  }
+  .sm\:shadow-neo-teal-xl {
+    box-shadow: calc(12px * var(--shadow-direction)) 12px 0px 0px var(--brand-teal);
+  }
+  .sm\:shadow-neo-coral-xl {
+    box-shadow: calc(12px * var(--shadow-direction)) 12px 0px 0px var(--brand-coral);
+  }
+  .sm\:hover\:shadow-neo-2xl:hover {
+    box-shadow: calc(14px * var(--shadow-direction)) 14px 0px 0px rgba(0,0,0,1);
+  }
+  .sm\:shadow-neo-yellow-xl {
+    box-shadow: calc(12px * var(--shadow-direction)) 12px 0px 0px var(--brand-yellow);
+  }
+  .sm\:shadow-neo-teal-lg {
+    box-shadow: calc(8px * var(--shadow-direction)) 8px 0px 0px var(--brand-teal);
+  }
+}
+
+/* ====== LAYOUT MIRRORING ====== */
+/* Flip margin utilities for RTL */
+[dir="rtl"] .ml-auto { margin-left: 0; margin-right: auto; }
+[dir="rtl"] .mr-auto { margin-right: 0; margin-left: auto; }
+
+/* Flip common left/right position classes */
+[dir="rtl"] .left-0 { left: auto; right: 0; }
+[dir="rtl"] .right-0 { right: auto; left: 0; }
+[dir="rtl"] .left-4 { left: auto; right: 1rem; }
+[dir="rtl"] .left-5 { left: auto; right: 1.25rem; }
+[dir="rtl"] .-left-10 { left: auto; right: -2.5rem; }
+[dir="rtl"] .-right-10 { right: auto; left: -2.5rem; }
+[dir="rtl"] .-left-20 { left: auto; right: -5rem; }
+[dir="rtl"] .-right-20 { right: auto; left: -5rem; }
+[dir="rtl"] .-left-32 { left: auto; right: -8rem; }
+[dir="rtl"] .-right-40 { right: auto; left: -10rem; }
+
+/* ====== TEXT ALIGNMENT ====== */
+/* Note: RTL input styling handled in components to avoid conflicts */
+
+[dir="rtl"] .text-left { text-align: right; }
+[dir="rtl"] .text-right { text-align: left; }
+
+/* ====== ICON FLIPPING ====== */
+/* Add rtl-flip class to icons that should mirror */
+.rtl-flip {
+  /* This class will be used with isRTL check in components */
+}
+
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* ====== ANIMATION FLIPPING ====== */
+/* Flip slide-in animations for RTL */
+@keyframes slide-in-right-rtl {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+[dir="rtl"] .animate-slide-in-left {
+  animation-name: slide-in-right-rtl;
+}
+
+/* ====== BORDER RADIUS ====== */
+/* For asymmetric rounded corners */
+[dir="rtl"] .rounded-l-xl { border-radius: 0 0.75rem 0.75rem 0; }
+[dir="rtl"] .rounded-r-xl { border-radius: 0.75rem 0 0 0.75rem; }
+[dir="rtl"] .rounded-l-2xl { border-radius: 0 1rem 1rem 0; }
+[dir="rtl"] .rounded-r-2xl { border-radius: 1rem 0 0 1rem; }
+
+/* ====== BORDER FLIPPING ====== */
+/* Flip border-left to border-right in RTL */
+[dir="rtl"] .border-l-4 {
+  border-left-width: 0;
+  border-right-width: 4px;
+}
+[dir="rtl"] .border-r-4 {
+  border-right-width: 0;
+  border-left-width: 4px;
+}
+[dir="rtl"] .border-l-2 {
+  border-left-width: 0;
+  border-right-width: 2px;
+}
+[dir="rtl"] .border-r-2 {
+  border-right-width: 0;
+  border-left-width: 2px;
+}
+
+/* ====== PADDING FLIPPING ====== */
+/* Flip common padding utilities in RTL */
+[dir="rtl"] .pl-3 { padding-left: 0; padding-right: 0.75rem; }
+[dir="rtl"] .pr-3 { padding-right: 0; padding-left: 0.75rem; }
+[dir="rtl"] .pl-4 { padding-left: 0; padding-right: 1rem; }
+[dir="rtl"] .pr-4 { padding-right: 0; padding-left: 1rem; }
+[dir="rtl"] .pl-5 { padding-left: 0; padding-right: 1.25rem; }
+[dir="rtl"] .pr-5 { padding-right: 0; padding-left: 1.25rem; }
+[dir="rtl"] .pl-6 { padding-left: 0; padding-right: 1.5rem; }
+[dir="rtl"] .pr-6 { padding-right: 0; padding-left: 1.5rem; }
+
+/* ====== MARGIN FLIPPING ====== */
+/* Flip common margin utilities in RTL */
+[dir="rtl"] .ml-2 { margin-left: 0; margin-right: 0.5rem; }
+[dir="rtl"] .mr-2 { margin-right: 0; margin-left: 0.5rem; }
+[dir="rtl"] .ml-3 { margin-left: 0; margin-right: 0.75rem; }
+[dir="rtl"] .mr-3 { margin-right: 0; margin-left: 0.75rem; }
+[dir="rtl"] .ml-4 { margin-left: 0; margin-right: 1rem; }
+[dir="rtl"] .mr-4 { margin-right: 0; margin-left: 1rem; }
+
+/* ====== SPACE BETWEEN FLIPPING ====== */
+/* For flex containers with space-x */
+[dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+[dir="rtl"] .space-x-3 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+[dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+
+/* ====== HOVER TRANSLATE DIRECTION ====== */
+/* Flip hover translate-x direction in RTL */
+[dir="rtl"] .hover\:-translate-x-0\.5:hover {
+  --tw-translate-x: 0.125rem; /* Positive instead of negative in RTL */
+}
+[dir="rtl"] .hover\:-translate-x-1:hover {
+  --tw-translate-x: 0.25rem;
+}
+
+/* ====== DECORATIVE ELEMENTS ====== */
+/* RTL: Decorative underline flip */
+[dir="rtl"] .underline-playful::after {
+  transform: rotate(1deg);
+}

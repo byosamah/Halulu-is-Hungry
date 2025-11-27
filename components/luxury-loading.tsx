@@ -2,8 +2,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { useLanguage } from '../contexts/LanguageContext';
 
-const LuxuryLoading: React.FC = () => (
+const LuxuryLoading: React.FC = () => {
+  const { t } = useLanguage();
+
+  return (
   <div className="space-y-6 sm:space-y-8 md:space-y-12 animate-fade-in">
     {/* 🎪 Fun Loading Animation */}
     <div className="text-center py-8 sm:py-12 md:py-16 space-y-6 sm:space-y-8">
@@ -64,10 +68,10 @@ const LuxuryLoading: React.FC = () => (
         transition={{ delay: 0.3 }}
       >
         <p className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl text-foreground font-bold">
-          Finding your perfect bite! 😋
+          {t('loadingTitle')} 😋
         </p>
         <p className="text-lg text-muted-foreground font-body">
-          Halulu is sniffing through thousands of reviews...{' '}
+          {t('loadingSubtitle')}{' '}
           <span className="inline-block animate-wiggle">👃</span>
         </p>
       </motion.div>
@@ -131,6 +135,7 @@ const LuxuryLoading: React.FC = () => (
       ))}
     </div>
   </div>
-);
+  );
+};
 
 export default LuxuryLoading;

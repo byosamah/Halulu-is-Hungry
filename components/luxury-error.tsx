@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ERROR_EMOJI, UI_STRINGS } from '../constants';
+import { ERROR_EMOJI } from '../constants';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface LuxuryErrorProps {
   message: string;
@@ -9,10 +10,10 @@ interface LuxuryErrorProps {
 
 // Error type detection helpers
 const ERROR_PATTERNS = {
-  quota: ['rate limit', 'quota'],
-  apiKey: ['API key'],
-  network: ['network', 'connection'],
-  location: ['Location', 'location'],
+  quota: ['rate limit', 'quota', 'الحد الأقصى'],
+  apiKey: ['API key', 'مفتاح'],
+  network: ['network', 'connection', 'اتصال'],
+  location: ['Location', 'location', 'موقع'],
 } as const;
 
 const detectErrorType = (message: string): 'quota' | 'apiKey' | 'network' | 'location' | 'unknown' => {
@@ -24,6 +25,7 @@ const detectErrorType = (message: string): 'quota' | 'apiKey' | 'network' | 'loc
 };
 
 const LuxuryError: React.FC<LuxuryErrorProps> = ({ message }) => {
+  const { t } = useLanguage();
   const errorType = detectErrorType(message);
 
   // Pick friendly emoji based on error type using constants
@@ -36,15 +38,9 @@ const LuxuryError: React.FC<LuxuryErrorProps> = ({ message }) => {
   };
   const emoji = emojiMap[errorType];
 
-  // Friendly titles instead of scary ones!
-  const titleMap: Record<string, string> = {
-    quota: "Whoa there, speedy! 🏃‍♂️",
-    apiKey: "Oops, we need a key! 🔑",
-    network: "Connection hiccup! 📡",
-    location: "Where are you? 📍",
-    unknown: "Hmm, something's off! 🤔",
-  };
-  const title = titleMap[errorType];
+  // Friendly titles from translations
+  const titleKey = `errorTitles.${errorType}` as const;
+  const title = t(titleKey);
 
   return (
     <motion.div
@@ -78,7 +74,7 @@ const LuxuryError: React.FC<LuxuryErrorProps> = ({ message }) => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          {UI_STRINGS.ENCOURAGEMENT} 💪✨
+          {t('encouragement')} 💪✨
         </motion.p>
       </Alert>
     </motion.div>

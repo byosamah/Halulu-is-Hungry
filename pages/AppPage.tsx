@@ -16,17 +16,21 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import type { Restaurant, Coordinates } from '../types';
 import { QuotaExceededError, APIKeyError, NetworkError, InvalidResponseError } from '../types';
 import { findRestaurants, validateAPIKey } from '../services/geminiService';
-import { GEOLOCATION_OPTIONS, UI_STRINGS } from '../constants';
+import { GEOLOCATION_OPTIONS } from '../constants';
 import PremiumSearch from '../components/premium-search';
 import RestaurantGridCard from '../components/restaurant-grid-card';
 import LuxuryLoading from '../components/luxury-loading';
 import LuxuryError from '../components/luxury-error';
-import { MapPin, ArrowLeft } from 'lucide-react';
+import LanguageSwitcher from '../components/LanguageSwitcher';
+import { useLanguage } from '../contexts/LanguageContext';
+import { MapPin } from 'lucide-react';
+import { getRtlShadow } from '../utils/rtlShadow';
 
 const AppPage: React.FC = () => {
   // Get search params from URL (allows linking to search results)
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t, isRTL } = useLanguage();
 
   // Initialize query from URL params if present
   const initialQuery = searchParams.get('q') || '';
@@ -51,14 +55,14 @@ const AppPage: React.FC = () => {
         setError(null);
         setIsLoading(false);
       },
-      (error) => {
-        setError(`Location access required: ${error.message}. Please enable location services.`);
+      (geoError) => {
+        setError(t('errors.locationRequired'));
         setLocation(null);
         setIsLoading(false);
       },
       GEOLOCATION_OPTIONS
     );
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     getLocation();
@@ -67,9 +71,9 @@ const AppPage: React.FC = () => {
   // Check API key on mount
   useEffect(() => {
     if (!validateAPIKey()) {
-      setError('API key not configured. Please add GEMINI_API_KEY to your .env.local file.');
+      setError(t('errors.apiKeyMissing'));
     }
-  }, []);
+  }, [t]);
 
   // Auto-search if query is in URL params
   useEffect(() => {
@@ -81,11 +85,11 @@ const AppPage: React.FC = () => {
   // Handle search
   const handleSearch = useCallback(async () => {
     if (!location) {
-      setError("Location required. Please enable location services to discover restaurants.");
+      setError(t('errors.locationRequired'));
       return;
     }
     if (!searchQuery.trim()) {
-      setError("Your stomach is waiting. Type something.");
+      setError(t('errors.emptyQuery'));
       return;
     }
 
@@ -97,29 +101,31 @@ const AppPage: React.FC = () => {
       const results = await findRestaurants(location, searchQuery, activeFilters);
 
       if (results.length === 0) {
-        setError(`No restaurants found for "${searchQuery}". Try refining your search or exploring a different cuisine.`);
+        const noResultsError = t('errors.noResults');
+        setError(typeof noResultsError === 'function' ? noResultsError(searchQuery) : noResultsError);
         setRestaurants([]);
       } else {
         setRestaurants(results);
       }
     } catch (e) {
       if (e instanceof QuotaExceededError) {
-        setError('API rate limit reached. Please wait a few minutes before searching again.');
+        setError(t('errors.quotaExceeded'));
       } else if (e instanceof APIKeyError) {
-        setError('API key error. Please verify your GEMINI_API_KEY configuration.');
+        setError(t('errors.apiKeyError'));
       } else if (e instanceof NetworkError) {
-        setError('Network connection issue. Please check your internet and try again.');
+        setError(t('errors.networkError'));
       } else if (e instanceof InvalidResponseError) {
-        setError('Unexpected response from AI. Please try rephrasing your query.');
+        setError(t('errors.invalidResponse'));
       } else {
         const errorMessage = e instanceof Error ? e.message : 'An unexpected error occurred.';
-        setError(`Search failed: ${errorMessage}`);
+        const searchFailedError = t('errors.searchFailed');
+        setError(typeof searchFailedError === 'function' ? searchFailedError(errorMessage) : `Search failed: ${errorMessage}`);
       }
       setRestaurants([]);
     } finally {
       setIsLoading(false);
     }
-  }, [location, searchQuery, activeFilters]);
+  }, [location, searchQuery, activeFilters, t]);
 
   // Render the main content area
   const renderContent = () => {
@@ -127,10 +133,13 @@ const AppPage: React.FC = () => {
     if (isLoading && !location) {
       return (
         <div className="flex flex-col items-center justify-center py-8 sm:py-12 md:py-16 animate-fade-in">
-          <div className="bg-white rounded-3xl p-8 border-4 border-brand-dark shadow-[8px_8px_0px_0px_var(--brand-teal)] text-center">
+          <div
+            className="bg-white rounded-3xl p-8 border-4 border-brand-dark text-center"
+            style={{ boxShadow: getRtlShadow('lg', isRTL, '#00CEC9') }}
+          >
             <MapPin className="h-12 w-12 text-brand-coral mb-4 mx-auto animate-bounce" />
-            <h3 className="font-display text-xl text-brand-dark">Acquiring your location...</h3>
-            <p className="text-brand-muted mt-2 font-body">Please allow location access</p>
+            <h3 className="font-display text-xl text-brand-dark">{t('acquiringLocation')}</h3>
+            <p className="text-brand-muted mt-2 font-body">{t('allowLocation')}</p>
           </div>
         </div>
       );
@@ -148,13 +157,19 @@ const AppPage: React.FC = () => {
 
     // Results state
     if (restaurants.length > 0) {
+      const foundSpotsText = t('foundSpots');
+      const resultsText = typeof foundSpotsText === 'function' ? foundSpotsText(restaurants.length) : `Found ${restaurants.length} spots!`;
+
       return (
         <div className="space-y-8">
           {/* Results count - neobrutalist style */}
           <div className="text-center animate-fade-in">
-            <div className="bg-white rounded-2xl px-6 py-4 inline-block border-4 border-brand-dark shadow-[6px_6px_0px_0px_var(--brand-teal)]">
-              <p className="text-lg text-brand-dark font-display font-bold flex items-center gap-2">
-                🎉 Found {restaurants.length} amazing {restaurants.length === 1 ? 'spot' : 'spots'} for you!
+            <div
+              className="bg-white rounded-2xl px-6 py-4 inline-block border-4 border-brand-dark"
+              style={{ boxShadow: getRtlShadow('md', isRTL, '#00CEC9') }}
+            >
+              <p className={`text-lg text-brand-dark font-display font-bold flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                🎉 {resultsText}
               </p>
             </div>
           </div>
@@ -183,15 +198,21 @@ const AppPage: React.FC = () => {
     }
 
     // Empty state (no search yet) - matching landing page style
+    // DEBUG: Testing hardcoded shadow to rule out function issues
+    const testShadow = '6px 6px 0px 0px #FFD93D';
+    console.log('[DEBUG] Empty state shadow hardcoded:', testShadow);
     return (
       <div className="text-center py-8 sm:py-12 md:py-16 animate-fade-in max-w-3xl mx-auto">
-        <div className="bg-white rounded-2xl sm:rounded-3xl md:rounded-[40px] p-6 sm:p-10 md:p-16 border-4 border-brand-dark shadow-[8px_8px_0px_0px_var(--brand-yellow)] sm:shadow-[12px_12px_0px_0px_var(--brand-yellow)]">
+        <div
+          className="bg-white rounded-2xl sm:rounded-3xl md:rounded-[40px] p-6 sm:p-10 md:p-16 border-4 border-brand-dark"
+          style={{ boxShadow: testShadow }}
+        >
           <div className="space-y-6">
             <h2 className="font-display-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-brand-dark leading-tight">
-              What are you craving?
+              {t('emptyTitle')}
             </h2>
             <p className="text-brand-muted text-xl font-body leading-relaxed max-w-2xl mx-auto">
-              Tell us what you're hungry for, and we'll read thousands of reviews to find your perfect spot.
+              {t('emptySubtitle')}
             </p>
           </div>
 
@@ -226,18 +247,14 @@ const AppPage: React.FC = () => {
         <div className="absolute -bottom-20 left-[40%] w-[450px] h-[450px] bg-brand-green rounded-full opacity-[0.05] blur-[150px]" />
       </div>
 
-      {/* Header with back button */}
+      {/* Header */}
       <header className="relative bg-white/70 backdrop-blur-md sticky top-0 z-50 border-b-2 border-brand-dark/10">
-        <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center gap-4">
+        <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between">
+          {/* Logo - clickable to go home */}
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 px-4 py-2 bg-white rounded-full border-2 border-brand-dark shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all font-body-bold text-brand-dark"
+            className="flex items-center gap-3 cursor-pointer"
           >
-            <ArrowLeft className="h-5 w-5" />
-            <span className="hidden sm:inline">Back</span>
-          </button>
-          <div className="flex-1 flex items-center gap-3">
-            {/* Fork/utensil logo SVG */}
             <svg
               className="w-7 h-7"
               viewBox="0 0 182.59 194.77"
@@ -247,9 +264,12 @@ const AppPage: React.FC = () => {
               <path d="M181.95,42.26c-1.63-19.9-22.2-42.26-42.74-42.26h-26.25v183.25c0,6.45,8.81,10.69,14.31,11.19,13.43,1.22,26.16-.22,25.71-16.71l-5.47-59.41c5.97-3.04,12.65-5.19,18.19-9.33,8.24-6.16,15.16-18,16.2-28.3.97-9.7.86-28.62.05-38.43Z"/>
             </svg>
             <h1 className="font-display text-xl font-bold text-brand-dark">
-              Halulu is Hungry
+              {t('brandName')}
             </h1>
-          </div>
+          </button>
+
+          {/* LanguageSwitcher */}
+          <LanguageSwitcher />
         </div>
       </header>
 

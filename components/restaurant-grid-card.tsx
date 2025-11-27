@@ -5,7 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Star } from 'lucide-react';
 import type { Restaurant } from '../types';
-import { DISPLAY_LIMITS, UI_STRINGS } from '../constants';
+import { DISPLAY_LIMITS } from '../constants';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getRtlShadow } from '../utils/rtlShadow';
 
 interface RestaurantGridCardProps {
   restaurant: Restaurant;
@@ -56,7 +58,10 @@ const StarRating: React.FC<{ rating: number; size?: 'sm' | 'md' | 'lg' }> = ({ r
   );
 };
 
-const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isTopPick = false }) => (
+const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isTopPick = false }) => {
+  const { t, isRTL } = useLanguage();
+
+  return (
   <motion.div
     initial={{ opacity: 0, y: 30 }}
     animate={{ opacity: 1, y: 0 }}
@@ -72,22 +77,23 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
         transition={{ type: "spring", stiffness: 200 }}
         className="absolute -top-3 left-4 z-10"
       >
-        <Badge className="bg-brand-coral text-white font-display font-bold px-4 py-1.5 text-sm border-2 border-brand-dark shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-xl">
-          🏆 Top Pick
+        <Badge
+          className="bg-brand-coral text-white font-display font-bold px-4 py-1.5 text-sm border-2 border-brand-dark rounded-xl"
+          style={{ boxShadow: getRtlShadow('xs', isRTL) }}
+        >
+          🏆 {t('topPick')}
         </Badge>
       </motion.div>
     )}
 
-    <Card className={`
-      group overflow-hidden h-full flex flex-col
-      bg-white rounded-2xl transition-all duration-300 ease-out
-      border-4 border-brand-dark
-      ${isTopPick
-        ? 'shadow-[6px_6px_0px_0px_var(--brand-coral)] hover:shadow-[8px_8px_0px_0px_var(--brand-coral)]'
-        : 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]'
-      }
-      hover:-translate-x-0.5 hover:-translate-y-0.5
-    `}>
+    <Card
+      className="group overflow-hidden h-full flex flex-col bg-white rounded-2xl transition-all duration-300 ease-out border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5"
+      style={{
+        boxShadow: isTopPick
+          ? getRtlShadow('md', isRTL, '#FF6B6B')
+          : getRtlShadow('md', isRTL)
+      }}
+    >
       <CardHeader className="pb-3 space-y-3 relative">
 
         {/* Restaurant Name */}
@@ -96,9 +102,9 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
         </h3>
 
         {/* AI Rating - Neobrutalist box */}
-        <div className="flex items-center gap-3 bg-brand-yellow rounded-xl p-3 border-2 border-brand-dark">
+        <div className={`flex items-center gap-3 bg-brand-yellow rounded-xl p-3 border-2 border-brand-dark ${isRTL ? 'flex-row-reverse' : ''}`}>
           <span className="text-xs text-brand-dark font-display font-bold uppercase tracking-wider">
-            ⭐ AI Score
+            ⭐ {t('aiScore')}
           </span>
           <span className="font-display text-2xl sm:text-3xl font-bold text-brand-dark tabular-nums">
             {restaurant.aiRating.toFixed(1)}
@@ -107,11 +113,11 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
 
         {/* Google Rating */}
         {restaurant.googleRating && restaurant.googleReviewsCount && (
-          <div className="flex flex-wrap items-center gap-2 text-sm text-brand-dark font-body bg-gray-100 rounded-xl px-3 py-2 border-2 border-brand-dark/20">
+          <div className={`flex flex-wrap items-center gap-2 text-sm text-brand-dark font-body bg-gray-100 rounded-xl px-3 py-2 border-2 border-brand-dark/20 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <span className="font-semibold">Google:</span>
             <span className="font-bold">{restaurant.googleRating.toFixed(1)}</span>
             <span>•</span>
-            <span className="font-medium">{restaurant.googleReviewsCount.toLocaleString()} reviews 💬</span>
+            <span className="font-medium">{restaurant.googleReviewsCount.toLocaleString()} {t('reviews')} 💬</span>
           </div>
         )}
       </CardHeader>
@@ -124,8 +130,8 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
       <CardContent className="flex-1 pt-4 pb-4 space-y-3">
         {/* Highlights Section */}
         <div className="space-y-2 bg-brand-teal/10 rounded-xl p-4 border-2 border-brand-teal/30">
-          <h4 className="text-sm font-bold text-brand-dark uppercase tracking-wider font-display flex items-center gap-2">
-            <span className="text-lg">😍</span> People Love This!
+          <h4 className={`text-sm font-bold text-brand-dark uppercase tracking-wider font-display flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <span className="text-lg">😍</span> {t('peopleLove')}
           </h4>
           <ul className="space-y-2">
             {restaurant.pros.slice(0, DISPLAY_LIMITS.PROS_COUNT).map((pro, i) => (
@@ -134,7 +140,7 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="text-sm text-brand-dark/80 leading-relaxed font-body line-clamp-2 pl-3 border-l-4 border-brand-teal"
+                className={`text-sm text-brand-dark/80 leading-relaxed font-body line-clamp-2 ${isRTL ? 'pr-3 border-r-4' : 'pl-3 border-l-4'} border-brand-teal`}
               >
                 "{pro}"
               </motion.li>
@@ -145,8 +151,8 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
         {/* Cons section */}
         {restaurant.cons && restaurant.cons.length > 0 && (
           <div className="space-y-2 bg-gray-100 rounded-xl p-4 border-2 border-brand-dark/10">
-            <h4 className="text-xs font-bold text-brand-muted uppercase tracking-wider font-display flex items-center gap-2">
-              <span>💭</span> Heads Up
+            <h4 className={`text-xs font-bold text-brand-muted uppercase tracking-wider font-display flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <span>💭</span> {t('headsUp')}
             </h4>
             <ul className="space-y-1">
               {restaurant.cons.slice(0, DISPLAY_LIMITS.CONS_COUNT).map((con, i) => (
@@ -162,9 +168,14 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
       {/* CTA Footer - Neobrutalist button */}
       <CardFooter className="pt-2 pb-5 px-6">
         <motion.div whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }} className="w-full">
-          <Button asChild size="lg" className="w-full h-12 bg-brand-coral hover:bg-brand-coral text-white font-display font-bold rounded-xl border-4 border-brand-dark shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all">
-            <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
-              🗺️ Let's Go Here!
+          <Button
+            asChild
+            size="lg"
+            className="w-full h-12 bg-brand-coral hover:bg-brand-coral text-white font-display font-bold rounded-xl border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+            style={{ boxShadow: getRtlShadow('sm', isRTL) }}
+          >
+            <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className={`flex items-center justify-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              🗺️ {t('letsGoHere')}
               <ExternalLink className="h-4 w-4" />
             </a>
           </Button>
@@ -172,6 +183,7 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
       </CardFooter>
     </Card>
   </motion.div>
-);
+  );
+};
 
 export default RestaurantGridCard;
