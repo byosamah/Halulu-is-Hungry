@@ -1,177 +1,106 @@
-# Halulu is Hungry
+# Halulu is Hungry AI
 
-An AI-powered restaurant discovery app that helps you find the perfect dining experience. Using Google's Gemini AI with Google Maps grounding, Halulu analyzes thousands of reviews to provide personalized restaurant recommendations with detailed insights.
+> Stop arguing about where to eat. Let AI read thousands of reviews for you.
+
+An AI-powered restaurant discovery app that uses Google's Gemini AI to analyze real Google Maps reviews and find your perfect dining spot.
+
+## What It Does
+
+1. Gets your location
+2. Takes your food craving ("spicy ramen", "cozy brunch spot")
+3. AI analyzes thousands of reviews across nearby restaurants
+4. Returns ranked recommendations with pros/cons from actual reviews
 
 ## Features
 
-- **AI-Powered Search**: Natural language queries like "spicy ramen near me" or "romantic Italian restaurant"
-- **Intelligent Ranking**: Smart recommendations based on both rating quality and review volume
-- **Review Analysis**: Automatically extracts pros and cons from real Google Reviews
-- **Location-Based**: Uses your current location to find nearby restaurants
-- **Beautiful UI**: Minimal luxury design with shadcn/ui components
-- **Atmosphere Filters**: Filter by Cozy, Romantic, Family Friendly, Good for groups, or Outdoor seating
-- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
+- **Smart Ranking** - Restaurants ranked by weighted score (rating x review count). A 4.7 with 2000 reviews beats a 4.9 with 100 reviews.
+- **Review Quotes** - Direct quotes from real reviews as pros and cons
+- **Atmosphere Filters** - Cozy, Romantic, Family Friendly, Groups, Outdoor
+- **"Inspire Me"** - Random food craving suggestions when you can't decide
+- **Google Maps Links** - One tap to navigate to your chosen restaurant
 
 ## Tech Stack
 
-- **Frontend**: React 19.2 + TypeScript 5.8
-- **Build Tool**: Vite 6.2
-- **Styling**: Tailwind CSS v4
-- **UI Components**: shadcn/ui (New York style)
-- **AI**: Google Gemini 2.0 Flash Experimental
-- **Fonts**: Playfair Display (display) + Geist (body)
-- **Icons**: Lucide React + Emoji
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 19.2 | UI framework |
+| TypeScript | 5.8 | Type safety |
+| Vite | 6.2 | Build tool |
+| Tailwind CSS | 4.1 | Styling |
+| Framer Motion | 12.x | Animations |
+| @google/genai | 1.28 | Gemini AI SDK |
 
-## Design System
-
-**Minimal Luxury Theme**:
-- Warm cream background (#faf8f3)
-- Deep charcoal text (#1a1a1a)
-- Gold accent color (#d4af37)
-- Premium typography with Playfair Display and Geist
-- Smooth animations and transitions
-- shadcn/ui components exclusively
-
-## Prerequisites
-
-- Node.js (v18 or higher recommended)
-- A Google Gemini API key ([Get one here](https://aistudio.google.com/apikey))
-
-## Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/byosamah/Halulu-is-Hungry.git
-   cd Halulu-is-Hungry
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**:
-   Create a `.env.local` file in the root directory:
-   ```env
-   GEMINI_API_KEY=your_api_key_here
-   ```
-
-4. **Run the development server**:
-   ```bash
-   npm run dev
-   ```
-
-5. **Open your browser**:
-   Navigate to `http://localhost:3000`
-
-## Development Commands
+## Quick Start
 
 ```bash
-# Start development server
+# 1. Clone
+git clone https://github.com/byosamah/halulu-is-hungry.git
+cd halulu-is-hungry
+
+# 2. Install
+npm install
+
+# 3. Add API key
+echo "GEMINI_API_KEY=your_key_here" > .env.local
+
+# 4. Run
 npm run dev
+```
 
-# Build for production
-npm run build
+Open http://localhost:3000
 
-# Preview production build
-npm run preview
+**Get your API key:** https://aistudio.google.com/apikey
+
+## How It Works
+
+```
+User enters "spicy ramen"
+        |
+        v
+Gemini AI + Google Maps grounding
+        |
+        v
+AI analyzes reviews from nearby restaurants
+        |
+        v
+Weighted ranking: rating x review volume
+        |
+        v
+Returns top picks with pros/cons quotes
 ```
 
 ## Project Structure
 
 ```
 /
+├── pages/
+│   ├── LandingPage.tsx      # Marketing page
+│   └── AppPage.tsx          # Main search + results
 ├── components/
-│   ├── luxury-header.tsx       # App header
-│   ├── premium-search.tsx      # Search interface
-│   ├── restaurant-grid-card.tsx # Restaurant card
-│   ├── luxury-loading.tsx      # Loading state
-│   ├── luxury-error.tsx        # Error display
-│   └── ui/                     # shadcn/ui components
+│   ├── premium-search.tsx   # Search bar + filters
+│   ├── restaurant-grid-card.tsx
+│   ├── luxury-loading.tsx
+│   └── luxury-error.tsx
 ├── services/
-│   └── geminiService.ts        # Gemini API integration
-├── lib/
-│   └── utils.ts                # Utility functions
-├── App.tsx                      # Main app component
-├── types.ts                     # TypeScript types
-├── constants.ts                 # App constants
-└── index.css                    # Global styles
+│   └── geminiService.ts     # Gemini API integration
+├── types.ts                 # TypeScript interfaces
+└── constants.ts             # Configuration
 ```
 
-## How It Works
+## Design
 
-1. **Location Detection**: App requests your browser location for proximity-based results
-2. **Search Query**: Enter what you're looking for in natural language
-3. **AI Processing**: Gemini AI searches Google Maps and analyzes reviews
-4. **Ranking Algorithm**: Results are ranked by weighted score (rating × review volume)
-5. **Review Analysis**: AI extracts direct quotes for pros and cons
-6. **Display**: Shows restaurants with ratings, highlights, and Google Maps links
+**Style:** Neobrutalist + Playful
 
-## Features in Detail
-
-### Smart Ranking
-The AI considers both rating and review count. A 4.7-rated restaurant with 2,000 reviews ranks higher than a 4.9-rated one with only 100 reviews, ensuring reliability.
-
-### Error Handling
-- Automatic retry with exponential backoff for API rate limits
-- Fallback Google Maps URLs when grounding data is missing
-- Clear, user-friendly error messages
-- API key validation on startup
-
-### Responsive Grid Layout
-- 1 column on mobile
-- 2 columns on tablet
-- 3 columns on desktop
-- Top pick highlighted with trophy badge and gold border
-
-## Configuration
-
-### Tailwind CSS v4
-The app uses the new Tailwind v4 architecture:
-```css
-/* index.css */
-@import "tailwindcss";
-```
-
-### shadcn/ui
-Configured with New York style and CSS variables:
-```json
-{
-  "style": "new-york",
-  "tailwind": {
-    "cssVariables": true
-  }
-}
-```
-
-## Known Issues
-
-- Gemini API has free tier rate limits (may need to wait between searches)
-- Location permission required (works only on localhost or HTTPS in production)
-- API key is exposed in client-side bundle (use server proxy for production)
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- Thick black borders (4px)
+- Hard offset shadows
+- Vibrant colors (coral, teal, yellow)
+- Fredoka font (bubbly, rounded)
+- Framer Motion animations
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
-
-## Acknowledgments
-
-- Built with [React](https://react.dev/)
-- UI components from [shadcn/ui](https://ui.shadcn.com/)
-- Powered by [Google Gemini AI](https://ai.google.dev/)
-- Icons from [Lucide](https://lucide.dev/)
-- Fonts: [Playfair Display](https://fonts.google.com/specimen/Playfair+Display) & [Geist](https://vercel.com/font)
+MIT
 
 ---
 
-**Note**: This app uses Google Maps data through Gemini's grounding feature. Make sure to comply with Google's terms of service when using this application.
+Built with Gemini AI + Google Maps grounding
