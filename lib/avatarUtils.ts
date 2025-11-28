@@ -144,6 +144,31 @@ export const generateRandomAvatar = () => {
 };
 
 /**
+ * Get a consistent avatar for a user based on their ID
+ *
+ * Uses the user ID to generate a deterministic avatar that stays
+ * the same across sessions (until they customize it).
+ *
+ * @param userId - The user's unique ID
+ * @returns Object with emoji and bgColor
+ */
+export const getAvatarForUser = (userId: string) => {
+  // Use user ID characters to create a stable "seed"
+  let seed = 0;
+  for (let i = 0; i < userId.length; i++) {
+    seed += userId.charCodeAt(i);
+  }
+
+  const emoji = FOOD_EMOJIS[seed % FOOD_EMOJIS.length];
+  const bgColor = AVATAR_COLOR_NAMES[seed % AVATAR_COLOR_NAMES.length];
+
+  return {
+    emoji,
+    bgColor,
+  };
+};
+
+/**
  * Get avatar display data from stored values
  *
  * Use this when rendering a user's avatar.
