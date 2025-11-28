@@ -22,7 +22,12 @@ import RestaurantGridCard from '../components/restaurant-grid-card';
 import LuxuryLoading from '../components/luxury-loading';
 import LuxuryError from '../components/luxury-error';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import HeaderProfile from '../components/HeaderProfile';
+// Usage tracking components for search limits
+import SearchCounter from '../components/SearchCounter';
+import UsageLimitModal from '../components/UsageLimitModal';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useUsage } from '../contexts/UsageContext';
 import { MapPin } from 'lucide-react';
 import { getRtlShadow } from '../utils/rtlShadow';
 
@@ -31,6 +36,9 @@ const AppPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t, isRTL } = useLanguage();
+
+  // Usage tracking - checks if user can search and increments count
+  const { canSearch, incrementUsage } = useUsage();
 
   // Initialize query from URL params if present
   const initialQuery = searchParams.get('q') || '';
@@ -41,6 +49,9 @@ const AppPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>(initialQuery);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+
+  // Modal state - shows when user hits search limit
+  const [showLimitModal, setShowLimitModal] = useState<boolean>(false);
 
   // Get user's location on mount
   const getLocation = useCallback(() => {
@@ -84,6 +95,15 @@ const AppPage: React.FC = () => {
 
   // Handle search
   const handleSearch = useCallback(async () => {
+    // ==================
+    // STEP 1: Check search limits
+    // ==================
+    // If user has used all their searches, show upgrade modal instead
+    if (!canSearch) {
+      setShowLimitModal(true);
+      return;
+    }
+
     if (!location) {
       setError(t('errors.locationRequired'));
       return;
@@ -99,6 +119,12 @@ const AppPage: React.FC = () => {
 
     try {
       const results = await findRestaurants(location, searchQuery, activeFilters);
+
+      // ==================
+      // STEP 2: Increment usage count AFTER successful search
+      // ==================
+      // We only count it if the search actually ran (no early returns)
+      await incrementUsage();
 
       if (results.length === 0) {
         const noResultsError = t('errors.noResults');
@@ -125,7 +151,7 @@ const AppPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [location, searchQuery, activeFilters, t]);
+  }, [location, searchQuery, activeFilters, t, canSearch, incrementUsage]);
 
   // Render the main content area
   const renderContent = () => {
@@ -265,8 +291,18 @@ const AppPage: React.FC = () => {
             </h1>
           </button>
 
-          {/* LanguageSwitcher */}
-          <LanguageSwitcher />
+          {/* Right side: Search Counter + Language Switcher + Profile */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Shows remaining searches - hidden on small screens, compact version */}
+            <div className="hidden sm:block">
+              <SearchCounter
+                compact
+                onUpgradeClick={() => setShowLimitModal(true)}
+              />
+            </div>
+            <LanguageSwitcher />
+            <HeaderProfile />
+          </div>
         </div>
       </header>
 
@@ -287,6 +323,22 @@ const AppPage: React.FC = () => {
         {/* Main content */}
         {renderContent()}
       </main>
+
+      {/* ==================
+          USAGE LIMIT MODAL
+          ==================
+          Shows when user tries to search but has hit their limit.
+          Offers upgrade options and shows when searches reset.
+      */}
+      <UsageLimitModal
+        isOpen={showLimitModal}
+        onClose={() => setShowLimitModal(false)}
+        onUpgrade={() => {
+          // Close modal and navigate to pricing page
+          setShowLimitModal(false);
+          navigate('/pricing');
+        }}
+      />
     </div>
   );
 };

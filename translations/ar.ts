@@ -220,6 +220,78 @@ export const ar = {
   switchLanguage: 'تبديل اللغة',
 
   // ==================
+  // AUTHENTICATION - المصادقة
+  // ==================
+  auth: {
+    // Page titles - عناوين الصفحات
+    signInTitle: 'أهلاً من جديد!',
+    signUpTitle: 'انضم لعيلة الأكل!',
+    signInSubtitle: 'سجل دخول وكمّل رحلة الأكل',
+    signUpSubtitle: 'سجّل حساب وابدأ الاكتشاف',
+
+    // Form labels - تسميات النموذج
+    emailLabel: 'البريد الإلكتروني',
+    passwordLabel: 'كلمة المرور',
+    confirmPasswordLabel: 'تأكيد كلمة المرور',
+    emailPlaceholder: 'جوعان@مثال.كوم',
+    passwordPlaceholder: '••••••••',
+    confirmPasswordPlaceholder: '••••••••',
+
+    // Buttons - الأزرار
+    signInButton: 'تسجيل الدخول',
+    signUpButton: 'إنشاء حساب',
+    continueWithGoogle: 'المتابعة مع قوقل',
+    loading: 'جاري التحميل...',
+
+    // Divider - الفاصل
+    orDivider: 'أو',
+
+    // Toggle links - روابط التبديل
+    haveAccount: 'عندك حساب؟',
+    noAccount: 'ما عندك حساب؟',
+    signInLink: 'سجّل دخول',
+    signUpLink: 'سجّل جديد',
+
+    // Footer - التذييل
+    footerMessage: 'معدتك بتشكرك',
+
+    // Success messages - رسائل النجاح
+    successSignUp: 'تم إنشاء الحساب! راجع إيميلك للتأكيد.',
+
+    // Error messages - رسائل الخطأ
+    errorEmptyFields: 'عبّي كل الخانات',
+    errorPasswordMismatch: 'كلمات المرور ما تطابقت',
+    errorPasswordTooShort: 'كلمة المرور لازم 6 حروف على الأقل',
+    errorGeneric: 'صار شي غلط. جرب مرة ثانية.',
+
+    // Profile menu - قائمة الملف الشخصي
+    profile: 'الملف الشخصي',
+    myProfile: 'ملفي الشخصي',
+    signOut: 'تسجيل الخروج',
+  },
+
+  // ==================
+  // USAGE TRACKING - تتبع الاستخدام
+  // ==================
+  usage: {
+    // SearchCounter component - عداد البحث
+    searchesRemaining: 'عمليات بحث متبقية',
+    limitReached: 'وصلت الحد',
+    upgradeForMore: 'ترقية للمزيد',
+    upgrade: 'ترقية',
+
+    // UsageLimitModal component - نافذة حد الاستخدام
+    modalTitle: 'وصلت للحد الأقصى!',
+    modalMessage: 'استخدمت كل الـ 5 عمليات بحث المجانية هذا الشهر.',
+    resetsOn: 'يتجدد في',
+    upgradeTitle: 'ترقية لـ Pro عشان:',
+    benefit1: '50 بحث بالشهر',
+    benefit2: 'دعم أولوية',
+    upgradeButton: 'ترقية لـ Pro',
+    waitForReset: 'بستنى الشهر الجاي',
+  },
+
+  // ==================
   // INSPIRATIONS (Food search suggestions)
   // Translated to Arabic for Arabic users
   // ==================

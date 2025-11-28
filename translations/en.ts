@@ -215,6 +215,78 @@ export const en = {
   switchLanguage: 'Switch language',
 
   // ==================
+  // AUTHENTICATION
+  // ==================
+  auth: {
+    // Page titles
+    signInTitle: 'Welcome back!',
+    signUpTitle: 'Join the food fam!',
+    signInSubtitle: 'Sign in to continue your food journey',
+    signUpSubtitle: 'Create an account to start discovering',
+
+    // Form labels
+    emailLabel: 'Email',
+    passwordLabel: 'Password',
+    confirmPasswordLabel: 'Confirm Password',
+    emailPlaceholder: 'hungry@example.com',
+    passwordPlaceholder: '••••••••',
+    confirmPasswordPlaceholder: '••••••••',
+
+    // Buttons
+    signInButton: 'Sign In',
+    signUpButton: 'Create Account',
+    continueWithGoogle: 'Continue with Google',
+    loading: 'Loading...',
+
+    // Divider
+    orDivider: 'or',
+
+    // Toggle links
+    haveAccount: 'Already have an account?',
+    noAccount: "Don't have an account?",
+    signInLink: 'Sign in',
+    signUpLink: 'Sign up',
+
+    // Footer
+    footerMessage: 'Your stomach will thank you',
+
+    // Success messages
+    successSignUp: 'Account created! Check your email to verify.',
+
+    // Error messages
+    errorEmptyFields: 'Please fill in all fields',
+    errorPasswordMismatch: 'Passwords do not match',
+    errorPasswordTooShort: 'Password must be at least 6 characters',
+    errorGeneric: 'Something went wrong. Please try again.',
+
+    // Profile menu
+    profile: 'Profile',
+    myProfile: 'My Profile',
+    signOut: 'Sign Out',
+  },
+
+  // ==================
+  // USAGE TRACKING
+  // ==================
+  usage: {
+    // SearchCounter component
+    searchesRemaining: 'searches remaining',
+    limitReached: 'Limit reached',
+    upgradeForMore: 'Upgrade for more',
+    upgrade: 'Upgrade',
+
+    // UsageLimitModal component
+    modalTitle: "You've reached your limit!",
+    modalMessage: "You've used all 5 free searches this month.",
+    resetsOn: 'Resets on',
+    upgradeTitle: 'Upgrade to Pro for:',
+    benefit1: '50 searches per month',
+    benefit2: 'Priority support',
+    upgradeButton: 'Upgrade to Pro',
+    waitForReset: "I'll wait for next month",
+  },
+
+  // ==================
   // INSPIRATIONS (Food search suggestions)
   // Keep in English - food names are universal
   // ==================
