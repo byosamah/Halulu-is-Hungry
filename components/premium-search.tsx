@@ -87,52 +87,53 @@ const PremiumSearch: React.FC<PremiumSearchProps> = ({
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={`${t('searchPlaceholder')} 🤤`}
-              className={`pl-16 pr-4 h-14 text-lg border-4 border-brand-dark focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:border-brand-dark transition-all rounded-2xl bg-white font-body text-brand-dark placeholder:text-brand-muted w-full ${isRTL ? 'text-right' : ''}`}
+              className="pl-16 pr-4 h-[68px] text-lg border-4 border-brand-dark focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:border-brand-dark transition-all rounded-2xl bg-white font-body text-brand-dark placeholder:text-brand-muted w-full"
               disabled={disabled}
             />
           </motion.div>
 
           {/* Buttons - Always rendered second (RIGHT in LTR, LEFT in RTL) */}
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            {/* Let's Eat Button - Primary CTA */}
+            {/* Let's Eat Button - Primary CTA, full width on mobile */}
             <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
               <Button
                 onClick={onSearch}
                 disabled={disabled}
                 size="lg"
-                className="flex-shrink-0 h-14 px-8 rounded-2xl bg-brand-coral hover:bg-brand-coral text-white font-display font-bold text-lg border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all disabled:opacity-50"
+                className="h-[68px] px-8 rounded-2xl bg-brand-coral hover:bg-brand-coral text-white font-display font-bold text-lg border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all disabled:opacity-50 w-full sm:w-auto"
                 style={{ boxShadow: getRtlShadow('md', isRTL) }}
               >
                 {t('letsEat')} 🔍
               </Button>
             </motion.div>
 
-            {/* Inspire Me Button */}
-            <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                onClick={handleInspireMe}
-                disabled={disabled}
-                size="lg"
-                className="flex-shrink-0 h-14 px-6 rounded-2xl bg-white hover:bg-gray-50 text-brand-dark font-display font-bold border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all disabled:opacity-50"
-                style={{ boxShadow: getRtlShadow('sm', isRTL) }}
-              >
-                <Sparkles className="h-5 w-5 text-brand-coral" />
-                {t('inspireMe')} ✨
-              </Button>
-            </motion.div>
+            {/* Inspire Me + Location - Side by side on mobile */}
+            <div className="flex gap-2 sm:gap-3">
+              <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }} className="flex-1 sm:flex-none">
+                <Button
+                  onClick={handleInspireMe}
+                  disabled={disabled}
+                  size="lg"
+                  className="h-[68px] px-6 rounded-2xl bg-white hover:bg-gray-50 text-brand-dark font-display font-bold border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all disabled:opacity-50 w-full"
+                  style={{ boxShadow: getRtlShadow('sm', isRTL) }}
+                >
+                  <Sparkles className="h-5 w-5 text-brand-coral" />
+                  {t('inspireMe')} ✨
+                </Button>
+              </motion.div>
 
-            {/* Location Button */}
-            <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                onClick={onRefreshLocation}
-                disabled={disabled}
-                size="icon"
-                className="flex-shrink-0 h-14 w-14 rounded-2xl bg-white hover:bg-gray-50 text-brand-dark border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all disabled:opacity-50"
-                style={{ boxShadow: getRtlShadow('sm', isRTL) }}
-              >
-                <MapPin className="h-5 w-5 text-brand-coral" />
-              </Button>
-            </motion.div>
+              <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  onClick={onRefreshLocation}
+                  disabled={disabled}
+                  size="icon"
+                  className="h-[68px] w-[68px] rounded-2xl bg-white hover:bg-gray-50 text-brand-dark border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all disabled:opacity-50"
+                  style={{ boxShadow: getRtlShadow('sm', isRTL) }}
+                >
+                  <MapPin className="h-5 w-5 text-brand-coral" />
+                </Button>
+              </motion.div>
+            </div>
           </div>
         </div>
       </div>

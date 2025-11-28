@@ -30,8 +30,9 @@ export type ShadowSize = keyof typeof SHADOW_SIZES;
  * @param color - Shadow color (default: solid black)
  * @returns CSS box-shadow value string
  *
- * NOTE: Shadows always point bottom-right for consistent neobrutalist look.
- * The flexbox/grid layout handles RTL positioning of elements automatically.
+ * NOTE: Shadows flip direction based on RTL:
+ * - LTR (English): Shadow on RIGHT (positive X offset)
+ * - RTL (Arabic): Shadow on LEFT (negative X offset)
  *
  * @example
  * // Basic usage
@@ -47,11 +48,9 @@ export const getRtlShadow = (
   color: string = 'rgba(0,0,0,1)'
 ): string => {
   const { x, y } = SHADOW_SIZES[size];
-  // Shadows always point bottom-right for consistent neobrutalist design
-  // RTL layout is handled by flexbox/grid direction, not shadow direction
-  const shadow = `${x}px ${y}px 0px 0px ${color}`;
-  // DEBUG: Log shadow values to verify they're correct
-  console.log(`[getRtlShadow] size=${size}, isRTL=${isRTL}, color=${color} => ${shadow}`);
+  // Flip shadow to LEFT side for RTL (Arabic), RIGHT side for LTR (English)
+  const xOffset = isRTL ? -x : x;
+  const shadow = `${xOffset}px ${y}px 0px 0px ${color}`;
   return shadow;
 };
 

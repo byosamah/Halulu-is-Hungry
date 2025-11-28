@@ -40,24 +40,46 @@ const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-brand-cream overflow-hidden relative">
 
-      {/* ===== GLOBAL COLORFUL BACKGROUND BLOBS - Responsive across entire page ===== */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      {/* ===== HERO BACKGROUND BLOBS - Only covers hero + a bit after ===== */}
+      {/* Using inline styles to prevent RTL CSS rules from flipping positions */}
+      <div
+        className="absolute overflow-hidden pointer-events-none z-0"
+        style={{ top: 0, left: 0, right: 0, height: '130vh' }}
+      >
         {/* Top left - Coral/Red */}
-        <div className="absolute -top-20 -left-20 w-[250px] sm:w-[350px] md:w-[500px] h-[250px] sm:h-[350px] md:h-[500px] bg-brand-coral rounded-full opacity-30 blur-[100px]" />
+        <div
+          className="absolute w-[250px] sm:w-[350px] md:w-[500px] h-[250px] sm:h-[350px] md:h-[500px] bg-brand-coral rounded-full opacity-30 blur-[100px]"
+          style={{ top: '-5rem', left: '-5rem' }}
+        />
         {/* Top right - Teal */}
-        <div className="absolute top-10 sm:top-20 -right-20 sm:-right-40 w-[200px] sm:w-[300px] md:w-[400px] h-[200px] sm:h-[300px] md:h-[400px] bg-brand-teal rounded-full opacity-25 blur-[100px]" />
+        <div
+          className="absolute w-[200px] sm:w-[300px] md:w-[400px] h-[200px] sm:h-[300px] md:h-[400px] bg-brand-teal rounded-full opacity-25 blur-[100px]"
+          style={{ top: '2.5rem', right: '-5rem' }}
+        />
         {/* Middle left - Yellow */}
-        <div className="absolute top-[40%] -left-10 sm:-left-20 w-[180px] sm:w-[250px] md:w-[350px] h-[180px] sm:h-[250px] md:h-[350px] bg-brand-yellow rounded-full opacity-35 blur-[80px]" />
+        <div
+          className="absolute w-[180px] sm:w-[250px] md:w-[350px] h-[180px] sm:h-[250px] md:h-[350px] bg-brand-yellow rounded-full opacity-35 blur-[80px]"
+          style={{ top: '40%', left: '-2.5rem' }}
+        />
         {/* Middle right - Pink */}
-        <div className="absolute top-[60%] -right-10 sm:-right-20 w-[200px] sm:w-[300px] md:w-[400px] h-[200px] sm:h-[300px] md:h-[400px] bg-brand-pink rounded-full opacity-25 blur-[100px]" />
+        <div
+          className="absolute w-[200px] sm:w-[300px] md:w-[400px] h-[200px] sm:h-[300px] md:h-[400px] bg-brand-pink rounded-full opacity-25 blur-[100px]"
+          style={{ top: '60%', right: '-2.5rem' }}
+        />
         {/* Bottom left - Purple */}
-        <div className="absolute bottom-[20%] left-[5%] sm:left-[10%] w-[150px] sm:w-[220px] md:w-[300px] h-[150px] sm:h-[220px] md:h-[300px] bg-brand-purple rounded-full opacity-20 blur-[80px]" />
+        <div
+          className="absolute w-[150px] sm:w-[220px] md:w-[300px] h-[150px] sm:h-[220px] md:h-[300px] bg-brand-purple rounded-full opacity-20 blur-[80px]"
+          style={{ bottom: '20%', left: '5%' }}
+        />
         {/* Bottom center - Lime */}
-        <div className="absolute -bottom-10 sm:-bottom-20 left-[30%] sm:left-[40%] w-[250px] sm:w-[350px] md:w-[450px] h-[250px] sm:h-[350px] md:h-[450px] bg-brand-green rounded-full opacity-25 blur-[100px]" />
+        <div
+          className="absolute w-[250px] sm:w-[350px] md:w-[450px] h-[250px] sm:h-[350px] md:h-[450px] bg-brand-green rounded-full opacity-25 blur-[100px]"
+          style={{ bottom: '-2.5rem', left: '30%' }}
+        />
       </div>
 
       {/* ===== HEADER ===== */}
-      <header className="sticky top-0 z-50 bg-brand-cream/80 backdrop-blur-md border-b-2 border-brand-dark/10">
+      <header className="sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           {/*
             Flexbox with justify-between + dir="rtl" automatically flips layout:
@@ -145,7 +167,7 @@ const LandingPage: React.FC = () => {
         </div>
 
         {/* Main content */}
-        <div className="relative z-10 max-w-5xl mx-auto text-center">
+        <div className="relative z-10 max-w-6xl mx-auto text-center">
           {/* BIG headline */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -169,13 +191,17 @@ const LandingPage: React.FC = () => {
           </motion.p>
 
           {/* Search bar - Matching premium-search style */}
+          {/* Responsive width: full on mobile, then constrain on larger screens */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="max-w-2xl mx-auto mb-8"
+            className="w-full px-4 sm:px-0 sm:w-[80vw] md:w-[60vw] lg:w-[51vw] max-w-[650px] mx-auto mb-8"
           >
-            <div className="bg-gradient-to-br from-white via-primary/5 to-secondary/10 rounded-2xl sm:rounded-3xl shadow-xl border-2 border-primary/20 p-4 sm:p-6 md:p-8">
+            <div
+              className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border-4 border-brand-dark"
+              style={{ boxShadow: getRtlShadow('lg', isRTL, '#00CEC9') }}
+            >
               {/*
                 Flexbox with dir="rtl" automatically flips layout:
                 - LTR: Input LEFT, Button RIGHT
@@ -183,25 +209,29 @@ const LandingPage: React.FC = () => {
               */}
               <div className="flex flex-col md:flex-row gap-3">
                 {/* Input - Always rendered first (LEFT in LTR, RIGHT in RTL) */}
-                <div className="relative group flex-1">
+                <motion.div
+                  className="relative group flex-1"
+                  whileHover={{ scale: 1.01 }}
+                  transition={{ duration: 0.2 }}
+                >
                   {/* Search icon - always on the left */}
-                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-primary transition-all group-hover:scale-110" />
+                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-brand-coral transition-all group-hover:scale-110" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder={`${t('searchPlaceholder')} 🤤`}
-                    className={`w-full pl-14 pr-4 h-14 text-lg border-2 border-primary/30 focus:ring-2 focus:ring-primary focus:border-primary transition-all rounded-2xl bg-white font-body text-foreground placeholder:text-muted-foreground/70 shadow-sm hover:shadow-md outline-none ${isRTL ? 'text-right' : 'text-left'}`}
+                    className="w-full pl-16 pr-4 h-[68px] text-lg border-4 border-brand-dark focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:border-brand-dark transition-all rounded-2xl bg-white font-body text-brand-dark placeholder:text-brand-muted outline-none"
                   />
-                </div>
+                </motion.div>
 
-                {/* Button - Always rendered second (RIGHT in LTR, LEFT in RTL) */}
+                {/* Let's Eat Button - Primary CTA */}
                 <motion.button
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleSearch}
-                  className="flex-shrink-0 h-14 px-8 rounded-2xl bg-brand-coral text-white font-display font-bold text-lg border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                  className="flex-shrink-0 h-[68px] px-8 rounded-2xl bg-brand-coral text-white font-display font-bold text-lg border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
                   style={{ boxShadow: getRtlShadow('md', isRTL) }}
                 >
                   {t('letsEat')} 🔍
@@ -218,7 +248,7 @@ const LandingPage: React.FC = () => {
             className="flex flex-wrap justify-center gap-2 sm:gap-3"
           >
             {/* Food tags with emojis - use translated quickTags */}
-            {['🍕', '🍖', '🍛', '🍔', '🧆'].map((emoji, i) => {
+            {['🍕', '🍖', '🌯', '🍔', '🧆'].map((emoji, i) => {
               const tags = t('quickTags') as unknown as string[];
               const tagName = tags[i];
               return (

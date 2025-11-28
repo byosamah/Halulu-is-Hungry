@@ -101,7 +101,7 @@ export const en = {
   heroSubtitle: 'We read thousands of reviews and tell you the truth: Is this place actually good?',
 
   // Quick tags on hero
-  quickTags: ['Pizza', 'Mansaf', 'Bukhari', 'Burgers', 'Falafel'],
+  quickTags: ['Pizza', 'Mansaf', 'Shawarma', 'Burgers', 'Falafel'],
 
   // ==================
   // LANDING PAGE - PROBLEM SECTION

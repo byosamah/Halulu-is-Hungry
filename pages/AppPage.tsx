@@ -198,14 +198,11 @@ const AppPage: React.FC = () => {
     }
 
     // Empty state (no search yet) - matching landing page style
-    // DEBUG: Testing hardcoded shadow to rule out function issues
-    const testShadow = '6px 6px 0px 0px #FFD93D';
-    console.log('[DEBUG] Empty state shadow hardcoded:', testShadow);
     return (
       <div className="text-center py-8 sm:py-12 md:py-16 animate-fade-in max-w-3xl mx-auto">
         <div
           className="bg-white rounded-2xl sm:rounded-3xl md:rounded-[40px] p-6 sm:p-10 md:p-16 border-4 border-brand-dark"
-          style={{ boxShadow: testShadow }}
+          style={{ boxShadow: getRtlShadow('md', isRTL, '#FFD93D') }}
         >
           <div className="space-y-6">
             <h2 className="font-display-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-brand-dark leading-tight">
