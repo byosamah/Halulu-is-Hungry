@@ -98,6 +98,8 @@ const LandingPage: React.FC = () => {
               className="w-7 h-7 sm:w-8 sm:h-8"
               viewBox="0 0 182.59 194.77"
               fill="currentColor"
+              role="img"
+              aria-label="Halulu logo"
             >
               <path d="M69.46,5.75v35.25c-7.33,1.12-13.99.31-20.95-2.05l-.17-33.08c-2.1-6.84-11.22-7.28-13.36-.09l-.11,32.64c-6.61,3.06-13.72,3.67-20.92,2.58V6.25c0-.76-1.51-3.13-2.25-3.75C7.01-1.45,1.11,1.03,0,6.79l.02,86.9c1.5,13.63,12.86,24.26,26.62,24.38l.69.66-5.37,61.52c1.04,13.38,12.56,15.06,23.77,14.27,11.82-.83,16.31-7.73,15.22-19.27l-5-57.25c13.69-.08,24.73-9.93,26.95-23.3l.02-89.42c-1.59-7.22-12.28-6.68-13.47.47Z"/>
               <path d="M181.95,42.26c-1.63-19.9-22.2-42.26-42.74-42.26h-26.25v183.25c0,6.45,8.81,10.69,14.31,11.19,13.43,1.22,26.16-.22,25.71-16.71l-5.47-59.41c5.97-3.04,12.65-5.19,18.19-9.33,8.24-6.16,15.16-18,16.2-28.3.97-9.7.86-28.62.05-38.43Z"/>
@@ -106,7 +108,8 @@ const LandingPage: React.FC = () => {
           </motion.div>
 
           {/* Buttons - Always rendered second (RIGHT in LTR, LEFT in RTL) */}
-          <div className="flex items-center gap-3">
+          {/* Use items-stretch so both buttons have equal height */}
+          <div className="flex items-stretch gap-2 sm:gap-3">
             <LanguageSwitcher />
             <motion.button
               initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
@@ -114,7 +117,7 @@ const LandingPage: React.FC = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/app')}
-              className="px-4 sm:px-6 py-2 sm:py-2.5 bg-brand-coral text-white font-display text-sm sm:text-base rounded-xl border-2 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+              className="px-3 sm:px-6 py-2 sm:py-2.5 min-h-[44px] bg-brand-coral text-white font-display text-sm sm:text-base rounded-xl border-2 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-coral flex items-center"
               style={{ boxShadow: getRtlShadow('sm', isRTL) }}
             >
               {t('startSearching')} 🔍
@@ -173,11 +176,10 @@ const LandingPage: React.FC = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-display-black text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-foreground mb-6"
+            className="font-display-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground mb-6"
           >
-            {t('heroTitle1')}
-            <br />
-            <span className="text-gradient">{t('heroTitle2')}</span>
+            <span className="block">{t('heroTitle1')}</span>
+            <span className="block text-gradient">{t('heroTitle2')}</span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -185,7 +187,7 @@ const LandingPage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="font-body text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10"
+            className="font-body text-lg sm:text-xl md:text-xl lg:text-2xl text-muted-foreground max-w-[280px] sm:max-w-lg md:max-w-2xl mx-auto mb-8 sm:mb-10"
           >
             {t('heroSubtitle')}
           </motion.p>
@@ -217,7 +219,8 @@ const LandingPage: React.FC = () => {
                   {/* Search icon - always on the left */}
                   <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-brand-coral transition-all group-hover:scale-110" />
                   <input
-                    type="text"
+                    type="search"
+                    autoComplete="off"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -251,6 +254,8 @@ const LandingPage: React.FC = () => {
             {['🍕', '🍖', '🌯', '🍔', '🧆'].map((emoji, i) => {
               const tags = t('quickTags') as unknown as string[];
               const tagName = tags[i];
+              // Show only first 3 tags on mobile, all 5 on sm+ screens
+              const hiddenOnMobile = i >= 3 ? 'hidden sm:inline-flex' : '';
               return (
                 <motion.button
                   key={tagName}
@@ -259,7 +264,7 @@ const LandingPage: React.FC = () => {
                   onClick={() => {
                     navigate(`/app?q=${encodeURIComponent(tagName)}`);
                   }}
-                  className="px-3 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base bg-white hover:bg-sunshine/20 rounded-full font-body-medium text-foreground transition-all border-2 border-foreground hover:-translate-x-0.5 hover:-translate-y-0.5"
+                  className={`px-4 sm:px-5 py-3 sm:py-2.5 min-h-[44px] text-sm sm:text-base bg-white hover:bg-sunshine/20 rounded-full font-body-medium text-foreground transition-all border-2 border-foreground hover:-translate-x-0.5 hover:-translate-y-0.5 ${hiddenOnMobile}`}
                   style={{ boxShadow: getRtlShadow('sm', isRTL) }}
                 >
                   {emoji} {tagName}
@@ -504,7 +509,7 @@ const LandingPage: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-4 border-brand-dark w-full max-w-md"
+              className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-4 border-brand-dark w-full max-w-[calc(100vw-2rem)] sm:max-w-md"
               style={{ boxShadow: getRtlShadow('md', isRTL, '#FFD93D') }}
             >
               {/* Trial Badge */}
@@ -641,7 +646,7 @@ const LandingPage: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="bg-white rounded-2xl p-6 border-4 border-brand-dark"
+              className="bg-white rounded-2xl p-6 border-4 border-brand-dark min-h-[140px] flex flex-col"
               style={{ boxShadow: getRtlShadow('md', isRTL, '#FFD93D'), textAlign: isRTL ? 'right' : 'left' }}
             >
               <p className="font-display text-lg sm:text-xl text-brand-dark mb-3">
@@ -658,7 +663,7 @@ const LandingPage: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.15 }}
-              className="bg-white rounded-2xl p-6 border-4 border-brand-dark"
+              className="bg-white rounded-2xl p-6 border-4 border-brand-dark min-h-[140px] flex flex-col"
               style={{ boxShadow: getRtlShadow('sm', isRTL, '#00CEC9'), textAlign: isRTL ? 'right' : 'left' }}
             >
               <p className="font-display text-lg sm:text-xl text-brand-dark mb-3">
@@ -675,7 +680,7 @@ const LandingPage: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-white rounded-2xl p-6 border-4 border-brand-dark"
+              className="bg-white rounded-2xl p-6 border-4 border-brand-dark min-h-[140px] flex flex-col"
               style={{ boxShadow: getRtlShadow('md', isRTL, '#FF6B6B'), textAlign: isRTL ? 'right' : 'left' }}
             >
               <p className="font-display text-lg sm:text-xl text-brand-dark mb-3">
@@ -692,7 +697,7 @@ const LandingPage: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.25 }}
-              className="bg-white rounded-2xl p-6 border-4 border-brand-dark"
+              className="bg-white rounded-2xl p-6 border-4 border-brand-dark min-h-[140px] flex flex-col"
               style={{ boxShadow: getRtlShadow('md', isRTL, '#A855F7'), textAlign: isRTL ? 'right' : 'left' }}
             >
               <p className="font-display text-lg sm:text-xl text-brand-dark mb-3">
@@ -709,7 +714,7 @@ const LandingPage: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-white rounded-2xl p-6 border-4 border-brand-dark"
+              className="bg-white rounded-2xl p-6 border-4 border-brand-dark min-h-[140px] flex flex-col"
               style={{ boxShadow: getRtlShadow('md', isRTL, '#00B894'), textAlign: isRTL ? 'right' : 'left' }}
             >
               <p className="font-display text-lg sm:text-xl text-brand-dark mb-3">

@@ -174,8 +174,8 @@ const AppPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Restaurant cards grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Restaurant cards grid - tighter gap on mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {restaurants.map((restaurant, index) => (
               <div
                 key={`${restaurant.name}-${index}`}

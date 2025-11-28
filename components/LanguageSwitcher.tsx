@@ -29,6 +29,18 @@ const LanguageSwitcher: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Close dropdown with Escape key (accessibility requirement)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   // Language options
   const languages: { code: Language; label: string; flag: string }[] = [
     { code: 'en', label: 'English', flag: '🇺🇸' },
@@ -47,7 +59,7 @@ const LanguageSwitcher: React.FC = () => {
       {/* Trigger Button - compact with just icon and flag */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-2.5 py-2 bg-white rounded-xl border-2 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all text-brand-dark"
+        className="flex items-center gap-1.5 px-3 py-2 h-full min-h-[44px] bg-white rounded-xl border-2 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all text-brand-dark"
         style={{ boxShadow: getRtlShadow('sm', isRTL) }}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
@@ -69,7 +81,7 @@ const LanguageSwitcher: React.FC = () => {
               <li key={lang.code}>
                 <button
                   onClick={() => handleSelect(lang.code)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-left rtl:text-right font-body-medium text-sm transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 min-h-[44px] text-left rtl:text-right font-body-medium text-sm transition-colors ${
                     language === lang.code
                       ? 'bg-brand-coral/10 text-brand-coral'
                       : 'text-brand-dark hover:bg-brand-cream'

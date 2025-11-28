@@ -63,7 +63,7 @@ const LuxuryError: React.FC<LuxuryErrorProps> = ({ message }) => {
           {title}
         </AlertTitle>
 
-        <AlertDescription className="font-body text-base md:text-lg text-center leading-relaxed text-foreground/80">
+        <AlertDescription className="font-body text-base md:text-lg text-center leading-relaxed text-foreground">
           {message}
         </AlertDescription>
 

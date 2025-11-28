@@ -79,15 +79,16 @@ const PremiumSearch: React.FC<PremiumSearchProps> = ({
             whileHover={{ scale: 1.01 }}
             transition={{ duration: 0.2 }}
           >
-            {/* Search icon - always on the left */}
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-brand-coral transition-all group-hover:scale-110" />
+            {/* Search icon - position adjusts on mobile for better space */}
+            <Search className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-brand-coral transition-all group-hover:scale-110" />
             <Input
-              type="text"
+              type="search"
+              autoComplete="off"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={`${t('searchPlaceholder')} 🤤`}
-              className="pl-16 pr-4 h-[68px] text-lg border-4 border-brand-dark focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:border-brand-dark transition-all rounded-2xl bg-white font-body text-brand-dark placeholder:text-brand-muted w-full"
+              className="pl-12 sm:pl-16 pr-4 h-[68px] text-lg border-4 border-brand-dark focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:border-brand-dark transition-all rounded-2xl bg-white font-body text-brand-dark placeholder:text-brand-muted w-full"
               disabled={disabled}
             />
           </motion.div>

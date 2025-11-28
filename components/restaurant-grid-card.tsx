@@ -75,7 +75,7 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
         initial={{ scale: 0, rotate: -10 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 200 }}
-        className="absolute -top-3 left-4 z-10"
+        className="absolute -top-3 left-4 rtl:left-auto rtl:right-4 z-10"
       >
         <Badge
           className="bg-brand-coral text-white font-display font-bold px-4 py-1.5 text-sm border-2 border-brand-dark rounded-xl"
@@ -174,7 +174,7 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
             className="w-full h-12 bg-brand-coral hover:bg-brand-coral text-white font-display font-bold rounded-xl border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
             style={{ boxShadow: getRtlShadow('sm', isRTL) }}
           >
-            <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className={`flex items-center justify-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className={`flex items-center justify-center gap-2 whitespace-nowrap ${isRTL ? 'flex-row-reverse' : ''}`}>
               🗺️ {t('letsGoHere')}
               <ExternalLink className="h-4 w-4" />
             </a>

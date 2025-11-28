@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -7,15 +7,31 @@ import { useLanguage } from '../contexts/LanguageContext';
 const LuxuryLoading: React.FC = () => {
   const { t } = useLanguage();
 
+  // Check if user prefers reduced motion (accessibility)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setPrefersReducedMotion(e.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   return (
   <div className="space-y-6 sm:space-y-8 md:space-y-12 animate-fade-in">
     {/* 🎪 Fun Loading Animation */}
     <div className="text-center py-8 sm:py-12 md:py-16 space-y-6 sm:space-y-8">
       {/* 🍔 Bouncing food emojis instead of boring spinner! */}
+      {/* Animations disabled when user prefers reduced motion (accessibility) */}
       <div className="flex items-center justify-center gap-3 sm:gap-4">
         <motion.div
           className="text-4xl sm:text-5xl md:text-6xl"
-          animate={{
+          animate={prefersReducedMotion ? {} : {
             y: [0, -30, 0],
             rotate: [0, 10, -10, 0],
           }}
@@ -30,7 +46,7 @@ const LuxuryLoading: React.FC = () => {
         </motion.div>
         <motion.div
           className="text-4xl sm:text-5xl md:text-6xl"
-          animate={{
+          animate={prefersReducedMotion ? {} : {
             y: [0, -30, 0],
             rotate: [0, -10, 10, 0],
           }}
@@ -45,7 +61,7 @@ const LuxuryLoading: React.FC = () => {
         </motion.div>
         <motion.div
           className="text-4xl sm:text-5xl md:text-6xl"
-          animate={{
+          animate={prefersReducedMotion ? {} : {
             y: [0, -30, 0],
             rotate: [0, 10, -10, 0],
           }}
@@ -76,11 +92,11 @@ const LuxuryLoading: React.FC = () => {
         </p>
       </motion.div>
 
-      {/* 🎯 Colorful loading dots */}
+      {/* 🎯 Colorful loading dots - also respects reduced motion */}
       <div className="flex items-center justify-center gap-2">
         <motion.div
           className="h-3 w-3 rounded-full bg-primary"
-          animate={{
+          animate={prefersReducedMotion ? {} : {
             scale: [1, 1.5, 1],
             opacity: [0.5, 1, 0.5],
           }}
@@ -92,7 +108,7 @@ const LuxuryLoading: React.FC = () => {
         />
         <motion.div
           className="h-3 w-3 rounded-full bg-accent"
-          animate={{
+          animate={prefersReducedMotion ? {} : {
             scale: [1, 1.5, 1],
             opacity: [0.5, 1, 0.5],
           }}
@@ -104,7 +120,7 @@ const LuxuryLoading: React.FC = () => {
         />
         <motion.div
           className="h-3 w-3 rounded-full bg-secondary"
-          animate={{
+          animate={prefersReducedMotion ? {} : {
             scale: [1, 1.5, 1],
             opacity: [0.5, 1, 0.5],
           }}
