@@ -23,14 +23,13 @@ import { getRtlShadow } from '../utils/rtlShadow';
 // ==================
 // LEMON SQUEEZY CONFIG
 // ==================
-// Replace these with your actual Lemon Squeezy variant IDs
-// Get them from: Lemon Squeezy Dashboard → Products → Your Product → Variants
+// Product UUIDs from Lemon Squeezy (found in the /buy/ URL)
 const LEMON_SQUEEZY_CONFIG = {
   // Your store slug (e.g., "halulu" if your checkout URL is halulu.lemonsqueezy.com)
   storeSlug: import.meta.env.VITE_LEMON_SQUEEZY_STORE_SLUG || 'your-store',
-  // Variant IDs for each plan
-  monthlyVariantId: import.meta.env.VITE_LEMON_SQUEEZY_MONTHLY_VARIANT_ID || '',
-  yearlyVariantId: import.meta.env.VITE_LEMON_SQUEEZY_YEARLY_VARIANT_ID || '',
+  // Product UUIDs for each plan (from the /buy/{uuid} URL)
+  monthlyUuid: import.meta.env.VITE_LEMON_SQUEEZY_MONTHLY_UUID || '',
+  yearlyUuid: import.meta.env.VITE_LEMON_SQUEEZY_YEARLY_UUID || '',
 };
 
 // ==================
@@ -50,7 +49,7 @@ interface Plan {
   badgeAr?: string;
   features: string[];
   featuresAr: string[];
-  variantId: string;
+  productUuid: string;
   popular?: boolean;
 }
 
@@ -80,7 +79,7 @@ const plans: Plan[] = [
       'نتائج حسب موقعك',
       'إلغاء في أي وقت',
     ],
-    variantId: LEMON_SQUEEZY_CONFIG.monthlyVariantId,
+    productUuid: LEMON_SQUEEZY_CONFIG.monthlyUuid,
   },
   {
     id: 'yearly',
@@ -107,7 +106,7 @@ const plans: Plan[] = [
       'دعم أولوية',
       'شهرين مجاناً',
     ],
-    variantId: LEMON_SQUEEZY_CONFIG.yearlyVariantId,
+    productUuid: LEMON_SQUEEZY_CONFIG.yearlyUuid,
     popular: true,
   },
 ];
@@ -126,7 +125,8 @@ const PricingPage: React.FC = () => {
   // ==================
   const handleCheckout = (plan: Plan) => {
     // Build checkout URL with pre-filled data
-    const baseUrl = `https://${LEMON_SQUEEZY_CONFIG.storeSlug}.lemonsqueezy.com/checkout/buy/${plan.variantId}`;
+    // Using the /buy/{uuid} format (not /checkout/buy/{variant_id})
+    const baseUrl = `https://${LEMON_SQUEEZY_CONFIG.storeSlug}.lemonsqueezy.com/buy/${plan.productUuid}`;
 
     // Build query params
     const params = new URLSearchParams();
@@ -172,10 +172,10 @@ const PricingPage: React.FC = () => {
       {/* Header */}
       <header className="relative bg-white/70 backdrop-blur-md sticky top-0 z-50 border-b-2 border-brand-dark/10">
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Back button */}
+          {/* Back button (44px min touch target) */}
           <button
             onClick={() => navigate(-1)}
-            className={`flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
+            className={`flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors p-2 -m-2 min-h-[44px] ${isRTL ? 'flex-row-reverse' : ''}`}
           >
             <ArrowLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
             <span className="font-display">{t('back') as string}</span>
@@ -243,7 +243,7 @@ const PricingPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + index * 0.1 }}
               className={`
-                relative bg-white rounded-3xl p-8 border-4 border-brand-dark
+                relative bg-white rounded-3xl p-5 sm:p-8 border-4 border-brand-dark
                 ${plan.popular ? 'ring-4 ring-brand-coral/30' : ''}
               `}
               style={{ boxShadow: getRtlShadow('lg', isRTL, plan.popular ? '#FF6B6B' : '#00CEC9') }}
@@ -304,7 +304,7 @@ const PricingPage: React.FC = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleCheckout(plan)}
-                disabled={!plan.variantId}
+                disabled={!plan.productUuid}
                 className={`
                   w-full py-4 px-6 rounded-xl font-display text-lg
                   border-3 border-brand-dark flex items-center justify-center gap-2
@@ -325,9 +325,9 @@ const PricingPage: React.FC = () => {
               </motion.button>
 
               {/* Not configured warning */}
-              {!plan.variantId && (
+              {!plan.productUuid && (
                 <p className="text-center text-xs text-brand-muted mt-3">
-                  ⚠️ Configure VITE_LEMON_SQUEEZY_{plan.id.toUpperCase()}_VARIANT_ID
+                  ⚠️ Configure VITE_LEMON_SQUEEZY_{plan.id.toUpperCase()}_UUID
                 </p>
               )}
             </motion.div>

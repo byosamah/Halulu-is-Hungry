@@ -293,13 +293,11 @@ const AppPage: React.FC = () => {
 
           {/* Right side: Search Counter + Language Switcher + Profile */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Shows remaining searches - hidden on small screens, compact version */}
-            <div className="hidden sm:block">
-              <SearchCounter
-                compact
-                onUpgradeClick={() => setShowLimitModal(true)}
-              />
-            </div>
+            {/* Shows remaining searches - visible on all screens */}
+            <SearchCounter
+              compact
+              onUpgradeClick={() => setShowLimitModal(true)}
+            />
             <LanguageSwitcher />
             <HeaderProfile />
           </div>
