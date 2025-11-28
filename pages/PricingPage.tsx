@@ -172,10 +172,10 @@ const PricingPage: React.FC = () => {
       {/* Header */}
       <header className="relative bg-white/70 backdrop-blur-md sticky top-0 z-50 border-b-2 border-brand-dark/10">
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Back button */}
+          {/* Back button (44px min touch target) */}
           <button
             onClick={() => navigate(-1)}
-            className={`flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
+            className={`flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors p-2 -m-2 min-h-[44px] ${isRTL ? 'flex-row-reverse' : ''}`}
           >
             <ArrowLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
             <span className="font-display">{t('back') as string}</span>
@@ -243,7 +243,7 @@ const PricingPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + index * 0.1 }}
               className={`
-                relative bg-white rounded-3xl p-8 border-4 border-brand-dark
+                relative bg-white rounded-3xl p-5 sm:p-8 border-4 border-brand-dark
                 ${plan.popular ? 'ring-4 ring-brand-coral/30' : ''}
               `}
               style={{ boxShadow: getRtlShadow('lg', isRTL, plan.popular ? '#FF6B6B' : '#00CEC9') }}

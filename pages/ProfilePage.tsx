@@ -171,10 +171,10 @@ const ProfilePage: React.FC = () => {
       {/* Header */}
       <header className="relative bg-white/70 backdrop-blur-md sticky top-0 z-50 border-b-2 border-brand-dark/10">
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Back button */}
+          {/* Back button (44px min touch target) */}
           <button
             onClick={() => navigate('/app')}
-            className={`flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
+            className={`flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors p-2 -m-2 min-h-[44px] ${isRTL ? 'flex-row-reverse' : ''}`}
           >
             <ArrowLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
             <span className="font-display">{t('back') as string}</span>
@@ -289,10 +289,10 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Manage button */}
+              {/* Manage button (48px min touch target) */}
               <button
                 onClick={openCustomerPortal}
-                className={`w-full py-3 px-4 bg-white text-brand-dark font-display rounded-xl border-3 border-brand-dark flex items-center justify-center gap-2 hover:bg-brand-cream transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
+                className={`w-full py-3 px-4 min-h-[48px] bg-white text-brand-dark font-display rounded-xl border-3 border-brand-dark flex items-center justify-center gap-2 hover:bg-brand-cream transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
                 style={{ boxShadow: getRtlShadow('sm', isRTL) }}
               >
                 {isRTL ? 'إدارة الاشتراك' : 'Manage Subscription'}
@@ -318,12 +318,12 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Upgrade button */}
+              {/* Upgrade button (48px min touch target) */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/pricing')}
-                className={`w-full py-3 px-4 bg-brand-coral text-white font-display rounded-xl border-3 border-brand-dark flex items-center justify-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+                className={`w-full py-3 px-4 min-h-[48px] bg-brand-coral text-white font-display rounded-xl border-3 border-brand-dark flex items-center justify-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
                 style={{ boxShadow: getRtlShadow('md', isRTL) }}
               >
                 <Crown className="w-5 h-5" />
@@ -349,7 +349,7 @@ const ProfilePage: React.FC = () => {
           {usageLoading ? (
             <div className="animate-pulse h-24 bg-brand-cream rounded-xl" />
           ) : usage ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-4">
               {/* Searches used */}
               <div className="bg-brand-cream rounded-xl p-4">
                 <div className={`flex items-center gap-2 mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>

@@ -1,14 +1,14 @@
 /**
  * SearchCounter Component
  *
- * Displays the user's remaining search count.
+ * Displays the user's remaining search count in neobrutalist style.
  * Shows warning colors when running low.
  *
  * Features:
  * - Shows "X/Y searches remaining"
- * - Green when plenty remaining
- * - Yellow when running low (≤2)
- * - Red when at limit (0)
+ * - Teal shadow when plenty remaining
+ * - Yellow shadow when running low (≤2)
+ * - Coral shadow when at limit (0)
  * - Click to upgrade (when low)
  */
 
@@ -43,94 +43,107 @@ const SearchCounter: React.FC<SearchCounterProps> = ({
   const isLow = remaining <= 2 && remaining > 0;
   const isExhausted = remaining === 0;
 
-  // Determine colors based on status
-  const getStatusColors = () => {
-    if (isExhausted) {
-      return {
-        bg: 'bg-red-100',
-        text: 'text-red-700',
-        border: 'border-red-400',
-        icon: 'text-red-500',
-      };
-    }
-    if (isLow) {
-      return {
-        bg: 'bg-yellow-100',
-        text: 'text-yellow-700',
-        border: 'border-yellow-400',
-        icon: 'text-yellow-500',
-      };
-    }
-    return {
-      bg: 'bg-brand-green/10',
-      text: 'text-brand-green',
-      border: 'border-brand-green/30',
-      icon: 'text-brand-green',
-    };
+  // Determine shadow color based on status (neobrutalist style)
+  const getShadowColor = () => {
+    if (isExhausted) return '#FF6B6B'; // brand-coral - danger
+    if (isLow) return '#FFD93D'; // brand-yellow - warning
+    if (isPremium) return '#A855F7'; // brand-purple - premium
+    return '#00CEC9'; // brand-teal - normal
   };
 
-  const colors = getStatusColors();
-
-  // Compact version - just shows count
+  // Compact version - neobrutalist pill style (44px min touch target)
   if (compact) {
     return (
-      <div
-        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-display ${colors.bg} ${colors.text}`}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ scale: 1.05 }}
+        className={`
+          inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2
+          min-h-[44px]
+          bg-white border-2 sm:border-3 border-brand-dark rounded-full
+          font-display text-xs sm:text-sm text-brand-dark
+        `}
+        style={{ boxShadow: getRtlShadow('xs', isRTL, getShadowColor()) }}
       >
-        <Zap className={`w-3.5 h-3.5 ${colors.icon}`} />
-        <span>{remaining}/{searchLimit}</span>
-      </div>
+        {isPremium ? (
+          <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-purple" />
+        ) : (
+          <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-coral" />
+        )}
+        <span className="font-bold">{remaining}</span>
+        <span className="text-brand-muted">/</span>
+        <span>{searchLimit}</span>
+      </motion.div>
     );
   }
 
-  // Full version with upgrade prompt
+  // Full version - neobrutalist card style
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={onUpgradeClick && (isLow || isExhausted) ? {
+        scale: 1.02,
+        y: -2,
+      } : undefined}
+      whileTap={onUpgradeClick && (isLow || isExhausted) ? { scale: 0.98 } : undefined}
       className={`
-        inline-flex items-center gap-3 px-4 py-2.5 rounded-xl
-        border-2 ${colors.border} ${colors.bg}
-        ${onUpgradeClick && (isLow || isExhausted) ? 'cursor-pointer hover:scale-[1.02] transition-transform' : ''}
+        inline-flex items-center gap-3 px-4 py-3
+        bg-white border-3 border-brand-dark rounded-2xl
+        ${onUpgradeClick && (isLow || isExhausted) ? 'cursor-pointer' : ''}
       `}
       onClick={isLow || isExhausted ? onUpgradeClick : undefined}
-      style={{ boxShadow: getRtlShadow('xs', isRTL) }}
+      style={{ boxShadow: getRtlShadow('sm', isRTL, getShadowColor()) }}
     >
-      {/* Icon */}
-      <div className={`${colors.icon}`}>
+      {/* Icon with background circle */}
+      <div className={`
+        w-10 h-10 rounded-xl border-2 border-brand-dark
+        flex items-center justify-center
+        ${isPremium ? 'bg-brand-purple/20' : isExhausted ? 'bg-brand-coral/20' : isLow ? 'bg-brand-yellow/20' : 'bg-brand-teal/20'}
+      `}>
         {isPremium ? (
-          <Crown className="w-5 h-5" />
+          <Crown className="w-5 h-5 text-brand-purple" />
         ) : (
-          <Zap className="w-5 h-5" />
+          <Zap className={`w-5 h-5 ${isExhausted ? 'text-brand-coral' : isLow ? 'text-brand-yellow' : 'text-brand-teal'}`} />
         )}
       </div>
 
-      {/* Text */}
+      {/* Count display */}
       <div className="flex flex-col">
-        <span className={`font-display text-sm ${colors.text}`}>
+        <div className="flex items-baseline gap-1">
+          <span className="font-display-black text-2xl text-brand-dark">
+            {remaining}
+          </span>
+          <span className="font-display text-sm text-brand-muted">
+            / {searchLimit}
+          </span>
+        </div>
+        <span className="font-body text-xs text-brand-muted">
           {isExhausted
             ? (t('usage.limitReached') as string)
-            : `${remaining} ${t('usage.searchesRemaining') as string}`
+            : (t('usage.searchesRemaining') as string)
           }
         </span>
-        {!isPremium && (isLow || isExhausted) && (
-          <span className="text-xs text-brand-muted">
-            {t('usage.upgradeForMore') as string}
-          </span>
-        )}
       </div>
 
-      {/* Upgrade badge */}
+      {/* Upgrade button - only show when low or exhausted (44px min touch target) */}
       {!isPremium && (isLow || isExhausted) && onUpgradeClick && (
-        <div className="bg-brand-coral text-white px-2 py-0.5 rounded-md text-xs font-display">
-          {t('usage.upgrade') as string}
+        <div
+          className="bg-brand-coral text-white px-3 py-2 min-h-[44px] rounded-xl border-2 border-brand-dark font-display text-xs flex items-center"
+          style={{ boxShadow: getRtlShadow('xs', isRTL) }}
+        >
+          {t('usage.upgrade') as string} ✨
         </div>
       )}
 
-      {/* Premium badge */}
+      {/* Premium badge (44px min touch target) */}
       {isPremium && (
-        <div className="bg-brand-purple text-white px-2 py-0.5 rounded-md text-xs font-display flex items-center gap-1">
-          <Crown className="w-3 h-3" />
+        <div
+          className="bg-brand-purple text-white px-3 py-2 min-h-[44px] rounded-xl border-2 border-brand-dark font-display text-xs flex items-center gap-1"
+          style={{ boxShadow: getRtlShadow('xs', isRTL) }}
+        >
+          <Crown className="w-3.5 h-3.5" />
           PRO
         </div>
       )}
