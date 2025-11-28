@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Landing Page (Homepage) -->
+  <url>
+    <loc>https://halulu.food/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://halulu.food/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://halulu.food/?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://halulu.food/"/>
+    <lastmod>2024-11-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Pricing Page -->
+  <url>
+    <loc>https://halulu.food/pricing</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://halulu.food/pricing"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://halulu.food/pricing?lang=ar"/>
+    <lastmod>2024-11-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Auth Page (lower priority - not primary content) -->
+  <url>
+    <loc>https://halulu.food/auth</loc>
+    <lastmod>2024-11-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- App Page (requires auth but still indexable for discovery) -->
+  <url>
+    <loc>https://halulu.food/app</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://halulu.food/app"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://halulu.food/app?lang=ar"/>
+    <lastmod>2024-11-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>

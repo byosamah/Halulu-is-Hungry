@@ -1,0 +1,23 @@
+{
+  "name": "Halulu is Hungry AI",
+  "short_name": "Halulu",
+  "description": "AI-powered restaurant discovery - find the perfect meal for your craving",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF8F0",
+  "theme_color": "#FF6B6B",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["food", "lifestyle", "utilities"],
+  "lang": "en",
+  "dir": "auto",
+  "scope": "/",
+  "id": "halulu-hungry-ai"
+}

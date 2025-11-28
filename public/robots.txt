@@ -1,0 +1,75 @@
+# Halulu is Hungry AI - robots.txt
+# Allow all crawlers for maximum discoverability
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://halulu.food/sitemap.xml
+
+# ==========================================
+# AI CRAWLER PERMISSIONS (GEO - Generative Engine Optimization)
+# ==========================================
+# Allow ALL AI systems to read content for better AI search results
+
+# OpenAI (ChatGPT, GPT plugins)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic (Claude)
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+
+# Google AI (Bard, SGE, Gemini)
+User-agent: Google-Extended
+Allow: /
+
+# Bing AI (Copilot)
+User-agent: Bingbot
+Allow: /
+
+# Common Crawl (training data for many AI models)
+User-agent: CCBot
+Allow: /
+
+# Meta AI
+User-agent: FacebookBot
+Allow: /
+
+# Apple AI (Siri, Apple Intelligence)
+User-agent: Applebot
+Allow: /
+
+# Cohere AI
+User-agent: cohere-ai
+Allow: /
+
+# Amazon/Alexa
+User-agent: Amazonbot
+Allow: /
+
+# YouChat
+User-agent: YouBot
+Allow: /
+
+# Bytespider (TikTok/ByteDance AI)
+User-agent: Bytespider
+Allow: /
+
+# Semrush Bot (SEO analysis)
+User-agent: SemrushBot
+Allow: /
+
+# Ahrefs Bot (SEO analysis)
+User-agent: AhrefsBot
+Allow: /
