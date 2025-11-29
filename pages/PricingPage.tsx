@@ -15,7 +15,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Crown, Check, Zap, ArrowLeft, Sparkles, X } from 'lucide-react';
+import { Crown, Zap, ArrowLeft, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getRtlShadow } from '../utils/rtlShadow';
@@ -41,6 +41,7 @@ interface Plan {
   name: string;
   nameAr: string;
   price: string;
+  oldPrice?: string;
   period: string;
   periodAr: string;
   monthlyEquiv?: string;
@@ -85,13 +86,14 @@ const plans: Plan[] = [
     id: 'yearly',
     name: 'Yearly',
     nameAr: 'سنوي',
-    price: '$47.99',
+    price: '$4.99',
+    oldPrice: '$99',
     period: '/year',
     periodAr: '/سنة',
-    monthlyEquiv: '~$3.99/month',
+    monthlyEquiv: '',
     monthlyEquivAr: '',
-    badge: 'Save 20%',
-    badgeAr: 'وفر 20%',
+    badge: 'Save 95%',
+    badgeAr: 'وفر 95%',
     features: [
       '600 AI-powered searches',
       'Smart review analysis',
@@ -271,6 +273,11 @@ const PricingPage: React.FC = () => {
               </h2>
 
               {/* Price */}
+              {plan.oldPrice && (
+                <p className="font-display text-xl text-brand-muted line-through mb-1">
+                  {plan.oldPrice}
+                </p>
+              )}
               <div className="flex items-baseline gap-1 mb-2">
                 <span className="font-display-black text-5xl text-brand-dark">
                   {plan.price}
@@ -288,20 +295,32 @@ const PricingPage: React.FC = () => {
               )}
 
               {/* Features */}
-              <ul className="space-y-3 mb-8">
-                {(isRTL ? plan.featuresAr : plan.features).map((feature, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center gap-3"
-                    style={isRTL ? { marginLeft: 'auto', width: 'fit-content' } : undefined}
-                  >
-                    <div className="w-5 h-5 rounded-full bg-brand-green/20 flex items-center justify-center flex-shrink-0">
-                      <Check className="w-3 h-3 text-brand-green" />
+              <div className="space-y-3 mb-8" dir={isRTL ? 'rtl' : 'ltr'}>
+                {(isRTL ? plan.featuresAr : plan.features).map((feature, i) => {
+                  // Emoji and color for each feature
+                  const featureStyles = [
+                    { emoji: '🔍', bg: 'bg-brand-yellow/30' },
+                    { emoji: '⭐', bg: 'bg-brand-coral/20' },
+                    { emoji: '📍', bg: 'bg-brand-teal/20' },
+                    { emoji: '🚀', bg: 'bg-brand-purple/20' },
+                  ];
+                  const style = featureStyles[i % featureStyles.length];
+                  return (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 bg-brand-cream rounded-xl p-3 border-2 border-brand-dark/20"
+                    >
+                      <span
+                        className={`text-xl ${style.bg} p-2 rounded-lg border-2 border-brand-dark/10`}
+                        style={{ fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif' }}
+                      >
+                        {style.emoji}
+                      </span>
+                      <span className="font-body-medium text-brand-dark text-sm">{feature}</span>
                     </div>
-                    <span className="font-body text-brand-dark">{feature}</span>
-                  </li>
-                ))}
-              </ul>
+                  );
+                })}
+              </div>
 
               {/* CTA Button */}
               <motion.button

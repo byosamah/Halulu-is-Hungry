@@ -503,8 +503,8 @@ const LandingPage: React.FC = () => {
             style={{ direction: isRTL ? 'rtl' : 'ltr' }}
           >
 
-            {/* Monthly Card */}
-            <motion.div
+            {/* Monthly Card - HIDDEN (showing yearly instead) */}
+            {false && <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -557,15 +557,15 @@ const LandingPage: React.FC = () => {
               >
                 {t('monthlyCtaBtn')}
               </motion.button>
-            </motion.div>
+            </motion.div>}
 
-            {/* Yearly Card - Best Value (TEMPORARILY HIDDEN) */}
-            {false && <motion.div
+            {/* Yearly Card - Best Value */}
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-4 border-brand-dark relative"
+              className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-4 border-brand-dark relative w-full max-w-[calc(100vw-2rem)] sm:max-w-md"
               style={{ boxShadow: getRtlShadow('md', isRTL, '#00CEC9') }}
             >
               {/* Best Value Badge */}
@@ -580,12 +580,13 @@ const LandingPage: React.FC = () => {
 
               {/* Price */}
               <div className="text-center mb-6">
+                {/* Strikethrough old price */}
+                <p className="font-display text-xl text-brand-muted line-through mb-1">$99</p>
                 <div className={`flex items-center justify-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <span className="font-display text-2xl text-brand-muted">$</span>
-                  <span className="font-display-black text-5xl sm:text-6xl text-brand-dark">{t('yearlyPrice')}</span>
+                  <span className="font-display-black text-5xl sm:text-6xl text-brand-dark">4.99</span>
                 </div>
                 <p className="font-body text-brand-muted mt-2">{t('yearlyPeriod')}</p>
-                <p className="font-body text-sm text-brand-teal mt-1">{t('yearlyMonthly')}</p>
               </div>
 
               {/* Features */}
@@ -614,7 +615,7 @@ const LandingPage: React.FC = () => {
               >
                 {t('yearlyCtaBtn')} 🚀
               </motion.button>
-            </motion.div>}
+            </motion.div>
           </div>
 
           <p className="text-center text-sm text-brand-muted mt-6 font-body">
