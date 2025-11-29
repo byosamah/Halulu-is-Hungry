@@ -408,19 +408,19 @@ const LandingPage: React.FC = () => {
             </div>
 
             {/* Demo GIF */}
-            <div className="mt-10 mb-6 flex justify-center">
+            <div className="mt-10 mb-6">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="rounded-2xl border-4 border-brand-dark overflow-hidden"
+                className="w-full rounded-2xl border-4 border-brand-dark overflow-hidden"
                 style={{ boxShadow: getRtlShadow('lg', isRTL) }}
               >
                 <img
                   src={isRTL ? '/demo-ar.gif' : '/demo-en.gif'}
                   alt={isRTL ? 'عرض توضيحي للتطبيق' : 'App demo'}
-                  className="w-full max-w-md"
+                  className="w-full"
                   loading="lazy"
                 />
               </motion.div>

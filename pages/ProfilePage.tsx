@@ -138,6 +138,16 @@ const ProfilePage: React.FC = () => {
     });
   };
 
+  // Calculate reset date (first day of next month)
+  const getResetDate = () => {
+    const now = new Date();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    return nextMonth.toLocaleDateString(isRTL ? 'ar-EG' : 'en-US', {
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
   // Loading state
   if (loading || !user) {
     return (
@@ -287,11 +297,6 @@ const ProfilePage: React.FC = () => {
                   <div>
                     <p className="font-display text-brand-dark">
                       {isRTL ? 'خطة Pro' : 'Pro Plan'}
-                      {profile?.subscription_variant && (
-                        <span className={`text-brand-muted font-body text-sm ${isRTL ? 'mr-2' : 'ml-2'}`}>
-                          ({profile.subscription_variant})
-                        </span>
-                      )}
                     </p>
                     <p className="font-body text-sm text-brand-muted mt-1">
                       {subscriptionStatus === 'cancelled' ? (
@@ -422,7 +427,7 @@ const ProfilePage: React.FC = () => {
             <div className="mt-4 pt-4 border-t-2 border-brand-dark/10 flex items-center gap-2 text-brand-muted">
               <Clock className="w-4 h-4" />
               <span className="font-body text-sm">
-                {isRTL ? 'يتجدد في بداية الشهر القادم' : 'Resets at the start of next month'}
+                {isRTL ? `يتجدد في ${getResetDate()}` : `Resets on ${getResetDate()}`}
               </span>
             </div>
           )}
