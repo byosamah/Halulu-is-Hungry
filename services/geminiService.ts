@@ -1,7 +1,19 @@
 import { GoogleGenAI } from "@google/genai";
 import type { Restaurant, Coordinates } from '../types';
 import { QuotaExceededError, APIKeyError, NetworkError, InvalidResponseError } from '../types';
-import { AI_MODEL_NAME } from '../constants';
+import { AI_MODEL_NAME, AI_MODEL_NAME_FLASH } from '../constants';
+
+// ==========================================
+// SECURITY: Input Validation
+// أمان: التحقق من المدخلات
+// ==========================================
+
+/**
+ * SECURITY: Maximum allowed length for search queries
+ * Prevents excessively long prompts that could consume API quota
+ * حد أقصى لطول استعلامات البحث لمنع استنفاد حصة API
+ */
+const MAX_QUERY_LENGTH = 200;
 
 function cleanJsonString(str: string): string {
     // Attempts to remove markdown formatting and extraneous text around a JSON object/array
@@ -49,8 +61,30 @@ export function validateAPIKey(): boolean {
 export const findRestaurants = async (
   location: Coordinates,
   query: string,
-  filters: string[]
+  filters: string[],
+  isPremium: boolean = false,  // Premium users get Pro, free users get Flash
+  language: 'en' | 'ar' = 'en'  // Language for AI responses
 ): Promise<Restaurant[]> => {
+  // ==========================================
+  // SECURITY: Validate input before processing
+  // أمان: التحقق من المدخلات قبل المعالجة
+  // ==========================================
+
+  // Validate query is not empty
+  if (!query || query.trim().length === 0) {
+    throw new InvalidResponseError('Search query cannot be empty.');
+  }
+
+  // Validate query length (prevent excessive API token usage)
+  if (query.length > MAX_QUERY_LENGTH) {
+    throw new InvalidResponseError(`Search query too long (max ${MAX_QUERY_LENGTH} characters).`);
+  }
+
+  // Validate location coordinates
+  if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number') {
+    throw new InvalidResponseError('Invalid location coordinates.');
+  }
+
   const API_KEY = process.env.API_KEY;
   if (!API_KEY) {
     // This provides a more user-friendly error in the console.
@@ -85,13 +119,20 @@ export const findRestaurants = async (
     - "cons": string[] (An array of exactly 3 **direct quotes** from negative reviews)
 
     IMPORTANT: Do not include any text, explanations, or markdown formatting like \`\`\`json before or after the JSON array. The entire response must be only the JSON data. Each pro and con MUST be a direct quote from a review.
+    ${language === 'ar' ? `
+    LANGUAGE REQUIREMENT: The user is using the Arabic interface. You MUST:
+    - Write all "pros" quotes in Arabic (translate if the original review is in English)
+    - Write all "cons" quotes in Arabic (translate if the original review is in English)
+    - Use natural, colloquial Arabic that sounds authentic
+    - Keep restaurant names in their original language (do not translate names)
+    ` : ''}
   `;
 
   // Wrap API call in retry logic to handle temporary rate limits
   const makeAPICall = async () => {
     try {
       return await ai.models.generateContent({
-        model: AI_MODEL_NAME,
+        model: isPremium ? AI_MODEL_NAME : AI_MODEL_NAME_FLASH,
         contents: prompt,
         config: {
           tools: [{ googleMaps: {} }],
@@ -220,7 +261,7 @@ export const findRestaurants = async (
       throw error;
     }
 
-    // Default fallback for unknown errors
-    throw new Error(`Could not retrieve restaurant data: ${errorMessage}`);
+    // Generic error - don't leak internal details
+    throw new Error('An unexpected error occurred. Please try again.');
   }
 };

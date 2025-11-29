@@ -34,10 +34,10 @@ const AppPage: React.FC = () => {
   // Get search params from URL (allows linking to search results)
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, language } = useLanguage();
 
   // Usage tracking - checks if user can search and increments count
-  const { canSearch, incrementUsage } = useUsage();
+  const { canSearch, incrementUsage, usage } = useUsage();
 
   // Initialize query from URL params if present
   const initialQuery = searchParams.get('q') || '';
@@ -117,7 +117,7 @@ const AppPage: React.FC = () => {
     setRestaurants([]);
 
     try {
-      const results = await findRestaurants(location, searchQuery, activeFilters);
+      const results = await findRestaurants(location, searchQuery, activeFilters, usage?.isPremium ?? false, language);
 
       // ==================
       // STEP 2: Increment usage count AFTER successful search
@@ -150,7 +150,7 @@ const AppPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [location, searchQuery, activeFilters, t, canSearch, incrementUsage]);
+  }, [location, searchQuery, activeFilters, t, canSearch, incrementUsage, usage]);
 
   // Render the main content area
   const renderContent = () => {
@@ -194,7 +194,8 @@ const AppPage: React.FC = () => {
               style={{ boxShadow: getRtlShadow('md', isRTL, '#00CEC9') }}
             >
               <p className={`text-lg text-brand-dark font-display font-bold flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                🎉 {resultsText}
+                <span>🎉</span>
+                <span>{resultsText}</span>
               </p>
             </div>
           </div>
