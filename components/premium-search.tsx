@@ -28,12 +28,32 @@ const PremiumSearch: React.FC<PremiumSearchProps> = ({
 }) => {
   const { t, isRTL } = useLanguage();
 
+  // SECURITY: Maximum allowed length for search queries
+  // حد أقصى لطول استعلامات البحث للأمان
+  const MAX_QUERY_LENGTH = 200;
+
   const handleFilterClick = (filter: string) => {
     setActiveFilters(
       activeFilters.includes(filter)
         ? activeFilters.filter(f => f !== filter)
         : [...activeFilters, filter]
     );
+  };
+
+  /**
+   * SECURITY: Sanitize search input to prevent abuse
+   * - Limits length to MAX_QUERY_LENGTH
+   * - Normalizes excessive whitespace
+   *
+   * أمان: تعقيم مدخلات البحث لمنع سوء الاستخدام
+   */
+  const handleQueryChange = (value: string) => {
+    // Normalize whitespace (multiple spaces → single space)
+    // and limit length
+    const sanitized = value
+      .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
+      .slice(0, MAX_QUERY_LENGTH);  // Enforce max length
+    setQuery(sanitized);
   };
 
   const handleInspireMe = () => {
@@ -81,15 +101,16 @@ const PremiumSearch: React.FC<PremiumSearchProps> = ({
             transition={{ duration: 0.2 }}
           >
             {/* Search icon - position adjusts on mobile for better space */}
-            <Search className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-brand-coral transition-all group-hover:scale-110" />
+            <Search className="absolute start-3 sm:start-5 top-1/2 -translate-y-1/2 h-6 w-6 text-brand-coral transition-all group-hover:scale-110" />
             <Input
               type="search"
               autoComplete="off"
+              maxLength={MAX_QUERY_LENGTH}  // SECURITY: Prevent excessively long queries
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => handleQueryChange(e.target.value)}  // Use sanitized handler
               onKeyDown={handleKeyDown}
-              placeholder={`${t('searchPlaceholder')} 🤤`}
-              className="pl-12 sm:pl-16 pr-4 h-[68px] text-lg border-4 border-brand-dark focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:border-brand-dark transition-all rounded-2xl bg-white font-body text-brand-dark placeholder:text-brand-muted w-full"
+              placeholder={t('searchPlaceholder') as string}
+              className="ps-12 sm:ps-16 pe-4 h-[68px] text-lg border-4 border-brand-dark focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:border-brand-dark transition-all rounded-2xl bg-white font-body text-brand-dark placeholder:text-brand-muted w-full"
               disabled={disabled}
             />
           </motion.div>
@@ -105,7 +126,7 @@ const PremiumSearch: React.FC<PremiumSearchProps> = ({
                 className="h-[68px] px-8 rounded-2xl bg-brand-coral hover:bg-brand-coral text-white font-display font-bold text-lg border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all disabled:opacity-50 w-full sm:w-auto"
                 style={{ boxShadow: getRtlShadow('md', isRTL) }}
               >
-                {t('letsEat')} 🔍
+                {t('letsEat')} 🤤
               </Button>
             </motion.div>
 

@@ -217,15 +217,15 @@ const LandingPage: React.FC = () => {
                   transition={{ duration: 0.2 }}
                 >
                   {/* Search icon - always on the left */}
-                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-brand-coral transition-all group-hover:scale-110" />
+                  <Search className="absolute start-5 top-1/2 -translate-y-1/2 h-6 w-6 text-brand-coral transition-all group-hover:scale-110" />
                   <input
                     type="search"
                     autoComplete="off"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={`${t('searchPlaceholder')} 🤤`}
-                    className="w-full pl-16 pr-4 h-[68px] text-lg border-4 border-brand-dark focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:border-brand-dark transition-all rounded-2xl bg-white font-body text-brand-dark placeholder:text-brand-muted outline-none"
+                    placeholder={t('searchPlaceholder') as string}
+                    className="w-full ps-16 pe-4 h-[68px] text-lg border-4 border-brand-dark focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:border-brand-dark transition-all rounded-2xl bg-white font-body text-brand-dark placeholder:text-brand-muted outline-none"
                   />
                 </motion.div>
 
@@ -237,7 +237,7 @@ const LandingPage: React.FC = () => {
                   className="flex-shrink-0 h-[68px] px-8 rounded-2xl bg-brand-coral text-white font-display font-bold text-lg border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
                   style={{ boxShadow: getRtlShadow('md', isRTL) }}
                 >
-                  {t('letsEat')} 🔍
+                  {t('letsEat')} 🤤
                 </motion.button>
               </div>
             </div>
