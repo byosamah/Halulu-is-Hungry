@@ -170,17 +170,18 @@ export const ar = {
   monthlyCtaBtn: 'ابدأ التجربة المجانية',
 
   // Yearly Plan
-  yearlyPlanBadge: 'وفر 20%',
+  yearlyPlanBadge: 'العرض لأول 100 مشترك فقط',
   yearlyPlanName: 'سنوي',
   yearlyPrice: '47.99',
   yearlyPeriod: 'بالسنة',
   yearlyMonthly: '~$3.99/شهر',
-  yearlyFeature1: '600 بحث ذكي',
-  yearlyFeature2: 'تحليل ذكي للتقييمات',
-  yearlyFeature3: 'نتائج حسب موقعك',
+  yearlyFeature1: '600 بحث ذكي (50 بحث شهريًا)',
+  yearlyFeature2: 'نموذج ذكاء اصطناعي متقدم أكثر',
+  yearlyFeature3: 'قراءة دقيقة وتحليل للتقييمات',
+  yearlyFeature4: 'نتائج حسب موقعك',
   yearlyCtaBtn: 'احصل على العرض السنوي',
 
-  pricingDisclaimer: 'ما تحتاج بطاقة للتجربة',
+  pricingDisclaimer: 'ما تحتاج بطاقة',
 
   // ==================
   // LANDING PAGE - FAQ
@@ -289,10 +290,12 @@ export const ar = {
     modalTitle: 'وصلت للحد الأقصى!',
     modalMessage: 'استخدمت كل الـ 5 عمليات بحث المجانية هذا الشهر.',
     resetsOn: 'يتجدد في',
-    upgradeTitle: 'ترقية لـ Pro عشان:',
-    benefit1: '50 بحث بالشهر',
-    benefit2: 'دعم أولوية',
-    upgradeButton: 'ترقية لـ Pro',
+    upgradeTitle: 'ترقية للأفضل عشان:',
+    benefit1: '50 بحث ذكي بالشهر',
+    benefit2: 'نموذج ذكاء اصطناعي متقدم أكثر',
+    benefit3: 'قراءة دقيقة وتحليل للتقييمات',
+    benefit4: 'نتائج حسب موقعك',
+    upgradeButton: 'ترقية للأفضل',
     waitForReset: 'بستنى الشهر الجاي',
   },
 

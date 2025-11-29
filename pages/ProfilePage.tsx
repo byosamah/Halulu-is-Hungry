@@ -171,13 +171,23 @@ const ProfilePage: React.FC = () => {
       {/* Header */}
       <header className="relative bg-white/70 backdrop-blur-md sticky top-0 z-50 border-b-2 border-brand-dark/10">
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Back button (44px min touch target) */}
+          {/* Back button (44px min touch target) - Bulletproof RTL pattern */}
           <button
             onClick={() => navigate('/app')}
-            className={`flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors p-2 -m-2 min-h-[44px] ${isRTL ? 'flex-row-reverse' : ''}`}
+            dir="ltr"
+            className="flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors p-2 -m-2 min-h-[44px]"
           >
-            <ArrowLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
-            <span className="font-display">{t('back') as string}</span>
+            {isRTL ? (
+              <>
+                <span className="font-display" dir="auto">{t('back') as string}</span>
+                <ArrowLeft className="w-5 h-5 rotate-180" />
+              </>
+            ) : (
+              <>
+                <ArrowLeft className="w-5 h-5" />
+                <span className="font-display">{t('back') as string}</span>
+              </>
+            )}
           </button>
 
           {/* Title */}
@@ -310,20 +320,33 @@ const ProfilePage: React.FC = () => {
             </>
           ) : (
             <>
-              {/* Free tier status */}
-              <div className="bg-brand-yellow/10 rounded-2xl p-4 mb-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-display text-brand-dark">
-                      {isRTL ? 'الخطة المجانية' : 'Free Plan'}
-                    </p>
-                    <p className="font-body text-sm text-brand-muted mt-1">
-                      {isRTL
-                        ? `${SEARCH_LIMITS.free} عمليات بحث شهرياً`
-                        : `${SEARCH_LIMITS.free} searches per month`}
-                    </p>
-                  </div>
-                  <Zap className="w-8 h-8 text-brand-yellow" />
+              {/* Pro Benefits - upgrade incentive */}
+              <div className="mb-4">
+                <p className="font-display text-sm text-brand-muted mb-3">
+                  {isRTL ? 'ترقية عشان تحصل على:' : 'Upgrade to get:'}
+                </p>
+                <div className="space-y-2" dir={isRTL ? 'rtl' : 'ltr'}>
+                  {[
+                    { emoji: '🔍', bg: 'bg-brand-yellow/30', text: t('usage.benefit1') as string },
+                    { emoji: '⭐', bg: 'bg-brand-coral/20', text: t('usage.benefit2') as string },
+                    { emoji: '📍', bg: 'bg-brand-teal/20', text: t('usage.benefit3') as string },
+                    { emoji: '🚀', bg: 'bg-brand-purple/20', text: t('usage.benefit4') as string },
+                  ].map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 bg-brand-cream rounded-xl p-3 border-2 border-brand-dark/20"
+                    >
+                      <span
+                        className={`text-lg ${item.bg} p-2 rounded-lg border-2 border-brand-dark/10`}
+                        style={{ fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif' }}
+                      >
+                        {item.emoji}
+                      </span>
+                      <span className="font-body-medium text-brand-dark text-sm">
+                        {item.text}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -336,7 +359,7 @@ const ProfilePage: React.FC = () => {
                 style={{ boxShadow: getRtlShadow('md', isRTL) }}
               >
                 <Crown className="w-5 h-5" />
-                {isRTL ? 'ترقية إلى Pro' : 'Upgrade to Pro'}
+                {isRTL ? 'ترقية للأفضل' : 'Upgrade to Pro'}
               </motion.button>
             </>
           )}

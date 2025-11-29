@@ -165,17 +165,18 @@ export const en = {
   monthlyCtaBtn: 'Start Free Trial',
 
   // Yearly Plan
-  yearlyPlanBadge: 'Save 20%',
+  yearlyPlanBadge: 'First 100 subscribers only',
   yearlyPlanName: 'Yearly',
   yearlyPrice: '47.99',
   yearlyPeriod: 'per year',
   yearlyMonthly: '~$3.99/month',
-  yearlyFeature1: '600 AI-powered searches',
-  yearlyFeature2: 'Smart review analysis',
-  yearlyFeature3: 'Location-based results',
+  yearlyFeature1: '600 AI-powered searches (50/month)',
+  yearlyFeature2: 'More advanced AI model',
+  yearlyFeature3: 'Accurate reading & analysis of reviews',
+  yearlyFeature4: 'Location-based results',
   yearlyCtaBtn: 'Get Yearly Deal',
 
-  pricingDisclaimer: 'No credit card required for trial',
+  pricingDisclaimer: 'No credit card required',
 
   // ==================
   // LANDING PAGE - FAQ
@@ -285,8 +286,10 @@ export const en = {
     modalMessage: "You've used all 5 free searches this month.",
     resetsOn: 'Resets on',
     upgradeTitle: 'Upgrade to Pro for:',
-    benefit1: '50 searches per month',
-    benefit2: 'Priority support',
+    benefit1: '50 AI-powered searches per month',
+    benefit2: 'More advanced AI model',
+    benefit3: 'Accurate reading & analysis of reviews',
+    benefit4: 'Location-based results',
     upgradeButton: 'Upgrade to Pro',
     waitForReset: "I'll wait for next month",
   },

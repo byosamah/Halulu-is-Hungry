@@ -17,11 +17,15 @@ export type Language = 'en' | 'ar';
 // Translation type (matches our translation files structure)
 export type Translations = typeof en;
 
+// Translation value type - supports strings, arrays, and functions (for dynamic translations)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type TranslationValue = string | string[] | ((...args: any[]) => string);
+
 // Context value type
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string | string[];
+  t: (key: string) => TranslationValue;
   isRTL: boolean;
 }
 
@@ -32,8 +36,8 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const LANGUAGE_STORAGE_KEY = 'halulu-language';
 
 // Get nested value from object using dot notation (e.g., "filters.cozy")
-// Supports returning strings OR arrays (for things like quickTags, inspirations)
-const getNestedValue = (obj: Record<string, unknown>, path: string): string | string[] => {
+// Supports returning strings, arrays, and functions (for dynamic translations like foundSpots)
+const getNestedValue = (obj: Record<string, unknown>, path: string): TranslationValue => {
   const keys = path.split('.');
   let result: unknown = obj;
 
@@ -49,6 +53,9 @@ const getNestedValue = (obj: Record<string, unknown>, path: string): string | st
   if (typeof result === 'string') return result;
   // Return array if it's an array (for quickTags, inspirations, etc.)
   if (Array.isArray(result)) return result as string[];
+  // Return function if it's a function (for dynamic translations like foundSpots, noResults)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (typeof result === 'function') return result as (...args: any[]) => string;
   // Fallback: return the path for debugging
   return path;
 };
@@ -88,8 +95,8 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   // Check if current language is RTL
   const isRTL = language === 'ar';
 
-  // Translation function - gets text by key (supports strings and arrays)
-  const t = useCallback((key: string): string | string[] => {
+  // Translation function - gets text by key (supports strings, arrays, and functions)
+  const t = useCallback((key: string): TranslationValue => {
     return getNestedValue(translations as unknown as Record<string, unknown>, key);
   }, [translations]);
 

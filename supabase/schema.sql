@@ -132,7 +132,16 @@ CREATE TABLE IF NOT EXISTS public.webhook_events (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- No RLS needed - this table is only accessed by Edge Functions
+-- SECURITY FIX: Enable RLS for defense-in-depth
+-- Edge Functions use service_role key which bypasses RLS anyway
+-- But this prevents direct access via anon key
+ALTER TABLE public.webhook_events ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Only service role can access (Edge Functions use this)
+CREATE POLICY IF NOT EXISTS "Service role only"
+  ON public.webhook_events
+  FOR ALL
+  USING (auth.role() = 'service_role');
 
 
 -- ============================================

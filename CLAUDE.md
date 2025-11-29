@@ -91,10 +91,12 @@ Restaurant discovery app using Google Gemini AI with Google Maps grounding. User
 - Profile management
 
 ### Usage Limits
-- Free tier: 3 searches/day
-- Premium: Unlimited searches
+- Free tier: 5 searches/month
+- Premium: 50 searches/month
 - Real-time counter in header
 - Upgrade prompts when limit reached
+- **Upgrade behavior:** When user upgrades, search count resets to 0 (full 50 searches)
+- **Cancellation behavior:** User keeps premium access until subscription period ends
 
 ### Payments (Lemon Squeezy)
 - Monthly subscription ($4.99)
@@ -187,7 +189,9 @@ LEMON_SQUEEZY_WEBHOOK_SECRET=your_webhook_secret
 ```
 
 ### Typography
-**Font:** Fredoka (Google Fonts) + Playpen Sans Arabic (RTL)
+**Fonts:**
+- Fredoka (Google Fonts) - English headlines
+- Teshrin (custom) - Arabic/RTL support
 - `.font-display` - Headlines (600)
 - `.font-display-black` - Hero text (700)
 - `.font-body` - Body text (400)
@@ -240,7 +244,8 @@ supabase functions deploy lemon-squeezy-webhook --no-verify-jwt
 | Task | Location |
 |------|----------|
 | Add filter | `constants.ts` → `ATTRIBUTE_FILTERS` |
-| Change AI model | `constants.ts` → `AI_MODEL_NAME` |
+| Change Pro model | `constants.ts` → `AI_MODEL_NAME` |
+| Change Flash model | `constants.ts` → `AI_MODEL_NAME_FLASH` |
 | Update colors | `index.css` → `@theme` block |
 | Modify AI prompt | `geminiService.ts` → `findRestaurants()` |
 | Add translations | `translations/en.ts` + `translations/ar.ts` |
@@ -254,18 +259,112 @@ supabase functions deploy lemon-squeezy-webhook --no-verify-jwt
 2. **API key** - Bundled client-side (visible in browser)
 3. **Webhook JWT** - Deploy with `--no-verify-jwt` for Lemon Squeezy webhooks
 4. **Mobile UX** - All touch targets must be 44px+ minimum
-5. **RTL Support** - Use `getRtlShadow()` for shadows, check `isRTL` from context
+5. **RTL Support** - See detailed RTL section below
 6. **AI Crawlers** - robots.txt explicitly allows GPTBot, Claude, Perplexity, etc.
+
+---
+
+## ⚠️ RTL (Right-to-Left) Implementation Guide
+
+### Critical Knowledge - DO NOT SKIP
+
+**Problem:** When a parent has `dir="rtl"`, flex containers inside will have items start from the RIGHT, which can conflict with conditional DOM ordering.
+
+### The Bulletproof RTL Pattern
+
+For flex containers that need different item ORDER in RTL vs LTR:
+
+```tsx
+// ✅ CORRECT - Full control over RTL layout
+<div
+  dir="ltr"  // Override parent's dir="rtl" to control flex order manually
+  className={`flex items-center gap-2 ${isRTL ? 'justify-end' : ''}`}
+>
+  {isRTL ? (
+    // RTL: Render items in reverse order for RTL reading
+    <>
+      <span>{number}</span>
+      <span>{text}</span>
+      <span>{icon}</span>
+    </>
+  ) : (
+    // LTR: Normal order
+    <>
+      <span>{icon}</span>
+      <span>{text}</span>
+      <span>{number}</span>
+    </>
+  )}
+</div>
+```
+
+### Why This Pattern Works
+1. `dir="ltr"` - Prevents parent's `dir="rtl"` from reversing flex order
+2. Conditional DOM order - YOU control the exact visual order
+3. `justify-end` for RTL - Aligns content to the right side
+4. 100% reliable - No CSS variant issues
+
+### What DOESN'T Work
+```tsx
+// ❌ BROKEN - CSS flex-row-reverse with isRTL conditional
+className={`flex ${isRTL ? 'flex-row-reverse' : ''}`}
+
+// ❌ BROKEN - Tailwind rtl: variant (may not compile)
+className="flex rtl:flex-row-reverse"
+
+// ❌ BROKEN - Relying on parent dir="rtl" alone
+// The parent's dir affects flex, causing double-reversal!
+```
+
+### Simple RTL Cases (No Order Change Needed)
+For elements that just need text/alignment to flip, use the parent's `dir` attribute:
+```tsx
+// ✅ OK - Just needs text direction, no order change
+<div className={`flex ${isRTL ? 'flex-row-reverse' : ''}`}>
+  <span>{text}</span>
+  <span>{icon}</span>
+</div>
+```
+
+### Summary
+| Need | Solution |
+|------|----------|
+| Change item ORDER | `dir="ltr"` + conditional JSX + `justify-end` |
+| Just flip alignment | `flex-row-reverse` conditional class |
+| Shadows | `getRtlShadow()` utility |
+| Text direction | Parent `dir="rtl"` handles it |
 
 ---
 
 ## Recent Updates (2025-11-29)
 
+### AI Model Switching by User Tier (Latest)
+- **Free users:** Gemini 2.5 Flash (50% cheaper)
+- **Premium users:** Gemini 2.5 Pro (higher quality)
+- `geminiService.ts` now accepts `isPremium` parameter
+- Model selection: `isPremium ? 'gemini-2.5-pro' : 'gemini-2.5-flash'`
+- Reduces free user API costs from $0.33/month to $0.16/month per user
+
+### Subscription Usage Fix
+- **Upgrade reset:** When free user upgrades, search count resets to 0 (gives full 50 searches)
+- **Cancellation fix:** Cancelled users keep premium access until `ends_at` date
+- Fixed bug where `subscription_updated` would immediately revoke premium on cancellation
+- Webhook now checks if `ends_at` is in future before removing premium access
+
+### Pricing Update
+- Yearly plan now shows $4.99 promotional price
+- Updated pricing page with improved layout
+
+### Teshrin Arabic Font
+- Added Teshrin font family (9 weights) for Arabic text
+- Improved RTL typography and readability
+- Updated HeaderProfile, SearchCounter components
+
 ### Arabic Brand Name Fix
 - Corrected spelling: "حالولو" → "حلولو" (6 instances in translations/ar.ts)
 - Brand name, loading text, story section all now use correct spelling
 
-### SEO/GEO/AEO Implementation (2024-11-28)
+### SEO/GEO/AEO Implementation (2025-11-28)
 - Added 50+ meta tags (Open Graph, Twitter Cards, hreflang)
 - Created JSON-LD schemas (SoftwareApplication, FAQPage, WebSite)
 - Created robots.txt allowing 15+ AI crawlers
@@ -281,7 +380,7 @@ supabase functions deploy lemon-squeezy-webhook --no-verify-jwt
 
 ### Authentication & Payments
 - Supabase auth integration (email/password, magic link)
-- Usage tracking with daily limits (3 free searches)
+- Usage tracking with monthly limits (5 free, 50 premium)
 - Lemon Squeezy subscription integration
 - Webhook handler via Supabase Edge Function
 - Profile page with subscription management

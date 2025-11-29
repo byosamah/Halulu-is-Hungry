@@ -98,31 +98,61 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
       <CardHeader className="pb-3 space-y-3 relative">
 
         {/* Restaurant Name */}
-        <h3 className="font-display text-xl sm:text-2xl font-bold text-brand-dark leading-tight line-clamp-2">
+        {/* leading-snug (1.375) instead of leading-tight (1.25) for Arabic text which has taller letterforms */}
+        <h3 className="font-display text-xl sm:text-2xl font-bold text-brand-dark leading-snug line-clamp-2">
           {restaurant.title}
         </h3>
 
         {/* AI Rating - Neobrutalist box */}
-        <div className={`flex items-center gap-3 bg-brand-yellow rounded-xl p-3 border-2 border-brand-dark ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
-          <span className={`text-xs text-brand-dark font-display font-bold uppercase tracking-wider flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <span>⭐</span>
-            <span>{t('aiScore')}</span>
-          </span>
-          <span className="font-display text-2xl sm:text-3xl font-bold text-brand-dark tabular-nums">
-            {restaurant.aiRating.toFixed(1)}
-          </span>
+        {/* dir="ltr" overrides parent's dir="rtl" so conditional DOM order works */}
+        <div dir="ltr" className={`flex items-center gap-2 bg-brand-yellow rounded-xl p-3 border-2 border-brand-dark ${isRTL ? 'justify-end' : ''}`}>
+          {isRTL ? (
+            <>
+              <span className="font-display text-2xl sm:text-3xl font-bold text-brand-dark tabular-nums">
+                {restaurant.aiRating.toFixed(1)}
+              </span>
+              <span className="text-xs text-brand-dark font-display font-bold uppercase tracking-wider">
+                {t('aiScore')}
+              </span>
+              <span className="text-lg">⭐</span>
+            </>
+          ) : (
+            <>
+              <span className="text-lg">⭐</span>
+              <span className="text-xs text-brand-dark font-display font-bold uppercase tracking-wider">
+                {t('aiScore')}
+              </span>
+              <span className="font-display text-2xl sm:text-3xl font-bold text-brand-dark tabular-nums">
+                {restaurant.aiRating.toFixed(1)}
+              </span>
+            </>
+          )}
         </div>
 
-        {/* Google Rating */}
+        {/* Google Rating - Bulletproof RTL pattern */}
         {restaurant.googleRating && restaurant.googleReviewsCount && (
-          <div className={`flex flex-wrap items-center gap-2 text-sm text-brand-dark font-body bg-gray-100 rounded-xl px-3 py-2 border-2 border-brand-dark/20 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
-            <span className="font-semibold">{t('googleLabel')}</span>
-            <span className="font-bold">{restaurant.googleRating.toFixed(1)}</span>
-            <span>•</span>
-            <span className={`font-medium flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <span>{restaurant.googleReviewsCount.toLocaleString()} {t('reviews')}</span>
-              <span>💬</span>
-            </span>
+          <div dir="ltr" className={`flex flex-wrap items-center gap-2 text-sm text-brand-dark font-body bg-gray-100 rounded-xl px-3 py-2 border-2 border-brand-dark/20 ${isRTL ? 'justify-end' : ''}`}>
+            {isRTL ? (
+              <>
+                <span className="font-medium flex items-center gap-1">
+                  <span>💬</span>
+                  <span dir="auto">{restaurant.googleReviewsCount.toLocaleString()} {t('reviews')}</span>
+                </span>
+                <span>•</span>
+                <span className="font-bold">{restaurant.googleRating.toFixed(1)}</span>
+                <span className="font-semibold" dir="auto">{t('googleLabel')}</span>
+              </>
+            ) : (
+              <>
+                <span className="font-semibold">{t('googleLabel')}</span>
+                <span className="font-bold">{restaurant.googleRating.toFixed(1)}</span>
+                <span>•</span>
+                <span className="font-medium flex items-center gap-1">
+                  <span>{restaurant.googleReviewsCount.toLocaleString()} {t('reviews')}</span>
+                  <span>💬</span>
+                </span>
+              </>
+            )}
           </div>
         )}
       </CardHeader>
@@ -133,11 +163,20 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
       </div>
 
       <CardContent className="flex-1 pt-4 pb-4 space-y-3">
-        {/* Highlights Section */}
+        {/* Highlights Section - Bulletproof RTL pattern */}
         <div className="space-y-2 bg-brand-teal/10 rounded-xl p-4 border-2 border-brand-teal/30">
-          <h4 className={`text-sm font-bold text-brand-dark uppercase tracking-wider font-display flex items-center gap-2 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
-            <span className="text-lg">😍</span>
-            <span>{t('peopleLove')}</span>
+          <h4 dir="ltr" className={`text-sm font-bold text-brand-dark uppercase tracking-wider font-display flex items-center gap-2 ${isRTL ? 'justify-end' : ''}`}>
+            {isRTL ? (
+              <>
+                <span>{t('peopleLove')}</span>
+                <span className="text-lg">😍</span>
+              </>
+            ) : (
+              <>
+                <span className="text-lg">😍</span>
+                <span>{t('peopleLove')}</span>
+              </>
+            )}
           </h4>
           <ul className="space-y-2">
             {restaurant.pros.slice(0, DISPLAY_LIMITS.PROS_COUNT).map((pro, i) => (
@@ -146,30 +185,67 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
                 initial={{ opacity: 0, x: isRTL ? 10 : -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className={`text-sm text-brand-dark/80 leading-relaxed font-body line-clamp-2 ps-3 border-s-4 border-brand-teal ${isRTL ? 'text-right' : ''}`}
-                dir="auto"
+                dir="ltr"
+                className={`flex items-start gap-2 ${isRTL ? 'justify-end' : ''}`}
               >
-                "{pro}"
+                {isRTL ? (
+                  <>
+                    <span className="text-sm text-brand-dark/80 leading-relaxed font-body line-clamp-2 text-right" dir="auto">
+                      "{pro}"
+                    </span>
+                    <span className="w-1 shrink-0 self-stretch rounded-full bg-brand-teal"></span>
+                  </>
+                ) : (
+                  <>
+                    <span className="w-1 shrink-0 self-stretch rounded-full bg-brand-teal"></span>
+                    <span className="text-sm text-brand-dark/80 leading-relaxed font-body line-clamp-2" dir="auto">
+                      "{pro}"
+                    </span>
+                  </>
+                )}
               </motion.li>
             ))}
           </ul>
         </div>
 
-        {/* Cons section */}
+        {/* Cons section - Bulletproof RTL pattern */}
         {restaurant.cons && restaurant.cons.length > 0 && (
           <div className="space-y-2 bg-gray-100 rounded-xl p-4 border-2 border-brand-dark/10">
-            <h4 className={`text-xs font-bold text-brand-muted uppercase tracking-wider font-display flex items-center gap-2 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
-              <span>💭</span>
-              <span>{t('headsUp')}</span>
+            <h4 dir="ltr" className={`text-xs font-bold text-brand-muted uppercase tracking-wider font-display flex items-center gap-2 ${isRTL ? 'justify-end' : ''}`}>
+              {isRTL ? (
+                <>
+                  <span>{t('headsUp')}</span>
+                  <span>💭</span>
+                </>
+              ) : (
+                <>
+                  <span>💭</span>
+                  <span>{t('headsUp')}</span>
+                </>
+              )}
             </h4>
             <ul className="space-y-1">
               {restaurant.cons.slice(0, DISPLAY_LIMITS.CONS_COUNT).map((con, i) => (
                 <li
                   key={i}
-                  className={`text-xs text-brand-muted leading-relaxed font-body line-clamp-2 ps-3 border-s-4 border-brand-muted/30 ${isRTL ? 'text-right' : ''}`}
-                  dir="auto"
+                  dir="ltr"
+                  className={`flex items-start gap-2 ${isRTL ? 'justify-end' : ''}`}
                 >
-                  "{con}"
+                  {isRTL ? (
+                    <>
+                      <span className="text-xs text-brand-muted leading-relaxed font-body line-clamp-2 text-right" dir="auto">
+                        "{con}"
+                      </span>
+                      <span className="w-1 shrink-0 self-stretch rounded-full bg-brand-muted/30"></span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="w-1 shrink-0 self-stretch rounded-full bg-brand-muted/30"></span>
+                      <span className="text-xs text-brand-muted leading-relaxed font-body line-clamp-2" dir="auto">
+                        "{con}"
+                      </span>
+                    </>
+                  )}
                 </li>
               ))}
             </ul>
@@ -186,9 +262,20 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
             className="w-full h-12 bg-brand-coral hover:bg-brand-coral text-white font-display font-bold rounded-xl border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
             style={{ boxShadow: getRtlShadow('sm', isRTL) }}
           >
-            <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className={`flex items-center justify-center gap-2 whitespace-nowrap ${isRTL ? 'flex-row-reverse' : ''}`}>
-              🗺️ {t('letsGoHere')}
-              <ExternalLink className="h-4 w-4" />
+            <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" dir="ltr" className="flex items-center justify-center gap-2 whitespace-nowrap">
+              {isRTL ? (
+                <>
+                  <ExternalLink className="h-4 w-4" />
+                  <span dir="auto">{t('letsGoHere')}</span>
+                  <span>🗺️</span>
+                </>
+              ) : (
+                <>
+                  <span>🗺️</span>
+                  <span>{t('letsGoHere')}</span>
+                  <ExternalLink className="h-4 w-4" />
+                </>
+              )}
             </a>
           </Button>
         </motion.div>

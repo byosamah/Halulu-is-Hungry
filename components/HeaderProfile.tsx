@@ -15,9 +15,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, User, ChevronDown, Globe } from 'lucide-react';
+import { LogOut, User, ChevronDown, Globe, Crown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useUsage } from '../contexts/UsageContext';
 import { getRtlShadow } from '../utils/rtlShadow';
 import UserAvatar from './UserAvatar';
 import { generateRandomAvatar } from '../lib/avatarUtils';
@@ -26,6 +27,7 @@ const HeaderProfile: React.FC = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { t, isRTL, language, setLanguage } = useLanguage();
+  const { usage } = useUsage();
 
   // Dropdown state
   const [isOpen, setIsOpen] = useState(false);
@@ -156,6 +158,21 @@ const HeaderProfile: React.FC = () => {
                 <span>{t('auth.myProfile') as string}</span>
               </button>
 
+              {/* Upgrade Button - Only for free users */}
+              {!usage?.isPremium && (
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate('/pricing');
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 mt-1 rounded-xl font-display text-white bg-brand-coral border-2 border-brand-dark hover:-translate-y-0.5 transition-all"
+                  style={{ boxShadow: getRtlShadow('xs', isRTL) }}
+                >
+                  <Crown className="w-5 h-5" />
+                  <span>{isRTL ? 'ترقية للأفضل' : 'Upgrade to Pro'}</span>
+                </button>
+              )}
+
               {/* Language Toggle */}
               <div className="border-t border-brand-dark/10 my-2 pt-2">
                 <div className="flex items-center gap-3 px-3 py-2">
@@ -179,7 +196,7 @@ const HeaderProfile: React.FC = () => {
                           : 'bg-white text-brand-dark border-brand-dark/20 hover:border-brand-dark'
                       }`}
                     >
-                      🇸🇦 AR
+                      🇸🇦 ع
                     </button>
                   </div>
                 </div>

@@ -63,6 +63,37 @@ interface WebhookPayload {
 // SIGNATURE VERIFICATION
 // ==================
 
+/**
+ * Constant-time string comparison to prevent timing attacks.
+ * Regular string comparison (===) can leak information about the signature
+ * through timing differences. This function ensures comparison takes the
+ * same amount of time regardless of where strings differ.
+ *
+ * مقارنة ثابتة الوقت لمنع هجمات التوقيت.
+ * المقارنة العادية (===) يمكن أن تسرب معلومات عن التوقيع من خلال اختلافات التوقيت.
+ */
+function timingSafeEqual(a: string, b: string): boolean {
+  // If lengths differ, comparison will always fail
+  // but we still iterate to maintain constant time
+  if (a.length !== b.length) {
+    // Compare against itself to maintain timing
+    let dummy = 0;
+    for (let i = 0; i < a.length; i++) {
+      dummy |= a.charCodeAt(i) ^ a.charCodeAt(i);
+    }
+    return false;
+  }
+
+  // XOR each character - any difference will set bits in result
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+
+  // If result is 0, strings are identical
+  return result === 0;
+}
+
 async function verifySignature(
   rawBody: string,
   signature: string | null,
@@ -90,8 +121,9 @@ async function verifySignature(
   const hashArray = Array.from(new Uint8Array(signatureBuffer));
   const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 
-  // Compare (constant-time comparison would be better, but this is sufficient)
-  return hashHex === signature;
+  // SECURITY FIX: Use constant-time comparison to prevent timing attacks
+  // إصلاح أمني: استخدام مقارنة ثابتة الوقت لمنع هجمات التوقيت
+  return timingSafeEqual(hashHex, signature);
 }
 
 // ==================
@@ -216,6 +248,7 @@ serve(async (req) => {
       case 'subscription_created': {
         console.log('Granting premium access to user:', targetUserId);
 
+        // 1. Update profile to premium
         await supabase
           .from('profiles')
           .update({
@@ -228,6 +261,23 @@ serve(async (req) => {
           })
           .eq('id', targetUserId);
 
+        // 2. Reset search count to give user FULL 50 searches
+        // This ensures a free user who used 2 of 5 searches gets 50, not 48
+        const currentMonth = new Date().toISOString().slice(0, 7); // Format: '2025-01'
+        await supabase
+          .from('search_usage')
+          .upsert(
+            {
+              user_id: targetUserId,
+              month_year: currentMonth,
+              search_count: 0,
+              last_search_at: new Date().toISOString(),
+            },
+            { onConflict: 'user_id,month_year' }
+          );
+
+        console.log('Search count reset to 0 for user:', targetUserId);
+
         break;
       }
 
@@ -238,7 +288,29 @@ serve(async (req) => {
         console.log('Updating subscription for user:', targetUserId);
 
         const status = attributes.cancelled ? 'cancelled' : attributes.status;
-        const isPremium = ['active', 'on_trial', 'past_due'].includes(attributes.status);
+
+        // Determine if user should keep premium access
+        // FIX: Even if cancelled, user keeps premium until ends_at date
+        let isPremium: boolean;
+
+        if (['active', 'on_trial', 'past_due'].includes(attributes.status)) {
+          // Active subscription = premium
+          isPremium = true;
+        } else if (attributes.cancelled && attributes.ends_at) {
+          // Cancelled BUT has future end date = keep premium until then
+          // User paid for this period, so they should keep access
+          const endsAt = new Date(attributes.ends_at);
+          isPremium = endsAt > new Date();
+          console.log(
+            'Cancelled subscription, access until:',
+            attributes.ends_at,
+            'isPremium:',
+            isPremium
+          );
+        } else {
+          // Expired or no end date = not premium
+          isPremium = false;
+        }
 
         await supabase
           .from('profiles')

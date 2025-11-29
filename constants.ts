@@ -7,6 +7,7 @@ export const ATTRIBUTE_FILTERS = ["Cozy", "Romantic", "Family Friendly", "Good f
 // API CONFIGURATION
 // ===================
 export const AI_MODEL_NAME = 'gemini-2.5-pro';
+export const AI_MODEL_NAME_FLASH = 'gemini-2.5-flash';
 
 // ===================
 // GEOLOCATION CONFIG

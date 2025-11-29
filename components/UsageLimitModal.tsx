@@ -14,7 +14,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Zap, Calendar, Crown, Sparkles } from 'lucide-react';
+import { X, Zap, Calendar, Crown, Sparkles, Search } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getRtlShadow } from '../utils/rtlShadow';
 
@@ -38,7 +38,7 @@ const UsageLimitModal: React.FC<UsageLimitModalProps> = ({
   const getNextResetDate = () => {
     const now = new Date();
     const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    return nextMonth.toLocaleDateString(isRTL ? 'ar-SA' : 'en-US', {
+    return nextMonth.toLocaleDateString(isRTL ? 'ar-EG' : 'en-US', {
       month: 'long',
       day: 'numeric',
     });
@@ -118,12 +118,20 @@ const UsageLimitModal: React.FC<UsageLimitModalProps> = ({
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-center gap-2 text-sm font-body text-brand-dark">
-                      <Sparkles className="w-4 h-4 text-brand-purple" />
+                      <Search className="w-4 h-4 text-brand-purple" />
                       {t('usage.benefit1') as string}
                     </li>
                     <li className="flex items-center gap-2 text-sm font-body text-brand-dark">
                       <Crown className="w-4 h-4 text-brand-yellow" />
                       {t('usage.benefit2') as string}
+                    </li>
+                    <li className="flex items-center gap-2 text-sm font-body text-brand-dark">
+                      <Sparkles className="w-4 h-4 text-brand-teal" />
+                      {t('usage.benefit3') as string}
+                    </li>
+                    <li className="flex items-center gap-2 text-sm font-body text-brand-dark">
+                      <Zap className="w-4 h-4 text-brand-coral" />
+                      {t('usage.benefit4') as string}
                     </li>
                   </ul>
                 </div>
@@ -140,14 +148,7 @@ const UsageLimitModal: React.FC<UsageLimitModalProps> = ({
                   {t('usage.upgradeButton') as string}
                 </motion.button>
 
-                {/* Wait option */}
-                <button
-                  onClick={onClose}
-                  className="w-full py-2 text-brand-muted font-body text-sm hover:text-brand-dark transition-colors"
-                >
-                  {t('usage.waitForReset') as string}
-                </button>
-              </div>
+                              </div>
             </div>
           </motion.div>
         </>

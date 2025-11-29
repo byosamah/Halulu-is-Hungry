@@ -70,15 +70,13 @@ const plans: Plan[] = [
     badgeAr: 'تجربة مجانية يوم',
     features: [
       '50 AI-powered searches',
-      'Smart review analysis',
+      'Accurate reading & analysis of reviews',
       'Location-based results',
-      'Cancel anytime',
     ],
     featuresAr: [
       '50 بحث ذكي',
-      'تحليل ذكي للتقييمات',
+      'قراءة دقيقة وتحليل للتقييمات',
       'نتائج حسب موقعك',
-      'إلغاء في أي وقت',
     ],
     productUuid: LEMON_SQUEEZY_CONFIG.monthlyUuid,
   },
@@ -95,17 +93,16 @@ const plans: Plan[] = [
     badge: 'Save 95%',
     badgeAr: 'وفر 95%',
     features: [
-      '600 AI-powered searches',
-      'Smart review analysis',
+      '600 AI-powered searches (50/month)',
+      'More advanced AI model',
+      'Accurate reading & analysis of reviews',
       'Location-based results',
-      'Priority support',
-      '2 months free',
     ],
     featuresAr: [
-      '600 بحث ذكي',
-      'تحليل ذكي للتقييمات',
+      '600 بحث ذكي (50 بحث شهريًا)',
+      'نموذج ذكاء اصطناعي متقدم أكثر',
+      'قراءة دقيقة وتحليل للتقييمات',
       'نتائج حسب موقعك',
-      'إلغاء في أي وقت',
     ],
     productUuid: LEMON_SQUEEZY_CONFIG.yearlyUuid,
     popular: true,
@@ -176,7 +173,7 @@ const PricingPage: React.FC = () => {
           {/* Back button (44px min touch target) */}
           <button
             onClick={() => navigate(-1)}
-            className={`flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors p-2 -m-2 min-h-[44px] ${isRTL ? 'flex-row-reverse' : ''}`}
+            className="flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors p-2 -m-2 min-h-[44px]"
           >
             <ArrowLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
             <span className="font-display">{t('back') as string}</span>
@@ -212,7 +209,7 @@ const PricingPage: React.FC = () => {
           >
             <Sparkles className="w-5 h-5 text-brand-yellow" />
             <span className="font-display text-brand-dark">
-              {isRTL ? 'ترقية لـ Pro' : 'Upgrade to Pro'}
+              {isRTL ? 'ترقية للأفضل' : 'Upgrade to Pro'}
             </span>
           </motion.div>
 
@@ -245,7 +242,7 @@ const PricingPage: React.FC = () => {
               transition={{ delay: 0.3 + index * 0.1 }}
               className={`
                 relative bg-white rounded-3xl p-5 sm:p-8 border-4 border-brand-dark
-                w-full max-w-md
+                w-full max-w-md text-center
                 ${plan.popular ? 'ring-4 ring-brand-coral/30' : ''}
               `}
               style={{ boxShadow: getRtlShadow('lg', isRTL, plan.popular ? '#FF6B6B' : '#00CEC9') }}
@@ -253,9 +250,9 @@ const PricingPage: React.FC = () => {
               {/* Popular badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <div className="bg-brand-coral text-white px-4 py-1.5 rounded-full font-display text-sm flex items-center gap-1.5">
+                  <div className="bg-brand-coral text-white px-4 py-1.5 rounded-full font-display text-sm flex items-center gap-1.5 whitespace-nowrap">
                     <Crown className="w-4 h-4" />
-                    {isRTL ? 'الأكثر شعبية' : 'Most Popular'}
+                    {isRTL ? 'العرض لأول 100 مشترك فقط' : 'First 100 subscribers only'}
                   </div>
                 </div>
               )}
@@ -278,7 +275,7 @@ const PricingPage: React.FC = () => {
                   {plan.oldPrice}
                 </p>
               )}
-              <div className="flex items-baseline gap-1 mb-2">
+              <div className="flex items-baseline gap-1 mb-2 justify-center">
                 <span className="font-display-black text-5xl text-brand-dark">
                   {plan.price}
                 </span>
@@ -356,16 +353,6 @@ const PricingPage: React.FC = () => {
             </motion.div>
           ))}
         </div>
-
-        {/* Disclaimer */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="text-center text-brand-muted font-body mt-8"
-        >
-          {t('pricingDisclaimer') as string}
-        </motion.p>
 
         {/* Secure checkout badge */}
         <motion.div
