@@ -95,6 +95,15 @@ export const findRestaurants = async (
   const ai = new GoogleGenAI({ apiKey: API_KEY });
 
   const prompt = `
+    ${language === 'ar' ? `
+    ⚠️ CRITICAL LANGUAGE REQUIREMENT - ARABIC ⚠️
+    The user interface is in ARABIC. You MUST:
+    - Write ALL "pros" quotes in Arabic language (translate English reviews to Arabic)
+    - Write ALL "cons" quotes in Arabic language (translate English reviews to Arabic)
+    - Use natural, colloquial Arabic that sounds authentic
+    - Keep restaurant names in their original language (don't translate names)
+    This is MANDATORY - do NOT return any English text in pros/cons arrays.
+    ` : ''}
     You are an expert restaurant recommender. Your task is to find and rank restaurants based on the user's request and location, analyze their Google reviews, and provide a structured summary. Your ranking must be sophisticated, considering not just the rating but also the number of reviews to determine reliability.
 
     User Request: "Find me the best ${query}."
@@ -119,13 +128,6 @@ export const findRestaurants = async (
     - "cons": string[] (An array of exactly 3 **direct quotes** from negative reviews)
 
     IMPORTANT: Do not include any text, explanations, or markdown formatting like \`\`\`json before or after the JSON array. The entire response must be only the JSON data. Each pro and con MUST be a direct quote from a review.
-    ${language === 'ar' ? `
-    LANGUAGE REQUIREMENT: The user is using the Arabic interface. You MUST:
-    - Write all "pros" quotes in Arabic (translate if the original review is in English)
-    - Write all "cons" quotes in Arabic (translate if the original review is in English)
-    - Use natural, colloquial Arabic that sounds authentic
-    - Keep restaurant names in their original language (do not translate names)
-    ` : ''}
   `;
 
   // Wrap API call in retry logic to handle temporary rate limits

@@ -88,6 +88,7 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
 
     <Card
       className="group overflow-hidden h-full flex flex-col bg-white rounded-2xl transition-all duration-300 ease-out border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5"
+      dir={isRTL ? 'rtl' : 'ltr'}
       style={{
         boxShadow: isTopPick
           ? getRtlShadow('md', isRTL, '#FF6B6B')
@@ -102,9 +103,10 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
         </h3>
 
         {/* AI Rating - Neobrutalist box */}
-        <div className={`flex items-center gap-3 bg-brand-yellow rounded-xl p-3 border-2 border-brand-dark ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <span className="text-xs text-brand-dark font-display font-bold uppercase tracking-wider">
-            ⭐ {t('aiScore')}
+        <div className={`flex items-center gap-3 bg-brand-yellow rounded-xl p-3 border-2 border-brand-dark ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
+          <span className={`text-xs text-brand-dark font-display font-bold uppercase tracking-wider flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <span>⭐</span>
+            <span>{t('aiScore')}</span>
           </span>
           <span className="font-display text-2xl sm:text-3xl font-bold text-brand-dark tabular-nums">
             {restaurant.aiRating.toFixed(1)}
@@ -113,11 +115,14 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
 
         {/* Google Rating */}
         {restaurant.googleRating && restaurant.googleReviewsCount && (
-          <div className={`flex flex-wrap items-center gap-2 text-sm text-brand-dark font-body bg-gray-100 rounded-xl px-3 py-2 border-2 border-brand-dark/20 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <div className={`flex flex-wrap items-center gap-2 text-sm text-brand-dark font-body bg-gray-100 rounded-xl px-3 py-2 border-2 border-brand-dark/20 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
             <span className="font-semibold">{t('googleLabel')}</span>
             <span className="font-bold">{restaurant.googleRating.toFixed(1)}</span>
             <span>•</span>
-            <span className="font-medium">{restaurant.googleReviewsCount.toLocaleString()} {t('reviews')} 💬</span>
+            <span className={`font-medium flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <span>{restaurant.googleReviewsCount.toLocaleString()} {t('reviews')}</span>
+              <span>💬</span>
+            </span>
           </div>
         )}
       </CardHeader>
@@ -130,17 +135,19 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
       <CardContent className="flex-1 pt-4 pb-4 space-y-3">
         {/* Highlights Section */}
         <div className="space-y-2 bg-brand-teal/10 rounded-xl p-4 border-2 border-brand-teal/30">
-          <h4 className={`text-sm font-bold text-brand-dark uppercase tracking-wider font-display flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <span className="text-lg">😍</span> {t('peopleLove')}
+          <h4 className={`text-sm font-bold text-brand-dark uppercase tracking-wider font-display flex items-center gap-2 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
+            <span className="text-lg">😍</span>
+            <span>{t('peopleLove')}</span>
           </h4>
           <ul className="space-y-2">
             {restaurant.pros.slice(0, DISPLAY_LIMITS.PROS_COUNT).map((pro, i) => (
               <motion.li
                 key={i}
-                initial={{ opacity: 0, x: -10 }}
+                initial={{ opacity: 0, x: isRTL ? 10 : -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className={`text-sm text-brand-dark/80 leading-relaxed font-body line-clamp-2 ${isRTL ? 'pr-3 border-r-4' : 'pl-3 border-l-4'} border-brand-teal`}
+                className={`text-sm text-brand-dark/80 leading-relaxed font-body line-clamp-2 ps-3 border-s-4 border-brand-teal ${isRTL ? 'text-right' : ''}`}
+                dir="auto"
               >
                 "{pro}"
               </motion.li>
@@ -151,12 +158,17 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
         {/* Cons section */}
         {restaurant.cons && restaurant.cons.length > 0 && (
           <div className="space-y-2 bg-gray-100 rounded-xl p-4 border-2 border-brand-dark/10">
-            <h4 className={`text-xs font-bold text-brand-muted uppercase tracking-wider font-display flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <span>💭</span> {t('headsUp')}
+            <h4 className={`text-xs font-bold text-brand-muted uppercase tracking-wider font-display flex items-center gap-2 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
+              <span>💭</span>
+              <span>{t('headsUp')}</span>
             </h4>
             <ul className="space-y-1">
               {restaurant.cons.slice(0, DISPLAY_LIMITS.CONS_COUNT).map((con, i) => (
-                <li key={i} className="text-xs text-brand-muted leading-relaxed font-body line-clamp-2">
+                <li
+                  key={i}
+                  className={`text-xs text-brand-muted leading-relaxed font-body line-clamp-2 ps-3 border-s-4 border-brand-muted/30 ${isRTL ? 'text-right' : ''}`}
+                  dir="auto"
+                >
                   "{con}"
                 </li>
               ))}
