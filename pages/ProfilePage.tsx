@@ -129,9 +129,9 @@ const ProfilePage: React.FC = () => {
     return colors[color] || 'bg-brand-coral';
   };
 
-  // Format date
+  // Format date (use Gregorian calendar for both languages)
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US', {
+    return new Date(dateString).toLocaleDateString(isRTL ? 'ar-EG' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -200,7 +200,7 @@ const ProfilePage: React.FC = () => {
           style={{ boxShadow: getRtlShadow('lg', isRTL, '#00CEC9') }}
         >
           {/* Avatar and basic info */}
-          <div className={`flex items-center gap-4 sm:gap-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <div className="flex items-center gap-4 sm:gap-6">
             {/* Large Avatar */}
             <div
               className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl ${getAvatarBgClass(avatar.bgColor)} flex items-center justify-center border-4 border-brand-dark`}
@@ -210,17 +210,26 @@ const ProfilePage: React.FC = () => {
             </div>
 
             {/* Name and email */}
-            <div className={`flex-1 ${isRTL ? 'text-right' : ''}`}>
-              <h2 className="font-display-black text-2xl sm:text-3xl text-brand-dark">
+            <div className="flex-1">
+              <h2
+                className="font-display-black text-2xl sm:text-3xl text-brand-dark"
+                style={isRTL ? { textAlign: 'right' } : undefined}
+              >
                 {profile?.display_name || user.email?.split('@')[0]}
               </h2>
-              <p className="font-body text-brand-muted flex items-center gap-2 mt-1">
-                <Mail className="w-4 h-4" />
-                {user.email}
-              </p>
+              <div
+                className="flex items-center gap-2 mt-1 w-fit"
+                style={isRTL ? { marginLeft: 'auto' } : undefined}
+              >
+                <Mail className="w-4 h-4 text-brand-muted" />
+                <span className="font-body text-brand-muted">{user.email}</span>
+              </div>
 
               {/* Subscription badge */}
-              <div className="mt-3">
+              <div
+                className="mt-3 w-fit"
+                style={isRTL ? { marginLeft: 'auto' } : undefined}
+              >
                 {isPremium ? (
                   <span className="inline-flex items-center gap-1.5 bg-brand-purple text-white px-3 py-1 rounded-full font-display text-sm">
                     <Crown className="w-4 h-4" />
@@ -238,7 +247,7 @@ const ProfilePage: React.FC = () => {
 
           {/* Member since */}
           {profile?.created_at && (
-            <div className={`mt-6 pt-6 border-t-2 border-brand-dark/10 flex items-center gap-2 text-brand-muted ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <div className="mt-6 pt-6 border-t-2 border-brand-dark/10 flex items-center gap-2 text-brand-muted">
               <Calendar className="w-4 h-4" />
               <span className="font-body text-sm">
                 {isRTL ? 'عضو منذ' : 'Member since'} {formatDate(profile.created_at)}
@@ -255,7 +264,7 @@ const ProfilePage: React.FC = () => {
           className="bg-white rounded-3xl p-6 sm:p-8 border-4 border-brand-dark mb-6"
           style={{ boxShadow: getRtlShadow('lg', isRTL, isPremium ? '#A855F7' : '#FFD93D') }}
         >
-          <h3 className={`font-display-black text-xl text-brand-dark mb-4 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <h3 className="font-display-black text-xl text-brand-dark mb-4 flex items-center gap-2">
             <CreditCard className="w-5 h-5" />
             {isRTL ? 'الاشتراك' : 'Subscription'}
           </h3>
@@ -264,12 +273,12 @@ const ProfilePage: React.FC = () => {
             <>
               {/* Premium status */}
               <div className="bg-brand-purple/10 rounded-2xl p-4 mb-4">
-                <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <div className={isRTL ? 'text-right' : ''}>
+                <div className="flex items-center justify-between">
+                  <div>
                     <p className="font-display text-brand-dark">
                       {isRTL ? 'خطة Pro' : 'Pro Plan'}
                       {profile?.subscription_variant && (
-                        <span className="text-brand-muted font-body text-sm ml-2">
+                        <span className={`text-brand-muted font-body text-sm ${isRTL ? 'mr-2' : 'ml-2'}`}>
                           ({profile.subscription_variant})
                         </span>
                       )}
@@ -292,7 +301,7 @@ const ProfilePage: React.FC = () => {
               {/* Manage button (48px min touch target) */}
               <button
                 onClick={openCustomerPortal}
-                className={`w-full py-3 px-4 min-h-[48px] bg-white text-brand-dark font-display rounded-xl border-3 border-brand-dark flex items-center justify-center gap-2 hover:bg-brand-cream transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
+                className="w-full py-3 px-4 min-h-[48px] bg-white text-brand-dark font-display rounded-xl border-3 border-brand-dark flex items-center justify-center gap-2 hover:bg-brand-cream transition-colors"
                 style={{ boxShadow: getRtlShadow('sm', isRTL) }}
               >
                 {isRTL ? 'إدارة الاشتراك' : 'Manage Subscription'}
@@ -303,8 +312,8 @@ const ProfilePage: React.FC = () => {
             <>
               {/* Free tier status */}
               <div className="bg-brand-yellow/10 rounded-2xl p-4 mb-4">
-                <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <div className={isRTL ? 'text-right' : ''}>
+                <div className="flex items-center justify-between">
+                  <div>
                     <p className="font-display text-brand-dark">
                       {isRTL ? 'الخطة المجانية' : 'Free Plan'}
                     </p>
@@ -323,7 +332,7 @@ const ProfilePage: React.FC = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/pricing')}
-                className={`w-full py-3 px-4 min-h-[48px] bg-brand-coral text-white font-display rounded-xl border-3 border-brand-dark flex items-center justify-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+                className="w-full py-3 px-4 min-h-[48px] bg-brand-coral text-white font-display rounded-xl border-3 border-brand-dark flex items-center justify-center gap-2"
                 style={{ boxShadow: getRtlShadow('md', isRTL) }}
               >
                 <Crown className="w-5 h-5" />
@@ -341,7 +350,7 @@ const ProfilePage: React.FC = () => {
           className="bg-white rounded-3xl p-6 sm:p-8 border-4 border-brand-dark mb-6"
           style={{ boxShadow: getRtlShadow('lg', isRTL, '#00CEC9') }}
         >
-          <h3 className={`font-display-black text-xl text-brand-dark mb-4 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <h3 className="font-display-black text-xl text-brand-dark mb-4 flex items-center gap-2">
             <TrendingUp className="w-5 h-5" />
             {isRTL ? 'إحصائيات الاستخدام' : 'Usage Statistics'}
           </h3>
@@ -352,7 +361,7 @@ const ProfilePage: React.FC = () => {
             <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-4">
               {/* Searches used */}
               <div className="bg-brand-cream rounded-xl p-4">
-                <div className={`flex items-center gap-2 mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <div className="flex items-center gap-2 mb-2">
                   <Sparkles className="w-4 h-4 text-brand-purple" />
                   <span className="font-body text-sm text-brand-muted">
                     {isRTL ? 'عمليات البحث المستخدمة' : 'Searches Used'}
@@ -368,7 +377,7 @@ const ProfilePage: React.FC = () => {
 
               {/* Remaining */}
               <div className="bg-brand-cream rounded-xl p-4">
-                <div className={`flex items-center gap-2 mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <div className="flex items-center gap-2 mb-2">
                   <Zap className="w-4 h-4 text-brand-green" />
                   <span className="font-body text-sm text-brand-muted">
                     {isRTL ? 'المتبقي' : 'Remaining'}
@@ -387,7 +396,7 @@ const ProfilePage: React.FC = () => {
 
           {/* Reset info */}
           {usage && (
-            <div className={`mt-4 pt-4 border-t-2 border-brand-dark/10 flex items-center gap-2 text-brand-muted ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <div className="mt-4 pt-4 border-t-2 border-brand-dark/10 flex items-center gap-2 text-brand-muted">
               <Clock className="w-4 h-4" />
               <span className="font-body text-sm">
                 {isRTL ? 'يتجدد في بداية الشهر القادم' : 'Resets at the start of next month'}
@@ -404,7 +413,7 @@ const ProfilePage: React.FC = () => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleSignOut}
-          className={`w-full py-4 px-6 bg-white text-red-500 font-display rounded-xl border-3 border-red-300 flex items-center justify-center gap-2 hover:bg-red-50 transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
+          className="w-full py-4 px-6 bg-white text-red-500 font-display rounded-xl border-3 border-red-300 flex items-center justify-center gap-2 hover:bg-red-50 transition-colors"
         >
           <LogOut className="w-5 h-5" />
           {t('auth.signOut') as string}

@@ -114,7 +114,7 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
         {/* Google Rating */}
         {restaurant.googleRating && restaurant.googleReviewsCount && (
           <div className={`flex flex-wrap items-center gap-2 text-sm text-brand-dark font-body bg-gray-100 rounded-xl px-3 py-2 border-2 border-brand-dark/20 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <span className="font-semibold">Google:</span>
+            <span className="font-semibold">{t('googleLabel')}</span>
             <span className="font-bold">{restaurant.googleRating.toFixed(1)}</span>
             <span>•</span>
             <span className="font-medium">{restaurant.googleReviewsCount.toLocaleString()} {t('reviews')} 💬</span>

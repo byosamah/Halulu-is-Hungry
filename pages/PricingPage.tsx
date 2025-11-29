@@ -89,7 +89,7 @@ const plans: Plan[] = [
     period: '/year',
     periodAr: '/سنة',
     monthlyEquiv: '~$3.99/month',
-    monthlyEquivAr: '~$3.99/شهر',
+    monthlyEquivAr: '',
     badge: 'Save 20%',
     badgeAr: 'وفر 20%',
     features: [
@@ -103,8 +103,7 @@ const plans: Plan[] = [
       '600 بحث ذكي',
       'تحليل ذكي للتقييمات',
       'نتائج حسب موقعك',
-      'دعم أولوية',
-      'شهرين مجاناً',
+      'إلغاء في أي وقت',
     ],
     productUuid: LEMON_SQUEEZY_CONFIG.yearlyUuid,
     popular: true,
@@ -235,8 +234,8 @@ const PricingPage: React.FC = () => {
         </div>
 
         {/* Pricing cards */}
-        <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
-          {plans.map((plan, index) => (
+        <div className="flex justify-center gap-6 lg:gap-8">
+          {plans.filter(plan => plan.popular).map((plan, index) => (
             <motion.div
               key={plan.id}
               initial={{ opacity: 0, y: 30 }}
@@ -244,6 +243,7 @@ const PricingPage: React.FC = () => {
               transition={{ delay: 0.3 + index * 0.1 }}
               className={`
                 relative bg-white rounded-3xl p-5 sm:p-8 border-4 border-brand-dark
+                w-full max-w-md
                 ${plan.popular ? 'ring-4 ring-brand-coral/30' : ''}
               `}
               style={{ boxShadow: getRtlShadow('lg', isRTL, plan.popular ? '#FF6B6B' : '#00CEC9') }}
@@ -281,7 +281,7 @@ const PricingPage: React.FC = () => {
               </div>
 
               {/* Monthly equivalent for yearly */}
-              {plan.monthlyEquiv && (
+              {(isRTL ? plan.monthlyEquivAr : plan.monthlyEquiv) && (
                 <p className="font-body text-sm text-brand-muted mb-6">
                   {isRTL ? plan.monthlyEquivAr : plan.monthlyEquiv}
                 </p>
@@ -290,7 +290,11 @@ const PricingPage: React.FC = () => {
               {/* Features */}
               <ul className="space-y-3 mb-8">
                 {(isRTL ? plan.featuresAr : plan.features).map((feature, i) => (
-                  <li key={i} className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <li
+                    key={i}
+                    className="flex items-center gap-3"
+                    style={isRTL ? { marginLeft: 'auto', width: 'fit-content' } : undefined}
+                  >
                     <div className="w-5 h-5 rounded-full bg-brand-green/20 flex items-center justify-center flex-shrink-0">
                       <Check className="w-3 h-3 text-brand-green" />
                     </div>

@@ -112,7 +112,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
       <span
         className={`${sizeConfig.emoji} select-none`}
         role="img"
-        aria-label="User avatar"
+        aria-label={isRTL ? 'صورة المستخدم' : 'User avatar'}
       >
         {avatarData.emoji}
       </span>

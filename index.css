@@ -1,6 +1,49 @@
 @import "tailwindcss";
 
 /* ===========================================
+   TESHRIN FONT - Bilingual (English + Arabic)
+   =========================================== */
+@font-face {
+  font-family: 'Teshrin';
+  src: url('/fonts/Teshrin-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Teshrin';
+  src: url('/fonts/Teshrin-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Teshrin';
+  src: url('/fonts/Teshrin-Bold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Teshrin';
+  src: url('/fonts/Teshrin-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Teshrin';
+  src: url('/fonts/Teshrin-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ===========================================
    TAILWIND v4 THEME CONFIGURATION
    These --color-* variables create Tailwind utilities:
    bg-brand-coral, text-brand-dark, border-brand-teal, etc.
@@ -91,7 +134,7 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Teshrin', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 }
 
@@ -239,33 +282,33 @@
 
 /* Bold, bubbly headlines - Fredoka */
 .font-display {
-  font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Teshrin', -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.1;
 }
 
-/* Extra bold for hero - Fredoka */
+/* Extra bold for hero - Teshrin Black */
 .font-display-black {
-  font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-weight: 700;
+  font-family: 'Teshrin', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 900;
   letter-spacing: -0.02em;
-  line-height: 1.05;
+  line-height: 1.2;
 }
 
 /* Body text - Fredoka */
 .font-body {
-  font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Teshrin', -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 400;
 }
 
 .font-body-medium {
-  font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Teshrin', -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 500;
 }
 
 .font-body-bold {
-  font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Teshrin', -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 600;
 }
 
@@ -392,11 +435,11 @@
 
 /* ====== ARABIC FONT ====== */
 [dir="rtl"] {
-  font-family: 'Playpen Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Teshrin', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 [dir="rtl"] body {
-  font-family: 'Playpen Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Teshrin', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* RTL Typography - same weights, Arabic font */
@@ -405,7 +448,7 @@
 [dir="rtl"] .font-body,
 [dir="rtl"] .font-body-medium,
 [dir="rtl"] .font-body-bold {
-  font-family: 'Playpen Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Teshrin', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ====== NEOBRUTALIST SHADOW UTILITIES ====== */

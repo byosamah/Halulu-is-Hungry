@@ -15,6 +15,10 @@ export const ar = {
   // ==================
   brandName: 'حلولو جوعانة',
   back: 'رجوع',
+  pro: 'PRO',  // Keep as brand name
+  user: 'مستخدم',
+  userAvatar: 'صورة المستخدم',
+  profileMenu: 'قائمة الملف الشخصي',
 
   // ==================
   // HEADER
@@ -43,6 +47,7 @@ export const ar = {
   // RESTAURANT CARD
   // ==================
   aiScore: 'تقييم الذكاء',
+  googleLabel: 'قوقل:',
   googleRating: 'تقييم خرائط قوقل:',
   peopleLove: 'الناس تحبه!',
   headsUp: 'انتبه',

@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, Sparkles, MapPin } from 'lucide-react';
-import { INSPIRATIONS } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getRtlShadow } from '../utils/rtlShadow';
 
@@ -38,7 +37,9 @@ const PremiumSearch: React.FC<PremiumSearchProps> = ({
   };
 
   const handleInspireMe = () => {
-    const randomInspiration = INSPIRATIONS[Math.floor(Math.random() * INSPIRATIONS.length)];
+    // Get translated inspirations array
+    const inspirations = t('inspirations') as unknown as string[];
+    const randomInspiration = inspirations[Math.floor(Math.random() * inspirations.length)];
     setQuery(randomInspiration);
   };
 

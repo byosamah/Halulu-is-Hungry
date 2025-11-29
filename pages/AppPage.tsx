@@ -21,7 +21,6 @@ import PremiumSearch from '../components/premium-search';
 import RestaurantGridCard from '../components/restaurant-grid-card';
 import LuxuryLoading from '../components/luxury-loading';
 import LuxuryError from '../components/luxury-error';
-import LanguageSwitcher from '../components/LanguageSwitcher';
 import HeaderProfile from '../components/HeaderProfile';
 // Usage tracking components for search limits
 import SearchCounter from '../components/SearchCounter';
@@ -298,7 +297,6 @@ const AppPage: React.FC = () => {
               compact
               onUpgradeClick={() => setShowLimitModal(true)}
             />
-            <LanguageSwitcher />
             <HeaderProfile />
           </div>
         </div>

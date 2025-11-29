@@ -10,6 +10,10 @@ export const en = {
   // ==================
   brandName: 'Halulu is Hungry',
   back: 'Back',
+  pro: 'PRO',
+  user: 'User',
+  userAvatar: 'User avatar',
+  profileMenu: 'Profile menu',
 
   // ==================
   // HEADER
@@ -38,6 +42,7 @@ export const en = {
   // RESTAURANT CARD
   // ==================
   aiScore: 'AI Score',
+  googleLabel: 'Google:',
   googleRating: 'Google Maps Rating:',
   peopleLove: 'People Love This!',
   headsUp: 'Heads Up',

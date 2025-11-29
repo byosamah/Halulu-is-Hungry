@@ -5,7 +5,7 @@
  * Shows warning colors when running low.
  *
  * Features:
- * - Shows "X/Y searches remaining"
+ * - Shows remaining search count
  * - Teal shadow when plenty remaining
  * - Yellow shadow when running low (≤2)
  * - Coral shadow when at limit (0)
@@ -13,6 +13,7 @@
  */
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Zap, Crown } from 'lucide-react';
 import { useUsage, SEARCH_LIMITS } from '../contexts/UsageContext';
@@ -30,6 +31,7 @@ const SearchCounter: React.FC<SearchCounterProps> = ({
   onUpgradeClick,
   compact = false,
 }) => {
+  const navigate = useNavigate();
   const { usage, loading } = useUsage();
   const { t, isRTL } = useLanguage();
 
@@ -43,6 +45,13 @@ const SearchCounter: React.FC<SearchCounterProps> = ({
   const isLow = remaining <= 2 && remaining > 0;
   const isExhausted = remaining === 0;
 
+  // Handle click - free users go to pricing, paid users do nothing
+  const handleClick = () => {
+    if (!isPremium) {
+      navigate('/pricing');
+    }
+  };
+
   // Determine shadow color based on status (neobrutalist style)
   const getShadowColor = () => {
     if (isExhausted) return '#FF6B6B'; // brand-coral - danger
@@ -52,17 +61,21 @@ const SearchCounter: React.FC<SearchCounterProps> = ({
   };
 
   // Compact version - neobrutalist pill style (44px min touch target)
+  // Free users can click to go to pricing
   if (compact) {
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.05 }}
+        whileTap={!isPremium ? { scale: 0.95 } : undefined}
+        onClick={handleClick}
         className={`
           inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2
           min-h-[44px]
           bg-white border-2 sm:border-3 border-brand-dark rounded-full
           font-display text-xs sm:text-sm text-brand-dark
+          ${!isPremium ? 'cursor-pointer' : ''}
         `}
         style={{ boxShadow: getRtlShadow('xs', isRTL, getShadowColor()) }}
       >
@@ -72,28 +85,27 @@ const SearchCounter: React.FC<SearchCounterProps> = ({
           <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-coral" />
         )}
         <span className="font-bold">{remaining}</span>
-        <span className="text-brand-muted">/</span>
-        <span>{searchLimit}</span>
       </motion.div>
     );
   }
 
   // Full version - neobrutalist card style
+  // Free users can click to go to pricing
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={onUpgradeClick && (isLow || isExhausted) ? {
+      whileHover={!isPremium ? {
         scale: 1.02,
         y: -2,
       } : undefined}
-      whileTap={onUpgradeClick && (isLow || isExhausted) ? { scale: 0.98 } : undefined}
+      whileTap={!isPremium ? { scale: 0.98 } : undefined}
       className={`
         inline-flex items-center gap-3 px-4 py-3
         bg-white border-3 border-brand-dark rounded-2xl
-        ${onUpgradeClick && (isLow || isExhausted) ? 'cursor-pointer' : ''}
+        ${!isPremium ? 'cursor-pointer' : ''}
       `}
-      onClick={isLow || isExhausted ? onUpgradeClick : undefined}
+      onClick={handleClick}
       style={{ boxShadow: getRtlShadow('sm', isRTL, getShadowColor()) }}
     >
       {/* Icon with background circle */}
@@ -111,14 +123,9 @@ const SearchCounter: React.FC<SearchCounterProps> = ({
 
       {/* Count display */}
       <div className="flex flex-col">
-        <div className="flex items-baseline gap-1">
-          <span className="font-display-black text-2xl text-brand-dark">
-            {remaining}
-          </span>
-          <span className="font-display text-sm text-brand-muted">
-            / {searchLimit}
-          </span>
-        </div>
+        <span className="font-display-black text-2xl text-brand-dark">
+          {remaining}
+        </span>
         <span className="font-body text-xs text-brand-muted">
           {isExhausted
             ? (t('usage.limitReached') as string)
@@ -144,7 +151,7 @@ const SearchCounter: React.FC<SearchCounterProps> = ({
           style={{ boxShadow: getRtlShadow('xs', isRTL) }}
         >
           <Crown className="w-3.5 h-3.5" />
-          PRO
+          {t('pro') as string}
         </div>
       )}
     </motion.div>
