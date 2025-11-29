@@ -407,6 +407,25 @@ const LandingPage: React.FC = () => {
               </motion.div>
             </div>
 
+            {/* Demo GIF */}
+            <div className="mt-10 mb-6 flex justify-center">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="rounded-2xl border-4 border-brand-dark overflow-hidden"
+                style={{ boxShadow: getRtlShadow('lg', isRTL) }}
+              >
+                <img
+                  src={isRTL ? '/demo-ar.gif' : '/demo-en.gif'}
+                  alt={isRTL ? 'عرض توضيحي للتطبيق' : 'App demo'}
+                  className="w-full max-w-md"
+                  loading="lazy"
+                />
+              </motion.div>
+            </div>
+
             {/* Bottom tagline */}
             <p className="font-display text-lg sm:text-xl text-white">
               {t('detectiveTagline')} ⚡
@@ -600,8 +619,12 @@ const LandingPage: React.FC = () => {
                   <span className="font-body-medium text-brand-dark text-sm">{t('yearlyFeature2')}</span>
                 </div>
                 <div className="flex items-center gap-3 bg-brand-cream rounded-xl p-3 border-2 border-brand-dark/20">
-                  <span className="text-xl bg-brand-teal/20 p-2 rounded-lg border-2 border-brand-dark/10" style={{ fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif' }}>📍</span>
+                  <span className="text-xl bg-brand-teal/20 p-2 rounded-lg border-2 border-brand-dark/10" style={{ fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif' }}>📖</span>
                   <span className="font-body-medium text-brand-dark text-sm">{t('yearlyFeature3')}</span>
+                </div>
+                <div className="flex items-center gap-3 bg-brand-cream rounded-xl p-3 border-2 border-brand-dark/20">
+                  <span className="text-xl bg-brand-purple/20 p-2 rounded-lg border-2 border-brand-dark/10" style={{ fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif' }}>📍</span>
+                  <span className="font-body-medium text-brand-dark text-sm">{t('yearlyFeature4')}</span>
                 </div>
               </div>
 
