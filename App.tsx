@@ -16,6 +16,7 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { UsageProvider } from './contexts/UsageContext';
 import { LanguageProvider } from './contexts/LanguageContext';
@@ -107,6 +108,8 @@ const App: React.FC = () => {
               />
             </Routes>
           </Router>
+          {/* Vercel Analytics - tracks page views automatically */}
+          <Analytics />
         </LanguageProvider>
       </UsageProvider>
     </AuthProvider>
