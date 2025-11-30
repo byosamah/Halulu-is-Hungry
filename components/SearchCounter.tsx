@@ -65,8 +65,6 @@ const SearchCounter: React.FC<SearchCounterProps> = ({
   if (compact) {
     return (
       <motion.div
-        whileHover={{ scale: 1.05 }}
-        whileTap={!isPremium ? { scale: 0.95 } : undefined}
         onClick={handleClick}
         className={`
           inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2
@@ -91,11 +89,6 @@ const SearchCounter: React.FC<SearchCounterProps> = ({
   // Free users can click to go to pricing
   return (
     <motion.div
-      whileHover={!isPremium ? {
-        scale: 1.02,
-        y: -2,
-      } : undefined}
-      whileTap={!isPremium ? { scale: 0.98 } : undefined}
       className={`
         inline-flex items-center gap-3 px-4 py-3
         bg-white border-3 border-brand-dark rounded-2xl
