@@ -120,7 +120,7 @@ const LandingPage: React.FC = () => {
               className="px-3 sm:px-6 py-2 sm:py-2.5 min-h-[44px] bg-brand-coral text-white font-display text-sm sm:text-base rounded-xl border-2 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-coral flex items-center"
               style={{ boxShadow: getRtlShadow('sm', isRTL) }}
             >
-              {t('startSearching')} 🔍
+              {t('startSearching')} 🍽️
             </motion.button>
           </div>
         </div>
@@ -134,7 +134,7 @@ const LandingPage: React.FC = () => {
           {/* Varied distances: some close to edge, some closer to center */}
           {[
             { emoji: '🍕', top: '8%', left: '5%', show: '' },           // far left, top
-            { emoji: '🍜', top: '70%', left: '85%', show: '' },         // closer to center, bottom right
+            { emoji: '🍜', top: '5%', left: '85%', show: '' },          // top right, above title
             { emoji: '🌮', top: '32%', left: '12%', show: 'hidden sm:block' },  // medium distance, left
             { emoji: '🍔', top: '15%', left: '82%', show: 'hidden sm:block' },  // closer to center, top right
             { emoji: '🍣', top: '75%', left: '6%', show: 'hidden md:block' },   // far left, bottom

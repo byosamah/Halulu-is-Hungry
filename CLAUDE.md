@@ -91,11 +91,11 @@ Restaurant discovery app using Google Gemini AI with Google Maps grounding. User
 - Profile management
 
 ### Usage Limits
-- Free tier: 5 searches/month
-- Premium: 50 searches/month
+- Free tier: 3 searches/month
+- Premium: 30 searches/month
 - Real-time counter in header
 - Upgrade prompts when limit reached
-- **Upgrade behavior:** When user upgrades, search count resets to 0 (full 50 searches)
+- **Upgrade behavior:** When user upgrades, search count resets to 0 (full 30 searches)
 - **Cancellation behavior:** User keeps premium access until subscription period ends
 
 ### Payments (Lemon Squeezy)
@@ -346,7 +346,7 @@ For elements that just need text/alignment to flip, use the parent's `dir` attri
 - Reduces free user API costs from $0.33/month to $0.16/month per user
 
 ### Subscription Usage Fix
-- **Upgrade reset:** When free user upgrades, search count resets to 0 (gives full 50 searches)
+- **Upgrade reset:** When free user upgrades, search count resets to 0 (gives full 30 searches)
 - **Cancellation fix:** Cancelled users keep premium access until `ends_at` date
 - Fixed bug where `subscription_updated` would immediately revoke premium on cancellation
 - Webhook now checks if `ends_at` is in future before removing premium access

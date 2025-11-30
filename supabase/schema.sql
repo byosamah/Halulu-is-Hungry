@@ -206,7 +206,7 @@ BEGIN
   WHERE id = p_user_id;
 
   -- Set limit based on subscription
-  search_limit := CASE WHEN user_is_premium THEN 50 ELSE 5 END;
+  search_limit := CASE WHEN user_is_premium THEN 30 ELSE 3 END;
 
   -- Insert or update usage record
   INSERT INTO public.search_usage (user_id, month_year, search_count, last_search_at)
@@ -251,7 +251,7 @@ BEGIN
   WHERE id = p_user_id;
 
   -- Set limit
-  user_limit := CASE WHEN user_is_premium THEN 50 ELSE 5 END;
+  user_limit := CASE WHEN user_is_premium THEN 30 ELSE 3 END;
 
   -- Get current count (default 0 if no record)
   SELECT COALESCE(su.search_count, 0) INTO current_count

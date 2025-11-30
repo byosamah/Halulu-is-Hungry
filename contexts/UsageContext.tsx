@@ -10,8 +10,8 @@
  * - Provides remaining searches count
  *
  * Usage limits:
- * - Free users: 5 searches/month
- * - Premium users: 50 searches/month
+ * - Free users: 3 searches/month
+ * - Premium users: 30 searches/month
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
@@ -23,8 +23,8 @@ import { useAuth } from './AuthContext';
 // ==================
 
 export const SEARCH_LIMITS = {
-  free: 5,
-  premium: 50,
+  free: 3,
+  premium: 30,
 } as const;
 
 // ==================

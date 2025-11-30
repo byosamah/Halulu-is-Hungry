@@ -65,7 +65,7 @@ const LanguageSwitcher: React.FC = () => {
         aria-haspopup="listbox"
         aria-label={t('switchLanguage')}
       >
-        <Globe className="h-4 w-4" />
+        <Globe className="h-4 w-4 hidden sm:block" />
         <span className="text-base">{currentLang.flag}</span>
         <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>

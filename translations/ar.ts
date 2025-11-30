@@ -23,7 +23,7 @@ export const ar = {
   // ==================
   // HEADER
   // ==================
-  startSearching: 'ابدأ البحث',
+  startSearching: 'اكتشف الأكل',
 
   // ==================
   // SEARCH
@@ -164,7 +164,7 @@ export const ar = {
   monthlyPlanName: 'شهري',
   monthlyPrice: '4.99',
   monthlyPeriod: 'بالشهر',
-  monthlyFeature1: '50 بحث ذكي',
+  monthlyFeature1: '30 بحث ذكي',
   monthlyFeature2: 'تحليل ذكي للتقييمات',
   monthlyFeature3: 'نتائج حسب موقعك',
   monthlyCtaBtn: 'ابدأ التجربة المجانية',
@@ -175,7 +175,7 @@ export const ar = {
   yearlyPrice: '47.99',
   yearlyPeriod: 'بالسنة',
   yearlyMonthly: '~$3.99/شهر',
-  yearlyFeature1: '600 بحث ذكي (50 بحث شهريًا)',
+  yearlyFeature1: '360 بحث ذكي (30 بحث شهريًا)',
   yearlyFeature2: 'نموذج ذكاء اصطناعي متقدم أكثر',
   yearlyFeature3: 'قراءة دقيقة وتحليل للتقييمات',
   yearlyFeature4: 'نتائج حسب موقعك',
@@ -288,10 +288,10 @@ export const ar = {
 
     // UsageLimitModal component - نافذة حد الاستخدام
     modalTitle: 'وصلت للحد الأقصى!',
-    modalMessage: 'استخدمت كل الـ 5 عمليات بحث المجانية هذا الشهر.',
+    modalMessage: 'استخدمت كل الـ 3 عمليات بحث المجانية هذا الشهر.',
     resetsOn: 'يتجدد في',
     upgradeTitle: 'ترقية للأفضل عشان:',
-    benefit1: '50 بحث ذكي بالشهر',
+    benefit1: '30 بحث ذكي بالشهر',
     benefit2: 'نموذج ذكاء اصطناعي متقدم أكثر',
     benefit3: 'قراءة دقيقة وتحليل للتقييمات',
     benefit4: 'نتائج حسب موقعك',

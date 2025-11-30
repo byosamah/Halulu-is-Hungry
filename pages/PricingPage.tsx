@@ -69,12 +69,12 @@ const plans: Plan[] = [
     badge: '1 Day Free Trial',
     badgeAr: 'تجربة مجانية يوم',
     features: [
-      '50 AI-powered searches',
+      '30 AI-powered searches',
       'Accurate reading & analysis of reviews',
       'Location-based results',
     ],
     featuresAr: [
-      '50 بحث ذكي',
+      '30 بحث ذكي',
       'قراءة دقيقة وتحليل للتقييمات',
       'نتائج حسب موقعك',
     ],
@@ -93,13 +93,13 @@ const plans: Plan[] = [
     badge: 'Save 95%',
     badgeAr: 'وفر 95%',
     features: [
-      '600 AI-powered searches (50/month)',
+      '360 AI-powered searches (30/month)',
       'More advanced AI model',
       'Accurate reading & analysis of reviews',
       'Location-based results',
     ],
     featuresAr: [
-      '600 بحث ذكي (50 بحث شهريًا)',
+      '360 بحث ذكي (30 بحث شهريًا)',
       'نموذج ذكاء اصطناعي متقدم أكثر',
       'قراءة دقيقة وتحليل للتقييمات',
       'نتائج حسب موقعك',

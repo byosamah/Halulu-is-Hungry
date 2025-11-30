@@ -18,7 +18,7 @@ export const en = {
   // ==================
   // HEADER
   // ==================
-  startSearching: 'Start Searching',
+  startSearching: 'Find Food',
 
   // ==================
   // SEARCH
@@ -159,7 +159,7 @@ export const en = {
   monthlyPlanName: 'Monthly',
   monthlyPrice: '4.99',
   monthlyPeriod: 'per month',
-  monthlyFeature1: '50 AI-powered searches',
+  monthlyFeature1: '30 AI-powered searches',
   monthlyFeature2: 'Smart review analysis',
   monthlyFeature3: 'Location-based results',
   monthlyCtaBtn: 'Start Free Trial',
@@ -170,7 +170,7 @@ export const en = {
   yearlyPrice: '47.99',
   yearlyPeriod: 'per year',
   yearlyMonthly: '~$3.99/month',
-  yearlyFeature1: '600 AI-powered searches (50/month)',
+  yearlyFeature1: '360 AI-powered searches (30/month)',
   yearlyFeature2: 'More advanced AI model',
   yearlyFeature3: 'Accurate reading & analysis of reviews',
   yearlyFeature4: 'Location-based results',
@@ -283,10 +283,10 @@ export const en = {
 
     // UsageLimitModal component
     modalTitle: "You've reached your limit!",
-    modalMessage: "You've used all 5 free searches this month.",
+    modalMessage: "You've used all 3 free searches this month.",
     resetsOn: 'Resets on',
     upgradeTitle: 'Upgrade to Pro for:',
-    benefit1: '50 AI-powered searches per month',
+    benefit1: '30 AI-powered searches per month',
     benefit2: 'More advanced AI model',
     benefit3: 'Accurate reading & analysis of reviews',
     benefit4: 'Location-based results',

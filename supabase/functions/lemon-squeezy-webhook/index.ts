@@ -261,8 +261,8 @@ serve(async (req) => {
           })
           .eq('id', targetUserId);
 
-        // 2. Reset search count to give user FULL 50 searches
-        // This ensures a free user who used 2 of 5 searches gets 50, not 48
+        // 2. Reset search count to give user FULL 30 searches
+        // This ensures a free user who used 2 of 3 searches gets 30, not 28
         const currentMonth = new Date().toISOString().slice(0, 7); // Format: '2025-01'
         await supabase
           .from('search_usage')
