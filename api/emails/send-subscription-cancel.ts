@@ -13,12 +13,12 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { sendEmail, isValidEmail } from '../../lib/email/send-email';
+import { sendEmail, isValidEmail } from '../lib/email/send-email';
 import {
   subscriptionCancelEmailTemplate,
   getSubscriptionCancelEmailSubject,
-} from '../../lib/email/templates/subscription-cancel';
-import type { EmailLanguage } from '../../lib/email/translations';
+} from '../lib/email/templates/subscription-cancel';
+import type { EmailLanguage } from '../lib/email/translations';
 
 // Default pricing URL
 const DEFAULT_PRICING_URL = 'https://www.halulu.food/pricing';
