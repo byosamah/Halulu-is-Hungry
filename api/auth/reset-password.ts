@@ -88,13 +88,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Try to find user in auth.users via admin API
       const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
 
-      if (usersData?.users) {
-        const foundUser = usersData.users.find(
-          (u) => u.email?.toLowerCase() === email.toLowerCase()
-        );
-        if (foundUser) {
-          userId = foundUser.id;
-        }
+      const users = usersData?.users || [];
+      const foundUser = users.find(
+        (u: { email?: string; id: string }) => u.email?.toLowerCase() === email.toLowerCase()
+      );
+      if (foundUser) {
+        userId = foundUser.id;
       }
     }
 
