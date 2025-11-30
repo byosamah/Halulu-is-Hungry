@@ -26,70 +26,23 @@ interface SearchAnalyticsRequest {
   modelUsed?: string;
 }
 
-interface GeocodingResult {
-  city: string | null;
-  country: string | null;
-}
-
 // ===========================================
-// REVERSE GEOCODING HELPER
+// VERCEL GEO HEADERS HELPER
 // ===========================================
-// Uses Google Geocoding API to get city/country from coordinates
+// Vercel automatically provides geo information in request headers
+// This is FREE and doesn't require any external API calls
 
-async function reverseGeocode(lat: number, lng: number): Promise<GeocodingResult> {
-  try {
-    // Use the same API key as Gemini (Google Cloud API key)
-    const apiKey = process.env.GEMINI_API_KEY;
+function getGeoFromHeaders(req: VercelRequest): { city: string | null; country: string | null } {
+  // Vercel provides these headers automatically on all requests
+  // https://vercel.com/docs/functions/edge-functions/geo
+  const cityHeader = req.headers['x-vercel-ip-city'] as string | undefined;
+  const countryHeader = req.headers['x-vercel-ip-country'] as string | undefined;
 
-    if (!apiKey) {
-      console.log('[ANALYTICS] No API key, skipping geocoding');
-      return { city: null, country: null };
-    }
+  // City names may be URL-encoded (e.g., "New%20York" -> "New York")
+  const city = cityHeader ? decodeURIComponent(cityHeader) : null;
+  const country = countryHeader || null;
 
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}&language=en`;
-
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (data.status !== 'OK' || !data.results || data.results.length === 0) {
-      console.log(`[ANALYTICS] Geocoding failed: ${data.status}`);
-      return { city: null, country: null };
-    }
-
-    // Parse the address components to find city and country
-    let city: string | null = null;
-    let country: string | null = null;
-
-    // Google returns results from most specific to least specific
-    // We'll check the first result's address components
-    const addressComponents = data.results[0].address_components;
-
-    for (const component of addressComponents) {
-      const types = component.types;
-
-      // City can be: locality, administrative_area_level_1, or sublocality
-      if (!city) {
-        if (types.includes('locality')) {
-          city = component.long_name;
-        } else if (types.includes('administrative_area_level_1')) {
-          // Use admin area if no locality (for some regions)
-          city = component.long_name;
-        }
-      }
-
-      // Country
-      if (types.includes('country')) {
-        country = component.long_name;
-      }
-    }
-
-    console.log(`[ANALYTICS] Geocoded: ${city}, ${country}`);
-    return { city, country };
-
-  } catch (error) {
-    console.error('[ANALYTICS] Geocoding error:', error);
-    return { city: null, country: null };
-  }
+  return { city, country };
 }
 
 // ===========================================
@@ -138,19 +91,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // ===========================================
-    // REVERSE GEOCODE
+    // GET GEO DATA FROM VERCEL HEADERS
     // ===========================================
-    // Get city and country from coordinates
-    // This adds ~100-200ms but provides valuable location data
+    // Vercel provides free geo information based on the user's IP
+    // This is instant (no external API call) and free!
 
-    let city: string | null = null;
-    let country: string | null = null;
-
-    if (latitude && longitude) {
-      const geoResult = await reverseGeocode(latitude, longitude);
-      city = geoResult.city;
-      country = geoResult.country;
-    }
+    const { city, country } = getGeoFromHeaders(req);
+    console.log(`[ANALYTICS] Geo from Vercel headers: ${city || 'unknown'}, ${country || 'unknown'}`);
 
     // ===========================================
     // INSERT INTO DATABASE
