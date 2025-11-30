@@ -2,11 +2,12 @@
  * UsageContext.tsx
  *
  * Tracks user's search usage and limits.
+ * Now routes through Vercel API for logging visibility.
  *
  * Features:
- * - Fetches current month's usage from Supabase
+ * - Fetches current month's usage via /api/usage
  * - Checks if user can perform a search
- * - Increments usage after each search
+ * - Increments usage via /api/usage/increment
  * - Provides remaining searches count
  *
  * Usage limits:
@@ -15,7 +16,6 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 
 // ==================
@@ -32,27 +32,20 @@ export const SEARCH_LIMITS = {
 // ==================
 
 interface UsageData {
-  searchCount: number;      // Current month's search count
-  searchLimit: number;      // User's limit (5 or 50)
-  remaining: number;        // Searches remaining
-  isPremium: boolean;       // Is user premium?
-  monthYear: string;        // Current month (e.g., '2025-01')
+  searchCount: number;
+  searchLimit: number;
+  remaining: number;
+  isPremium: boolean;
+  monthYear: string;
 }
 
 interface UsageContextType {
-  // Current usage data
   usage: UsageData | null;
-  // Is usage data loading?
   loading: boolean;
-  // Any error message
   error: string | null;
-  // Can the user perform a search?
   canSearch: boolean;
-  // Check if user can search (returns boolean)
   checkCanSearch: () => boolean;
-  // Increment search count (call after successful search)
   incrementUsage: () => Promise<boolean>;
-  // Refresh usage data from server
   refreshUsage: () => Promise<void>;
 }
 
@@ -78,7 +71,7 @@ export const UsageProvider: React.FC<UsageProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
 
   // ==================
-  // FETCH USAGE
+  // FETCH USAGE (via API)
   // ==================
 
   const fetchUsage = useCallback(async () => {
@@ -92,42 +85,27 @@ export const UsageProvider: React.FC<UsageProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      // Call the Supabase function to get usage
-      const { data, error: fetchError } = await supabase
-        .rpc('get_user_usage', { p_user_id: user.id });
+      // Call API route instead of Supabase directly
+      const response = await fetch(`/api/usage?userId=${user.id}`);
+      const data = await response.json();
 
-      if (fetchError) {
-        console.error('Error fetching usage:', fetchError);
-        // If function doesn't exist yet, use defaults
-        if (fetchError.message.includes('function') || fetchError.code === '42883') {
-          // Function not created yet - use defaults
-          setUsage({
-            searchCount: 0,
-            searchLimit: SEARCH_LIMITS.free,
-            remaining: SEARCH_LIMITS.free,
-            isPremium: false,
-            monthYear: new Date().toISOString().slice(0, 7),
-          });
-        } else {
-          setError(fetchError.message);
-        }
-      } else if (data && data.length > 0) {
-        const row = data[0];
-        setUsage({
-          searchCount: row.search_count,
-          searchLimit: row.search_limit,
-          remaining: row.remaining,
-          isPremium: row.is_premium,
-          monthYear: row.month_year,
-        });
-      } else {
-        // No data returned - use defaults
+      if (!response.ok) {
+        console.error('Error fetching usage:', data.error);
+        // Use defaults on error
         setUsage({
           searchCount: 0,
           searchLimit: SEARCH_LIMITS.free,
           remaining: SEARCH_LIMITS.free,
           isPremium: false,
           monthYear: new Date().toISOString().slice(0, 7),
+        });
+      } else {
+        setUsage({
+          searchCount: data.searchCount,
+          searchLimit: data.searchLimit,
+          remaining: data.remaining,
+          isPremium: data.isPremium,
+          monthYear: data.monthYear,
         });
       }
     } catch (err) {
@@ -155,52 +133,46 @@ export const UsageProvider: React.FC<UsageProviderProps> = ({ children }) => {
   // ==================
 
   const checkCanSearch = useCallback((): boolean => {
-    if (!usage) return true; // Allow if no data yet
+    if (!usage) return true;
     return usage.remaining > 0;
   }, [usage]);
 
-  // Computed property for canSearch
   const canSearch = usage ? usage.remaining > 0 : true;
 
   // ==================
-  // INCREMENT USAGE
+  // INCREMENT USAGE (via API)
   // ==================
 
   const incrementUsage = useCallback(async (): Promise<boolean> => {
     if (!user) return false;
 
     try {
-      // Call the Supabase function to increment
-      const { data, error: incrementError } = await supabase
-        .rpc('increment_search_count', { p_user_id: user.id });
+      // Call API route instead of Supabase directly
+      const response = await fetch('/api/usage/increment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id }),
+      });
 
-      if (incrementError) {
-        console.error('Error incrementing usage:', incrementError);
+      const data = await response.json();
 
-        // If function doesn't exist, update locally
-        if (incrementError.message.includes('function') || incrementError.code === '42883') {
-          // Update local state only
-          if (usage) {
-            setUsage({
-              ...usage,
-              searchCount: usage.searchCount + 1,
-              remaining: Math.max(0, usage.remaining - 1),
-            });
-          }
-          return true;
+      if (!response.ok) {
+        console.error('Error incrementing usage:', data.error);
+        // Update locally on error
+        if (usage) {
+          setUsage({
+            ...usage,
+            searchCount: usage.searchCount + 1,
+            remaining: Math.max(0, usage.remaining - 1),
+          });
         }
-        return false;
+        return true;
       }
 
       // Refresh usage data after increment
       await fetchUsage();
 
-      // Check if the search was allowed
-      if (data && data.length > 0) {
-        return data[0].is_allowed;
-      }
-
-      return true;
+      return data.isAllowed ?? true;
     } catch (err) {
       console.error('Error in incrementUsage:', err);
       // Update locally on error
@@ -240,23 +212,6 @@ export const UsageProvider: React.FC<UsageProviderProps> = ({ children }) => {
 // HOOK
 // ==================
 
-/**
- * useUsage Hook
- *
- * Access search usage data and methods.
- *
- * @example
- * const { usage, canSearch, incrementUsage } = useUsage();
- *
- * // Before searching:
- * if (!canSearch) {
- *   showUpgradeModal();
- *   return;
- * }
- *
- * // After successful search:
- * await incrementUsage();
- */
 export const useUsage = (): UsageContextType => {
   const context = useContext(UsageContext);
 

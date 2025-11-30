@@ -2,14 +2,15 @@
  * AuthContext.tsx
  *
  * Provides authentication functionality for the app.
+ * - Routes auth calls through Vercel API for logging
  * - Handles sign up, sign in, and sign out
  * - Manages user session state
  * - Works with Supabase Auth
  *
- * How it works:
- * 1. When the app loads, we check if user is already logged in
- * 2. We listen for auth state changes (login, logout, token refresh)
- * 3. Components can access user data via the useAuth hook
+ * Flow:
+ * 1. Auth calls go to /api/auth/* (visible in Vercel logs)
+ * 2. API returns session data
+ * 3. Client sets session using supabase.auth.setSession()
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
@@ -19,29 +20,18 @@ import { supabase, User, Session } from '../lib/supabase';
 // TYPES
 // ==================
 
-// What the auth context provides to components
 interface AuthContextType {
-  // Current logged-in user (null if not logged in)
   user: User | null;
-  // Current session (contains access token, etc.)
   session: Session | null;
-  // Is the auth system still checking if user is logged in?
   loading: boolean;
-  // Sign up with email and password
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
-  // Sign in with email and password
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  // Sign in with Google OAuth
   signInWithGoogle: () => Promise<{ error: Error | null }>;
-  // Sign out the current user
   signOut: () => Promise<{ error: Error | null }>;
-  // Send password reset email
   resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
-  // Update password (after reset link clicked)
   updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
 }
 
-// Props for the provider component
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -50,43 +40,20 @@ interface AuthProviderProps {
 // CONTEXT
 // ==================
 
-// Create the context (starts as undefined until provider wraps app)
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ==================
 // PROVIDER
 // ==================
 
-/**
- * AuthProvider
- *
- * Wrap your app with this provider to enable authentication.
- *
- * Usage in App.tsx:
- * ```tsx
- * <AuthProvider>
- *   <LanguageProvider>
- *     <Router>...</Router>
- *   </LanguageProvider>
- * </AuthProvider>
- * ```
- */
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  // State for current user and session
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  // Loading starts as true - we're checking if user is already logged in
   const [loading, setLoading] = useState(true);
 
   // ==================
-  // INITIALIZATION
+  // HELPER: Verify profile exists
   // ==================
-
-  // ==================
-  // HELPER: Check if user's profile exists in database
-  // ==================
-  // If user was deleted from auth.users, their profile is cascade-deleted too
-  // This catches that case and signs them out immediately
   const verifyProfileExists = async (userId: string): Promise<boolean> => {
     try {
       const { data: profile, error } = await supabase
@@ -95,32 +62,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .eq('id', userId)
         .single();
 
-      // If no profile found, user was deleted
       if (error || !profile) {
         console.warn('Profile not found for user - signing out');
         return false;
       }
       return true;
     } catch {
-      // On error, assume profile exists (don't break login on network issues)
       return true;
     }
   };
 
-  // On mount: Check if user is already logged in + listen for changes
+  // ==================
+  // INITIALIZATION
+  // ==================
   useEffect(() => {
-    // 1. Get current session (if user was previously logged in)
     const initializeAuth = async () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
 
         if (currentSession) {
-          // ⚠️ SECURITY: Verify user's profile still exists in database
-          // If admin deleted user, their JWT is still valid but profile is gone
           const profileExists = await verifyProfileExists(currentSession.user.id);
 
           if (!profileExists) {
-            // User was deleted - sign them out
             await supabase.auth.signOut();
             setSession(null);
             setUser(null);
@@ -134,24 +97,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.error('Error getting session:', error);
       } finally {
-        // Done checking - no longer loading
         setLoading(false);
       }
     };
 
     initializeAuth();
 
-    // 2. Listen for auth state changes (login, logout, token refresh)
+    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        // Only verify profile for TOKEN_REFRESHED events (existing sessions)
-        // Skip for SIGNED_IN - profile might still be creating via database trigger
-        // This prevents a race condition where we check before the profile exists
         if (newSession && event === 'TOKEN_REFRESHED') {
           const profileExists = await verifyProfileExists(newSession.user.id);
 
           if (!profileExists) {
-            // User was deleted - sign them out
             await supabase.auth.signOut();
             setSession(null);
             setUser(null);
@@ -160,45 +118,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         }
 
-        // Update state whenever auth changes
         setSession(newSession);
         setUser(newSession?.user ?? null);
         setLoading(false);
       }
     );
 
-    // Cleanup: stop listening when component unmounts
     return () => {
       subscription.unsubscribe();
     };
   }, []);
 
   // ==================
-  // AUTH METHODS
+  // AUTH METHODS (via API routes)
   // ==================
 
   /**
-   * Sign up a new user with email and password
-   *
-   * What happens:
-   * 1. Creates a new user in Supabase Auth
-   * 2. Supabase sends a confirmation email (by default)
-   * 3. User clicks link in email to verify
-   * 4. User is now logged in
+   * Sign up via /api/auth/signup
    */
   const signUp = useCallback(async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          // Where to redirect after email confirmation
-          emailRedirectTo: `${window.location.origin}/app`,
-        },
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          redirectTo: `${window.location.origin}/app`,
+        }),
       });
 
-      if (error) {
-        return { error };
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: new Error(data.error || 'Signup failed') };
+      }
+
+      // If session returned (no email verification required), set it
+      if (data.session) {
+        await supabase.auth.setSession(data.session);
       }
 
       return { error: null };
@@ -208,22 +166,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   /**
-   * Sign in existing user with email and password
-   *
-   * What happens:
-   * 1. Validates credentials with Supabase
-   * 2. If valid, creates a session
-   * 3. onAuthStateChange fires and updates our state
+   * Sign in via /api/auth/signin
    */
   const signIn = useCallback(async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (error) {
-        return { error };
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: new Error(data.error || 'Signin failed') };
+      }
+
+      // Set the session returned from API
+      if (data.session) {
+        await supabase.auth.setSession(data.session);
       }
 
       return { error: null };
@@ -234,22 +195,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   /**
    * Sign in with Google OAuth
-   *
-   * What happens:
-   * 1. Redirects to Google's login page
-   * 2. User signs in with their Google account
-   * 3. Google redirects back to your app
-   * 4. Supabase creates/updates the user
-   *
-   * IMPORTANT: You need to enable Google provider in Supabase dashboard:
-   * Authentication > Providers > Google
+   * Note: This stays client-side because it's redirect-based
+   * We log the initiation via API
    */
   const signInWithGoogle = useCallback(async () => {
     try {
+      // Log the OAuth initiation
+      fetch('/api/auth/signout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'google_oauth_initiated' }),
+      }).catch(() => {}); // Fire and forget
+
+      // OAuth must happen client-side (redirect-based)
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          // Where to redirect after Google auth
           redirectTo: `${window.location.origin}/app`,
         },
       });
@@ -265,15 +226,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   /**
-   * Sign out the current user
-   *
-   * What happens:
-   * 1. Clears the session from Supabase
-   * 2. Removes session from localStorage
-   * 3. onAuthStateChange fires with null session
+   * Sign out - log via API, then clear client session
    */
   const signOut = useCallback(async () => {
     try {
+      // Log the signout
+      await fetch('/api/auth/signout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user?.id,
+          email: user?.email,
+        }),
+      }).catch(() => {}); // Continue even if logging fails
+
+      // Clear the session client-side
       const { error } = await supabase.auth.signOut();
 
       if (error) {
@@ -284,25 +251,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       return { error: error as Error };
     }
-  }, []);
+  }, [user]);
 
   /**
-   * Send password reset email
-   *
-   * What happens:
-   * 1. Supabase sends an email with a reset link
-   * 2. Link contains a recovery token
-   * 3. User clicks link and goes to reset password page
+   * Reset password via /api/auth/reset-password
    */
   const resetPasswordForEmail = useCallback(async (email: string) => {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        // Where to redirect after clicking the reset link in email
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          redirectTo: `${window.location.origin}/auth/reset-password`,
+        }),
       });
 
-      if (error) {
-        return { error };
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: new Error(data.error || 'Reset password failed') };
       }
 
       return { error: null };
@@ -312,22 +280,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   /**
-   * Update user's password
-   *
-   * What happens:
-   * 1. User is on reset password page (has recovery token from email)
-   * 2. User enters new password
-   * 3. Supabase updates the password
-   * 4. User can now sign in with new password
+   * Update password via /api/auth/update-password
    */
   const updatePassword = useCallback(async (newPassword: string) => {
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword,
+      // Get current access token
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+
+      if (!currentSession?.access_token) {
+        return { error: new Error('No active session') };
+      }
+
+      const response = await fetch('/api/auth/update-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accessToken: currentSession.access_token,
+          newPassword,
+        }),
       });
 
-      if (error) {
-        return { error };
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: new Error(data.error || 'Update password failed') };
       }
 
       return { error: null };
@@ -363,24 +339,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 // HOOK
 // ==================
 
-/**
- * useAuth Hook
- *
- * Use this hook in any component to access auth features.
- *
- * Usage:
- * ```tsx
- * const { user, signIn, signOut, loading } = useAuth();
- *
- * if (loading) return <LoadingSpinner />;
- *
- * if (!user) {
- *   return <button onClick={() => signIn('email', 'password')}>Sign In</button>;
- * }
- *
- * return <p>Welcome, {user.email}!</p>;
- * ```
- */
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
 
