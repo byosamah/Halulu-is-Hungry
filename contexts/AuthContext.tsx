@@ -82,6 +82,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // INITIALIZATION
   // ==================
 
+  // ==================
+  // HELPER: Check if user's profile exists in database
+  // ==================
+  // If user was deleted from auth.users, their profile is cascade-deleted too
+  // This catches that case and signs them out immediately
+  const verifyProfileExists = async (userId: string): Promise<boolean> => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .single();
+
+      // If no profile found, user was deleted
+      if (error || !profile) {
+        console.warn('Profile not found for user - signing out');
+        return false;
+      }
+      return true;
+    } catch {
+      // On error, assume profile exists (don't break login on network issues)
+      return true;
+    }
+  };
+
   // On mount: Check if user is already logged in + listen for changes
   useEffect(() => {
     // 1. Get current session (if user was previously logged in)
@@ -90,6 +115,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
 
         if (currentSession) {
+          // ⚠️ SECURITY: Verify user's profile still exists in database
+          // If admin deleted user, their JWT is still valid but profile is gone
+          const profileExists = await verifyProfileExists(currentSession.user.id);
+
+          if (!profileExists) {
+            // User was deleted - sign them out
+            await supabase.auth.signOut();
+            setSession(null);
+            setUser(null);
+            setLoading(false);
+            return;
+          }
+
           setSession(currentSession);
           setUser(currentSession.user);
         }
@@ -105,7 +143,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // 2. Listen for auth state changes (login, logout, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
+      async (_event, newSession) => {
+        // If there's a session, verify profile exists before allowing access
+        if (newSession) {
+          const profileExists = await verifyProfileExists(newSession.user.id);
+
+          if (!profileExists) {
+            // User was deleted - sign them out
+            await supabase.auth.signOut();
+            setSession(null);
+            setUser(null);
+            setLoading(false);
+            return;
+          }
+        }
+
         // Update state whenever auth changes
         setSession(newSession);
         setUser(newSession?.user ?? null);

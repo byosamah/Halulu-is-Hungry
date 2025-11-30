@@ -34,6 +34,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   subscription_variant TEXT,                -- 'monthly' or 'yearly'
   subscription_ends_at TIMESTAMPTZ,         -- When cancelled subscription expires
 
+  -- Bonus searches (one-time gift, consumed after base limit exhausted)
+  bonus_searches INTEGER DEFAULT 0,
+
   -- Timestamps
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -195,30 +198,61 @@ DECLARE
   current_month TEXT;
   current_count INTEGER;
   user_is_premium BOOLEAN;
-  search_limit INTEGER;
+  user_bonus INTEGER;
+  base_limit INTEGER;
 BEGIN
   -- Get current month in format '2025-01'
   current_month := to_char(NOW(), 'YYYY-MM');
 
-  -- Check if user is premium
-  SELECT is_premium INTO user_is_premium
+  -- Get user premium status and bonus searches
+  SELECT is_premium, COALESCE(bonus_searches, 0)
+  INTO user_is_premium, user_bonus
   FROM public.profiles
   WHERE id = p_user_id;
 
-  -- Set limit based on subscription
-  search_limit := CASE WHEN user_is_premium THEN 30 ELSE 3 END;
+  -- Set base limit (3 for free, 30 for premium)
+  base_limit := CASE WHEN user_is_premium THEN 30 ELSE 3 END;
 
-  -- Insert or update usage record
-  INSERT INTO public.search_usage (user_id, month_year, search_count, last_search_at)
-  VALUES (p_user_id, current_month, 1, NOW())
-  ON CONFLICT (user_id, month_year)
-  DO UPDATE SET
-    search_count = search_usage.search_count + 1,
-    last_search_at = NOW()
-  RETURNING search_usage.search_count INTO current_count;
+  -- Get current count for this month (default 0)
+  SELECT COALESCE(su.search_count, 0) INTO current_count
+  FROM public.search_usage su
+  WHERE su.user_id = p_user_id AND su.month_year = current_month;
 
-  -- Return results
-  RETURN QUERY SELECT current_count, (current_count <= search_limit);
+  IF current_count IS NULL THEN
+    current_count := 0;
+  END IF;
+
+  -- Decide whether to use base allowance or bonus
+  IF current_count < base_limit THEN
+    -- Use base allowance: increment search_count
+    INSERT INTO public.search_usage (user_id, month_year, search_count, last_search_at)
+    VALUES (p_user_id, current_month, 1, NOW())
+    ON CONFLICT (user_id, month_year)
+    DO UPDATE SET
+      search_count = search_usage.search_count + 1,
+      last_search_at = NOW()
+    RETURNING search_usage.search_count INTO current_count;
+
+    RETURN QUERY SELECT current_count, true;
+
+  ELSIF user_bonus > 0 THEN
+    -- Base exhausted, use bonus: decrement bonus_searches
+    UPDATE public.profiles
+    SET bonus_searches = bonus_searches - 1
+    WHERE id = p_user_id;
+
+    -- Update last_search_at but don't increment count
+    INSERT INTO public.search_usage (user_id, month_year, search_count, last_search_at)
+    VALUES (p_user_id, current_month, current_count, NOW())
+    ON CONFLICT (user_id, month_year)
+    DO UPDATE SET last_search_at = NOW();
+
+    RETURN QUERY SELECT current_count, true;
+
+  ELSE
+    -- No base or bonus available
+    RETURN QUERY SELECT current_count, false;
+  END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -240,17 +274,19 @@ DECLARE
   current_month TEXT;
   current_count INTEGER;
   user_is_premium BOOLEAN;
+  user_bonus INTEGER;
   user_limit INTEGER;
 BEGIN
   -- Get current month
   current_month := to_char(NOW(), 'YYYY-MM');
 
-  -- Get user premium status
-  SELECT profiles.is_premium INTO user_is_premium
+  -- Get user premium status and bonus searches
+  SELECT profiles.is_premium, COALESCE(profiles.bonus_searches, 0)
+  INTO user_is_premium, user_bonus
   FROM public.profiles
   WHERE id = p_user_id;
 
-  -- Set limit
+  -- Set base limit (3 for free, 30 for premium)
   user_limit := CASE WHEN user_is_premium THEN 30 ELSE 3 END;
 
   -- Get current count (default 0 if no record)
@@ -263,10 +299,11 @@ BEGIN
   END IF;
 
   -- Return results
+  -- remaining = base remaining + bonus searches
   RETURN QUERY SELECT
     current_count,
-    user_limit,
-    GREATEST(0, user_limit - current_count),
+    user_limit + user_bonus,  -- Total limit includes bonus
+    GREATEST(0, user_limit - current_count) + user_bonus,  -- Remaining = base remaining + bonus
     COALESCE(user_is_premium, false),
     current_month;
 END;
