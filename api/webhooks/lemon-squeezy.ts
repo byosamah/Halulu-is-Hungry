@@ -42,6 +42,48 @@ interface WebhookPayload {
 }
 
 // ==================
+// RAW BODY READER
+// ==================
+
+/**
+ * Read the raw request body from the stream
+ * This is CRITICAL for webhook signature verification
+ * Lemon Squeezy signs the exact raw body string
+ */
+async function getRawBody(req: VercelRequest): Promise<string> {
+  // If body is already a string, return it
+  if (typeof req.body === 'string') {
+    return req.body;
+  }
+
+  // If body was already parsed, we need to read from the stream
+  // But Vercel may have already consumed it, so try buffer first
+  if (Buffer.isBuffer(req.body)) {
+    return req.body.toString('utf8');
+  }
+
+  // Try reading from stream
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    req.on('data', (chunk: Buffer) => {
+      chunks.push(chunk);
+    });
+    req.on('end', () => {
+      resolve(Buffer.concat(chunks).toString('utf8'));
+    });
+    req.on('error', reject);
+
+    // If no data comes in 100ms, body was already consumed
+    // Fall back to stringifying the parsed body
+    setTimeout(() => {
+      if (chunks.length === 0 && req.body) {
+        resolve(JSON.stringify(req.body));
+      }
+    }, 100);
+  });
+}
+
+// ==================
 // SIGNATURE VERIFICATION
 // ==================
 
@@ -59,6 +101,9 @@ function verifySignature(rawBody: string, signature: string | null, secret: stri
   hmac.update(rawBody);
   const computedSignature = hmac.digest('hex');
 
+  console.log(`[WEBHOOK] Computed signature: ${computedSignature.substring(0, 20)}...`);
+  console.log(`[WEBHOOK] Received signature: ${signature.substring(0, 20)}...`);
+
   return timingSafeEqual(computedSignature, signature);
 }
 
@@ -74,9 +119,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Get raw body - Vercel parses it, we need to stringify for signature verification
-    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    // Get signature from headers
     const signature = req.headers['x-signature'] as string | undefined;
+    console.log(`[WEBHOOK] Has signature: ${!!signature}`);
 
     // Get secrets
     const webhookSecret = process.env.LEMON_SQUEEZY_WEBHOOK_SECRET;
@@ -88,15 +133,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'Webhook secret not configured' });
     }
 
+    // Read raw body for signature verification
+    const rawBody = await getRawBody(req);
+    console.log(`[WEBHOOK] Raw body length: ${rawBody.length}`);
+
     // Verify signature
     const isValid = verifySignature(rawBody, signature || null, webhookSecret);
     if (!isValid) {
       console.error('[WEBHOOK] Invalid signature');
+      console.error('[WEBHOOK] Body preview:', rawBody.substring(0, 100));
       return res.status(401).json({ error: 'Invalid signature' });
     }
 
-    // Parse payload
-    const payload: WebhookPayload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    console.log('[WEBHOOK] Signature verified successfully');
+
+    // Parse the raw body as JSON
+    const payload: WebhookPayload = JSON.parse(rawBody);
     const { meta, data } = payload;
     const eventName = meta.event_name;
     const userId = meta.custom_data?.user_id;
@@ -315,10 +367,3 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
-
-// Disable body parsing so we can access raw body for signature verification
-export const config = {
-  api: {
-    bodyParser: true, // Vercel handles this differently than Next.js
-  },
-};
