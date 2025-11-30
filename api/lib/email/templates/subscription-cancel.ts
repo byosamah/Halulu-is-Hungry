@@ -12,7 +12,7 @@
  *   });
  */
 
-import { getEmailTranslations, isRTL as checkIsRTL, type EmailLanguage } from '../translations';
+import { getEmailTranslations, isRTL as checkIsRTL, type EmailLanguage } from '../translations.js';
 import {
   baseEmailTemplate,
   title,
@@ -22,8 +22,8 @@ import {
   highlightBox,
   mutedText,
   spacer,
-} from './base-template';
-import { EMAIL_COLORS, EMAIL_STYLES, getFontFamily } from '../styles';
+} from './base-template.js';
+import { EMAIL_COLORS, EMAIL_STYLES, getFontFamily } from '../styles.js';
 
 // =============================================================================
 // TYPES

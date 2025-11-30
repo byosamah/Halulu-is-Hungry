@@ -12,12 +12,12 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { sendEmail, isValidEmail } from '../lib/email/send-email';
+import { sendEmail, isValidEmail } from '../lib/email/send-email.js';
 import {
   welcomeEmailTemplate,
   getWelcomeEmailSubject,
-} from '../lib/email/templates/welcome';
-import type { EmailLanguage } from '../lib/email/translations';
+} from '../lib/email/templates/welcome.js';
+import type { EmailLanguage } from '../lib/email/translations.js';
 
 // Default app URL
 const DEFAULT_APP_URL = 'https://www.halulu.food/app';
