@@ -143,9 +143,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // 2. Listen for auth state changes (login, logout, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, newSession) => {
-        // If there's a session, verify profile exists before allowing access
-        if (newSession) {
+      async (event, newSession) => {
+        // Only verify profile for TOKEN_REFRESHED events (existing sessions)
+        // Skip for SIGNED_IN - profile might still be creating via database trigger
+        // This prevents a race condition where we check before the profile exists
+        if (newSession && event === 'TOKEN_REFRESHED') {
           const profileExists = await verifyProfileExists(newSession.user.id);
 
           if (!profileExists) {
