@@ -216,6 +216,41 @@ export const ar = {
   // ==================
   footerBuiltWith: 'صنع بـ',
   footerByName: 'أسامة خليل',
+  footerContact: 'تواصل معنا',
+
+  // ==================
+  // CONTACT PAGE - صفحة التواصل
+  // ==================
+  contact: {
+    // Page header - عنوان الصفحة
+    title: 'تواصل معنا',
+    subtitle: 'عندك ملاحظات أو تحتاج مساعدة؟ نحب نسمع منك!',
+
+    // Form labels - تسميات النموذج
+    nameLabel: 'اسمك',
+    emailLabel: 'إيميلك',
+    messageLabel: 'رسالتك',
+    namePlaceholder: 'شو اسمك؟',
+    emailPlaceholder: 'your@email.com',
+    messagePlaceholder: 'قولنا شو ببالك...',
+
+    // Button states - حالات الزر
+    sendButton: 'إرسال الرسالة',
+    sending: 'جاري الإرسال...',
+
+    // Success state - حالة النجاح
+    successTitle: 'تم الإرسال!',
+    successMessage: 'شكراً لتواصلك. بنرد عليك قريباً!',
+    backHome: 'رجوع للرئيسية',
+
+    // Errors - الأخطاء
+    errorEmptyFields: 'عبّي كل الخانات',
+    errorInvalidEmail: 'أدخل بريد إلكتروني صحيح',
+    errorGeneric: 'صار شي غلط. جرب مرة ثانية.',
+
+    // Footer - التذييل
+    footerMessage: 'نقرأ كل رسالة',
+  },
 
   // ==================
   // LANGUAGE SWITCHER

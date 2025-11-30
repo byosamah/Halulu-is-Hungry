@@ -21,7 +21,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useUsage } from '../contexts/UsageContext';
 import { getRtlShadow } from '../utils/rtlShadow';
 import UserAvatar from './UserAvatar';
-import { generateRandomAvatar } from '../lib/avatarUtils';
+import { getAvatarForUser } from '../lib/avatarUtils';
+import { supabase } from '../lib/supabase';
 
 const HeaderProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -33,21 +34,49 @@ const HeaderProfile: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // For now, generate a random avatar (later we'll store in profile)
-  // We use a stable random based on user ID to keep it consistent
-  const [avatar] = useState(() => {
-    if (user?.id) {
-      // Use user ID to seed a consistent "random" avatar
-      const seed = user.id.charCodeAt(0) + user.id.charCodeAt(1);
-      const emojis = ['🍕', '🍔', '🌮', '🍜', '🍣', '🍱', '🥗', '🍩', '🧁', '🍪', '🥐', '🍳'];
-      const colors = ['coral', 'teal', 'yellow', 'pink', 'purple', 'green'];
-      return {
-        emoji: emojis[seed % emojis.length],
-        colorName: colors[seed % colors.length],
-      };
-    }
-    return generateRandomAvatar();
-  });
+  // Avatar state - fetched from database or generated as fallback
+  const [avatar, setAvatar] = useState<{ emoji: string; colorName: string } | null>(null);
+
+  // Fetch avatar from database (same source as ProfilePage)
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      if (!user?.id) return;
+
+      try {
+        // Try to get stored avatar from profiles table
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('avatar_emoji, avatar_bg_color')
+          .eq('id', user.id)
+          .single();
+
+        if (data?.avatar_emoji && data?.avatar_bg_color) {
+          // Use stored avatar from database
+          setAvatar({
+            emoji: data.avatar_emoji,
+            colorName: data.avatar_bg_color,
+          });
+        } else {
+          // Fallback: use consistent algorithm from avatarUtils
+          // This uses ALL characters of user ID for consistency
+          const fallbackAvatar = getAvatarForUser(user.id);
+          setAvatar({
+            emoji: fallbackAvatar.emoji,
+            colorName: fallbackAvatar.bgColor, // bgColor maps to colorName
+          });
+        }
+      } catch {
+        // On error, use fallback avatar
+        const fallbackAvatar = getAvatarForUser(user.id);
+        setAvatar({
+          emoji: fallbackAvatar.emoji,
+          colorName: fallbackAvatar.bgColor,
+        });
+      }
+    };
+
+    fetchAvatar();
+  }, [user?.id]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -95,8 +124,8 @@ const HeaderProfile: React.FC = () => {
         aria-expanded={isOpen}
       >
         <UserAvatar
-          emoji={avatar.emoji}
-          colorName={avatar.colorName}
+          emoji={avatar?.emoji || '🍽️'}
+          colorName={avatar?.colorName || 'yellow'}
           size="md"
         />
         <ChevronDown
@@ -121,8 +150,8 @@ const HeaderProfile: React.FC = () => {
             <div className="p-4 border-b-2 border-brand-dark/10 bg-brand-cream/50">
               <div className="flex items-center gap-3">
                 <UserAvatar
-                  emoji={avatar.emoji}
-                  colorName={avatar.colorName}
+                  emoji={avatar?.emoji || '🍽️'}
+                  colorName={avatar?.colorName || 'yellow'}
                   size="lg"
                 />
                 <div className="flex-1 min-w-0">

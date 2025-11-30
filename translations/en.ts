@@ -211,6 +211,41 @@ export const en = {
   // ==================
   footerBuiltWith: 'Built with',
   footerByName: 'Osama Khalil',
+  footerContact: 'Contact',
+
+  // ==================
+  // CONTACT PAGE
+  // ==================
+  contact: {
+    // Page header
+    title: 'Get in Touch',
+    subtitle: 'Have feedback or need help? We\'d love to hear from you!',
+
+    // Form labels
+    nameLabel: 'Your Name',
+    emailLabel: 'Your Email',
+    messageLabel: 'Your Message',
+    namePlaceholder: 'What should we call you?',
+    emailPlaceholder: 'your@email.com',
+    messagePlaceholder: 'Tell us what\'s on your mind...',
+
+    // Button states
+    sendButton: 'Send Message',
+    sending: 'Sending...',
+
+    // Success state
+    successTitle: 'Message Sent!',
+    successMessage: 'Thanks for reaching out. We\'ll get back to you soon!',
+    backHome: 'Back to Home',
+
+    // Errors
+    errorEmptyFields: 'Please fill in all fields',
+    errorInvalidEmail: 'Please enter a valid email address',
+    errorGeneric: 'Something went wrong. Please try again.',
+
+    // Footer
+    footerMessage: 'We read every message',
+  },
 
   // ==================
   // LANGUAGE SWITCHER

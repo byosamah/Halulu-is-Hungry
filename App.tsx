@@ -25,6 +25,7 @@ import AuthPage from './pages/AuthPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import PricingPage from './pages/PricingPage';
 import ProfilePage from './pages/ProfilePage';
+import ContactPage from './pages/ContactPage';
 
 /**
  * ProtectedRoute Component
@@ -81,6 +82,9 @@ const App: React.FC = () => {
 
               {/* Pricing page - public, shows subscription options */}
               <Route path="/pricing" element={<PricingPage />} />
+
+              {/* Contact page - public, for feedback and support */}
+              <Route path="/contact" element={<ContactPage />} />
 
               {/* App page - PROTECTED: requires authentication */}
               <Route

@@ -28,6 +28,7 @@ import {
   TrendingUp,
   Clock,
   CreditCard,
+  MessageCircle,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useUsage, SEARCH_LIMITS } from '../contexts/UsageContext';
@@ -433,11 +434,26 @@ const ProfilePage: React.FC = () => {
           )}
         </motion.div>
 
-        {/* Sign Out Button */}
+        {/* Contact Us Button */}
         <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => navigate('/contact')}
+          className="w-full py-4 px-6 bg-white text-brand-dark font-display rounded-xl border-3 border-brand-dark flex items-center justify-center gap-2 hover:bg-brand-cream transition-colors mb-4"
+          style={{ boxShadow: getRtlShadow('sm', isRTL) }}
+        >
+          <MessageCircle className="w-5 h-5" />
+          {t('footerContact') as string}
+        </motion.button>
+
+        {/* Sign Out Button */}
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleSignOut}

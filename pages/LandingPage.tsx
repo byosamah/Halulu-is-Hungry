@@ -808,6 +808,13 @@ const LandingPage: React.FC = () => {
             >
               {t('footerByName')}
             </a>
+            {' '} • {' '}
+            <a
+              href="/contact"
+              className="text-brand-coral hover:underline font-body-medium"
+            >
+              {t('footerContact')}
+            </a>
           </p>
         </div>
       </footer>
