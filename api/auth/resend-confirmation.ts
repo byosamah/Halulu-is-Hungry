@@ -18,13 +18,9 @@ const CONFIRMATION_TOKEN_EXPIRY_HOURS = 24;
 // Rate limit: minimum minutes between resends
 const RESEND_COOLDOWN_MINUTES = 2;
 
-// Base URL for confirmation links
-const getBaseUrl = (req: VercelRequest) => {
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  return req.headers.origin || 'https://www.halulu.food';
-};
+// Base URL for confirmation links - always use production URL
+// Note: VERCEL_URL returns deployment-specific URLs that have protection enabled
+const getBaseUrl = () => 'https://www.halulu.food';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log(`[AUTH] Resend confirmation request at ${new Date().toISOString()}`);
@@ -164,7 +160,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Send confirmation email
     // ===========================================
 
-    const baseUrl = getBaseUrl(req);
+    const baseUrl = getBaseUrl();
     const confirmUrl = `${baseUrl}/auth/confirm?token=${token}`;
 
     console.log(`[AUTH] Sending new confirmation email to: ${email}`);

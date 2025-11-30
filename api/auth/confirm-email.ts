@@ -11,13 +11,9 @@ import { createClient } from '@supabase/supabase-js';
 // CONFIGURATION
 // ===========================================
 
-// Base URL for redirects and welcome email
-const getBaseUrl = (req: VercelRequest) => {
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  return req.headers.origin || 'https://www.halulu.food';
-};
+// Base URL for redirects and welcome email - always use production URL
+// Note: VERCEL_URL returns deployment-specific URLs that have protection enabled
+const getBaseUrl = () => 'https://www.halulu.food';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log(`[AUTH] Confirm email request at ${new Date().toISOString()}`);
@@ -149,7 +145,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Send welcome email
     // ===========================================
 
-    const baseUrl = getBaseUrl(req);
+    const baseUrl = getBaseUrl();
     const userEmail = userData.user?.email;
 
     if (userEmail) {

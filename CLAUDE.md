@@ -28,17 +28,41 @@ Restaurant discovery app using Google Gemini AI with Google Maps grounding. User
 ├── types.ts                   # TypeScript interfaces
 ├── constants.ts               # Configuration values
 │
-├── api/                       # Vercel Serverless Functions (NEW)
+├── api/                       # Vercel Serverless Functions
 │   ├── search.ts              # Gemini AI restaurant search
 │   ├── auth/
-│   │   ├── signup.ts          # User registration
+│   │   ├── signup.ts          # User registration + custom confirmation email
 │   │   ├── signin.ts          # User login
 │   │   ├── signout.ts         # User logout (logging)
-│   │   ├── reset-password.ts  # Password reset email
-│   │   └── update-password.ts # Set new password
+│   │   ├── reset-password.ts  # Password reset email (custom branded)
+│   │   ├── update-password.ts # Set new password
+│   │   ├── confirm-email.ts   # Verify email confirmation token
+│   │   ├── verify-reset.ts    # Verify password reset token
+│   │   ├── resend-confirmation.ts # Resend confirmation email
+│   │   └── verify-profile.ts  # Check if user profile exists
+│   ├── emails/                # Branded email sending (NEW)
+│   │   ├── send-confirmation.ts
+│   │   ├── send-password-reset.ts
+│   │   ├── send-welcome.ts
+│   │   ├── send-subscription-upgrade.ts
+│   │   └── send-subscription-cancel.ts
+│   ├── lib/                   # Shared utilities for API routes
+│   │   └── email/             # Email templates & utilities
+│   │       ├── send-email.ts  # Resend API wrapper
+│   │       ├── styles.ts      # Neobrutalist design tokens
+│   │       ├── translations.ts # Email strings (EN/AR)
+│   │       └── templates/     # HTML email templates
+│   │           ├── base-template.ts
+│   │           ├── confirmation.ts
+│   │           ├── password-reset.ts
+│   │           ├── welcome.ts
+│   │           ├── subscription-upgrade.ts
+│   │           └── subscription-cancel.ts
 │   ├── usage/
 │   │   ├── index.ts           # GET user usage stats
 │   │   └── increment.ts       # POST increment search count
+│   ├── analytics/
+│   │   └── record-search.ts   # Track search analytics + tokens
 │   └── webhooks/
 │       └── lemon-squeezy.ts   # Payment webhook handler
 │
@@ -112,14 +136,23 @@ All API calls now route through Vercel for logging visibility and security.
 | Route | Method | Purpose |
 |-------|--------|---------|
 | `/api/search` | POST | Gemini AI restaurant search |
-| `/api/auth/signup` | POST | Create new user |
+| `/api/auth/signup` | POST | Create new user + send confirmation email |
 | `/api/auth/signin` | POST | Login with email/password |
 | `/api/auth/signout` | POST | Log signout event |
-| `/api/auth/reset-password` | POST | Send reset email |
+| `/api/auth/reset-password` | POST | Send branded reset email |
 | `/api/auth/update-password` | POST | Set new password |
+| `/api/auth/confirm-email` | POST | Verify email confirmation token |
+| `/api/auth/verify-reset` | POST | Verify password reset token |
+| `/api/auth/resend-confirmation` | POST | Resend confirmation email |
+| `/api/auth/verify-profile` | GET | Check if user profile exists |
+| `/api/emails/send-confirmation` | POST | Send confirmation email |
+| `/api/emails/send-password-reset` | POST | Send password reset email |
+| `/api/emails/send-welcome` | POST | Send welcome email |
+| `/api/emails/send-subscription-upgrade` | POST | Send Pro upgrade email |
+| `/api/emails/send-subscription-cancel` | POST | Send cancellation email |
 | `/api/usage` | GET | Get user's search usage |
 | `/api/usage/increment` | POST | Record a search |
-| `/api/webhooks/lemon-squeezy` | POST | Payment webhooks |
+| `/api/webhooks/lemon-squeezy` | POST | Payment webhooks
 
 ### Benefits
 - **Gemini API key hidden** server-side (no longer exposed in browser!)
@@ -165,6 +198,45 @@ All API calls now route through Vercel for logging visibility and security.
 - sitemap.xml with hreflang for EN/AR
 - PWA manifest
 
+### Branded Email System (Resend)
+All transactional emails use custom branded templates instead of Supabase defaults:
+
+**Email Types:**
+| Template | When Sent | Description |
+|----------|-----------|-------------|
+| Confirmation | Signup | Verify email address |
+| Password Reset | Reset request | Link to reset password |
+| Welcome | Email confirmed | Onboarding email |
+| Subscription Upgrade | Pro purchase | Welcome to Pro |
+| Subscription Cancel | Cancel | Access ends notice |
+
+**Design:**
+- Neobrutalist style matching app (coral buttons, teal shadows)
+- Full RTL support for Arabic
+- Table-based HTML for email client compatibility
+- Responsive design
+
+**Architecture:**
+```
+api/lib/email/
+├── send-email.ts      # Resend API wrapper
+├── styles.ts          # Design tokens (colors, fonts)
+├── translations.ts    # EN/AR strings
+└── templates/
+    ├── base-template.ts      # Shared layout & components
+    ├── confirmation.ts       # Email verification
+    ├── password-reset.ts     # Password reset
+    ├── welcome.ts            # Welcome email
+    ├── subscription-upgrade.ts
+    └── subscription-cancel.ts
+```
+
+**Token Management:**
+- Custom tokens stored in `email_tokens` table
+- 24-hour expiry for confirmation emails
+- 1-hour expiry for password reset
+- Tokens marked as used after verification
+
 ---
 
 ## Database Schema (Supabase)
@@ -203,6 +275,18 @@ webhook_events (
   payload jsonb,
   processed boolean DEFAULT false,
   created_at timestamp
+)
+
+-- Email verification tokens (custom email system)
+email_tokens (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES auth.users,
+  email text NOT NULL,
+  token text UNIQUE NOT NULL,
+  type text NOT NULL,           -- 'confirmation' or 'password_reset'
+  expires_at timestamp NOT NULL,
+  used_at timestamp,            -- NULL until used
+  created_at timestamp DEFAULT now()
 )
 ```
 
@@ -329,6 +413,9 @@ supabase functions deploy send-contact-email
 | Modify AI prompt | `api/search.ts` → prompt section |
 | Add translations | `translations/en.ts` + `translations/ar.ts` |
 | Update SEO meta | `index.html` → `<head>` section |
+| Add email template | `api/lib/email/templates/` (use `.js` imports!) |
+| Add email strings | `api/lib/email/translations.ts` |
+| Update email design | `api/lib/email/styles.ts` |
 
 ---
 
@@ -341,6 +428,14 @@ supabase functions deploy send-contact-email
 5. **RTL Support** - See detailed RTL section below
 6. **AI Crawlers** - robots.txt explicitly allows GPTBot, Claude, Perplexity, etc.
 7. **Vercel Logs** - All API activity visible in Vercel dashboard
+8. **⚠️ ESM Imports in api/ folder** - ALWAYS use `.js` extensions for local imports!
+   ```typescript
+   // ✅ CORRECT - ESM requires .js extension
+   import { sendEmail } from '../lib/email/send-email.js';
+
+   // ❌ WRONG - Will fail in Vercel serverless
+   import { sendEmail } from '../lib/email/send-email';
+   ```
 
 ---
 
@@ -390,7 +485,20 @@ For flex containers that need different item ORDER in RTL vs LTR:
 
 ## Recent Updates (2025-11-30)
 
-### Vercel API Routes Migration (Major)
+### Branded Email System (Major)
+- **Custom email templates** replace Supabase defaults
+- Neobrutalist design matching the app (coral, teal, yellow)
+- Full RTL support for Arabic emails
+- Templates: Confirmation, Password Reset, Welcome, Subscription Upgrade/Cancel
+- Custom token management via `email_tokens` table
+- All emails sent through Resend API
+
+### ESM Import Fix
+- **Critical:** Added `.js` extensions to all local imports in `api/` folder
+- Required for Vercel serverless ESM module resolution
+- Without `.js` extensions, imports fail with `ERR_MODULE_NOT_FOUND`
+
+### Vercel API Routes Migration
 - **All API calls now route through Vercel** for logging visibility
 - Created `/api/search.ts` - Gemini AI search (API key now hidden!)
 - Created `/api/auth/*` - signup, signin, signout, reset-password, update-password

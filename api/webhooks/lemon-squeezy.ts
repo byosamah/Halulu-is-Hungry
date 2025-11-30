@@ -12,12 +12,9 @@ import crypto from 'crypto';
 // CONFIGURATION
 // ==================
 
-const getBaseUrl = () => {
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  return 'https://www.halulu.food';
-};
+// Base URL for email API calls - always use production URL
+// Note: VERCEL_URL returns deployment-specific URLs that have protection enabled
+const getBaseUrl = () => 'https://www.halulu.food';
 
 // ==================
 // TYPES

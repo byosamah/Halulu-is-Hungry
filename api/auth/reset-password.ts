@@ -15,13 +15,9 @@ import { randomUUID } from 'crypto';
 // Token expiry: 1 hour for password reset
 const RESET_TOKEN_EXPIRY_HOURS = 1;
 
-// Base URL for reset links
-const getBaseUrl = (req: VercelRequest) => {
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  return req.headers.origin || 'https://www.halulu.food';
-};
+// Base URL for reset links - always use production URL
+// Note: VERCEL_URL returns deployment-specific URLs that have protection enabled
+const getBaseUrl = () => 'https://www.halulu.food';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log(`[AUTH] Password reset request at ${new Date().toISOString()}`);
@@ -152,7 +148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Send password reset email via our custom system
     // ===========================================
 
-    const baseUrl = getBaseUrl(req);
+    const baseUrl = getBaseUrl();
     const resetUrl = `${baseUrl}/auth/reset-password?token=${token}`;
 
     console.log(`[AUTH] Sending password reset email to: ${email}`);
