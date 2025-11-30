@@ -9,6 +9,17 @@ import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
 // ==================
+// CONFIGURATION
+// ==================
+
+const getBaseUrl = () => {
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return 'https://www.halulu.food';
+};
+
+// ==================
 // TYPES
 // ==================
 
@@ -247,6 +258,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           );
 
         console.log(`[WEBHOOK] Search count reset for user: ${targetUserId}`);
+
+        // Send subscription upgrade email
+        if (attributes.user_email) {
+          const baseUrl = getBaseUrl();
+          console.log(`[WEBHOOK] Sending upgrade email to: ${attributes.user_email}`);
+
+          try {
+            await fetch(`${baseUrl}/api/emails/send-subscription-upgrade`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: attributes.user_email,
+                language: 'en', // Default to English for now
+                planName: attributes.variant_name,
+                appUrl: `${baseUrl}/app`,
+              }),
+            });
+            console.log(`[WEBHOOK] Upgrade email sent to: ${attributes.user_email}`);
+          } catch (emailError) {
+            console.error('[WEBHOOK] Failed to send upgrade email:', emailError);
+          }
+        }
+
         break;
       }
 
@@ -292,6 +326,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             updated_at: new Date().toISOString(),
           })
           .eq('id', targetUserId);
+
+        // Send subscription cancel email
+        if (attributes.user_email && attributes.ends_at) {
+          const baseUrl = getBaseUrl();
+          console.log(`[WEBHOOK] Sending cancel email to: ${attributes.user_email}`);
+
+          // Format the end date nicely
+          const endsAtDate = new Date(attributes.ends_at);
+          const formattedDate = endsAtDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          });
+
+          try {
+            await fetch(`${baseUrl}/api/emails/send-subscription-cancel`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: attributes.user_email,
+                language: 'en', // Default to English for now
+                accessEndsAt: formattedDate,
+                reactivateUrl: `${baseUrl}/pricing`,
+              }),
+            });
+            console.log(`[WEBHOOK] Cancel email sent to: ${attributes.user_email}`);
+          } catch (emailError) {
+            console.error('[WEBHOOK] Failed to send cancel email:', emailError);
+          }
+        }
 
         break;
       }

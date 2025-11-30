@@ -24,12 +24,13 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, language?: 'en' | 'ar') => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<{ error: Error | null }>;
-  resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
+  resetPasswordForEmail: (email: string, language?: 'en' | 'ar') => Promise<{ error: Error | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
+  resendConfirmationEmail: (email: string, language?: 'en' | 'ar') => Promise<{ error: Error | null }>;
 }
 
 interface AuthProviderProps {
@@ -138,8 +139,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   /**
    * Sign up via /api/auth/signup
+   * Now sends branded confirmation email via Resend
    */
-  const signUp = useCallback(async (email: string, password: string) => {
+  const signUp = useCallback(async (email: string, password: string, language: 'en' | 'ar' = 'en') => {
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -147,7 +149,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify({
           email,
           password,
-          redirectTo: `${window.location.origin}/app`,
+          language, // Pass language for branded email
         }),
       });
 
@@ -157,7 +159,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return { error: new Error(data.error || 'Signup failed') };
       }
 
-      // If session returned (no email verification required), set it
+      // Note: No session returned anymore - user must verify email first
+      // If session returned (for backwards compatibility), set it
       if (data.session) {
         await supabase.auth.setSession(data.session);
       }
@@ -258,15 +261,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   /**
    * Reset password via /api/auth/reset-password
+   * Now sends branded reset email via Resend
    */
-  const resetPasswordForEmail = useCallback(async (email: string) => {
+  const resetPasswordForEmail = useCallback(async (email: string, language: 'en' | 'ar' = 'en') => {
     try {
       const response = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          redirectTo: `${window.location.origin}/auth/reset-password`,
+          language, // Pass language for branded email
         }),
       });
 
@@ -274,6 +278,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (!response.ok) {
         return { error: new Error(data.error || 'Reset password failed') };
+      }
+
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  }, []);
+
+  /**
+   * Resend confirmation email via /api/auth/resend-confirmation
+   * For users who didn't receive or lost their confirmation email
+   */
+  const resendConfirmationEmail = useCallback(async (email: string, language: 'en' | 'ar' = 'en') => {
+    try {
+      const response = await fetch('/api/auth/resend-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          language,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: new Error(data.error || 'Resend confirmation failed') };
       }
 
       return { error: null };
@@ -329,6 +360,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signOut,
     resetPasswordForEmail,
     updatePassword,
+    resendConfirmationEmail,
   };
 
   return (
