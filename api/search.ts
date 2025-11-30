@@ -226,6 +226,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const response = await retryWithBackoff(makeAPICall);
 
     // ===========================================
+    // EXTRACT TOKEN USAGE
+    // ===========================================
+    // Gemini SDK returns token counts in usageMetadata
+    // We capture this for analytics tracking
+
+    const tokenUsage = {
+      inputTokens: response.usageMetadata?.promptTokenCount || 0,
+      outputTokens: response.usageMetadata?.candidatesTokenCount || 0,
+      modelUsed: modelName
+    };
+
+    console.log(`[API] Token usage: ${tokenUsage.inputTokens} input, ${tokenUsage.outputTokens} output (${modelName})`);
+
+    // ===========================================
     // PARSE RESPONSE
     // ===========================================
 
@@ -306,6 +320,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({
       restaurants: dedupedRestaurants,
       count: dedupedRestaurants.length,
+      // Token usage for analytics tracking
+      tokenUsage
     });
 
   } catch (error: any) {

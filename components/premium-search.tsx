@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,9 @@ interface PremiumSearchProps {
   setQuery: (q: string) => void;
   activeFilters: string[];
   setActiveFilters: (f: string[]) => void;
-  onSearch: () => void;
+  // Modified: onSearch now receives isSurpriseMe flag for analytics
+  // تم التعديل: onSearch يستقبل الآن علم isSurpriseMe للتحليلات
+  onSearch: (isSurpriseMe: boolean) => void;
   onRefreshLocation: () => void;
   disabled?: boolean;
 }
@@ -27,6 +29,12 @@ const PremiumSearch: React.FC<PremiumSearchProps> = ({
   disabled
 }) => {
   const { t, isRTL } = useLanguage();
+
+  // ===========================================
+  // ANALYTICS: Track if current search came from "Inspire Me" button
+  // تحليلات: تتبع ما إذا كان البحث الحالي جاء من زر "ألهمني"
+  // ===========================================
+  const [isSurpriseMe, setIsSurpriseMe] = useState(false);
 
   // SECURITY: Maximum allowed length for search queries
   // حد أقصى لطول استعلامات البحث للأمان
@@ -45,7 +53,10 @@ const PremiumSearch: React.FC<PremiumSearchProps> = ({
    * - Limits length to MAX_QUERY_LENGTH
    * - Normalizes excessive whitespace
    *
+   * ANALYTICS: Also resets isSurpriseMe flag when user types manually
+   *
    * أمان: تعقيم مدخلات البحث لمنع سوء الاستخدام
+   * تحليلات: يعيد تعيين علم isSurpriseMe عندما يكتب المستخدم يدويًا
    */
   const handleQueryChange = (value: string) => {
     // Normalize whitespace (multiple spaces → single space)
@@ -54,18 +65,34 @@ const PremiumSearch: React.FC<PremiumSearchProps> = ({
       .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
       .slice(0, MAX_QUERY_LENGTH);  // Enforce max length
     setQuery(sanitized);
+
+    // ANALYTICS: If user types manually, reset the "Inspire Me" flag
+    // تحليلات: إذا كتب المستخدم يدويًا، أعد تعيين علم "ألهمني"
+    setIsSurpriseMe(false);
   };
 
+  /**
+   * ANALYTICS: Handles "Inspire Me" button click
+   * Sets the isSurpriseMe flag to true so we can track this in analytics
+   *
+   * تحليلات: يتعامل مع نقرة زر "ألهمني"
+   * يضبط علم isSurpriseMe على true حتى نتمكن من تتبعه في التحليلات
+   */
   const handleInspireMe = () => {
     // Get translated inspirations array
     const inspirations = t('inspirations') as unknown as string[];
     const randomInspiration = inspirations[Math.floor(Math.random() * inspirations.length)];
     setQuery(randomInspiration);
+
+    // ANALYTICS: Mark this search as coming from "Inspire Me"
+    // تحليلات: وضع علامة على هذا البحث بأنه جاء من "ألهمني"
+    setIsSurpriseMe(true);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !disabled) {
-      onSearch();
+      // ANALYTICS: Pass the isSurpriseMe flag when searching via Enter key
+      onSearch(isSurpriseMe);
     }
   };
 
@@ -120,7 +147,7 @@ const PremiumSearch: React.FC<PremiumSearchProps> = ({
             {/* Let's Eat Button - Primary CTA, full width on mobile */}
             <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
               <Button
-                onClick={onSearch}
+                onClick={() => onSearch(isSurpriseMe)}
                 disabled={disabled}
                 size="lg"
                 className="h-[68px] px-8 rounded-2xl bg-brand-coral hover:bg-brand-coral text-white font-display font-bold text-lg border-4 border-brand-dark hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all disabled:opacity-50 w-full sm:w-auto"

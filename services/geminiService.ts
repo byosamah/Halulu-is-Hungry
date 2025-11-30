@@ -8,6 +8,23 @@ import type { Restaurant, Coordinates } from '../types';
 import { QuotaExceededError, APIKeyError, NetworkError, InvalidResponseError } from '../types';
 
 // ===========================================
+// TYPES
+// ===========================================
+
+// Token usage data returned from Gemini API
+export interface TokenUsage {
+  inputTokens: number;
+  outputTokens: number;
+  modelUsed: string;
+}
+
+// Complete search result including restaurants and token usage
+export interface SearchResult {
+  restaurants: Restaurant[];
+  tokenUsage?: TokenUsage;
+}
+
+// ===========================================
 // CONFIGURATION
 // ===========================================
 
@@ -35,6 +52,7 @@ export function validateAPIKey(): boolean {
  * @param filters - Optional filters (e.g., "Cozy", "Outdoor seating")
  * @param isPremium - Premium users get better AI model
  * @param language - 'en' or 'ar' for response language
+ * @returns SearchResult with restaurants and token usage for analytics
  */
 export const findRestaurants = async (
   location: Coordinates,
@@ -42,7 +60,7 @@ export const findRestaurants = async (
   filters: string[],
   isPremium: boolean = false,
   language: 'en' | 'ar' = 'en'
-): Promise<Restaurant[]> => {
+): Promise<SearchResult> => {
 
   // ===========================================
   // CLIENT-SIDE VALIDATION
@@ -111,8 +129,11 @@ export const findRestaurants = async (
       }
     }
 
-    // Success - return restaurants
-    return data.restaurants;
+    // Success - return restaurants and token usage for analytics
+    return {
+      restaurants: data.restaurants,
+      tokenUsage: data.tokenUsage
+    };
 
   } catch (error: any) {
     // ===========================================

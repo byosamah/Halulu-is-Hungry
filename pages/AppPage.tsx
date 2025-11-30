@@ -16,6 +16,8 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import type { Restaurant, Coordinates } from '../types';
 import { QuotaExceededError, APIKeyError, NetworkError, InvalidResponseError } from '../types';
 import { findRestaurants, validateAPIKey } from '../services/geminiService';
+// ANALYTICS: Import analytics service to record searches
+import { recordSearchAnalytics } from '../services/analyticsService';
 import { GEOLOCATION_OPTIONS } from '../constants';
 import PremiumSearch from '../components/premium-search';
 import RestaurantGridCard from '../components/restaurant-grid-card';
@@ -27,6 +29,8 @@ import SearchCounter from '../components/SearchCounter';
 import UsageLimitModal from '../components/UsageLimitModal';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUsage } from '../contexts/UsageContext';
+// ANALYTICS: Import useAuth to get user ID for analytics
+import { useAuth } from '../contexts/AuthContext';
 import { MapPin } from 'lucide-react';
 import { getRtlShadow } from '../utils/rtlShadow';
 
@@ -38,6 +42,9 @@ const AppPage: React.FC = () => {
 
   // Usage tracking - checks if user can search and increments count
   const { canSearch, incrementUsage, usage } = useUsage();
+
+  // ANALYTICS: Get user for analytics tracking
+  const { user } = useAuth();
 
   // Initialize query from URL params if present
   const initialQuery = searchParams.get('q') || '';
@@ -93,7 +100,8 @@ const AppPage: React.FC = () => {
   }, [location]); // Only run when location is available
 
   // Handle search
-  const handleSearch = useCallback(async () => {
+  // ANALYTICS: Now accepts isSurpriseMe parameter to track "Inspire Me" button usage
+  const handleSearch = useCallback(async (isSurpriseMe: boolean = false) => {
     // ==================
     // STEP 1: Check search limits
     // ==================
@@ -117,7 +125,8 @@ const AppPage: React.FC = () => {
     setRestaurants([]);
 
     try {
-      const results = await findRestaurants(location, searchQuery, activeFilters, usage?.isPremium ?? false, language);
+      // Now returns { restaurants, tokenUsage } instead of just restaurants
+      const result = await findRestaurants(location, searchQuery, activeFilters, usage?.isPremium ?? false, language);
 
       // ==================
       // STEP 2: Increment usage count AFTER successful search
@@ -125,12 +134,34 @@ const AppPage: React.FC = () => {
       // We only count it if the search actually ran (no early returns)
       await incrementUsage();
 
-      if (results.length === 0) {
+      // ==================
+      // STEP 3: Record analytics (fire-and-forget, doesn't block UI)
+      // تحليلات: تسجيل بيانات البحث (لا يحجب واجهة المستخدم)
+      // ==================
+      if (user?.id) {
+        recordSearchAnalytics({
+          userId: user.id,
+          query: searchQuery,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          filters: activeFilters,
+          isSurpriseMe,
+          isPremium: usage?.isPremium ?? false,
+          language,
+          resultsCount: result.restaurants.length,
+          // NEW: Token usage tracking
+          inputTokens: result.tokenUsage?.inputTokens,
+          outputTokens: result.tokenUsage?.outputTokens,
+          modelUsed: result.tokenUsage?.modelUsed
+        });
+      }
+
+      if (result.restaurants.length === 0) {
         const noResultsError = t('errors.noResults');
         setError(typeof noResultsError === 'function' ? noResultsError(searchQuery) : noResultsError);
         setRestaurants([]);
       } else {
-        setRestaurants(results);
+        setRestaurants(result.restaurants);
       }
     } catch (e) {
       if (e instanceof QuotaExceededError) {
@@ -150,7 +181,7 @@ const AppPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [location, searchQuery, activeFilters, t, canSearch, incrementUsage, usage]);
+  }, [location, searchQuery, activeFilters, t, canSearch, incrementUsage, usage, user, language]);
 
   // Render the main content area
   const renderContent = () => {

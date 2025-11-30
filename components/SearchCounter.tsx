@@ -65,8 +65,6 @@ const SearchCounter: React.FC<SearchCounterProps> = ({
   if (compact) {
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.05 }}
         whileTap={!isPremium ? { scale: 0.95 } : undefined}
         onClick={handleClick}
@@ -93,8 +91,6 @@ const SearchCounter: React.FC<SearchCounterProps> = ({
   // Free users can click to go to pricing
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
       whileHover={!isPremium ? {
         scale: 1.02,
         y: -2,
