@@ -22,6 +22,7 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import LandingPage from './pages/LandingPage';
 import AppPage from './pages/AppPage';
 import AuthPage from './pages/AuthPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import PricingPage from './pages/PricingPage';
 import ProfilePage from './pages/ProfilePage';
 
@@ -74,6 +75,9 @@ const App: React.FC = () => {
 
               {/* Auth page - sign in / sign up */}
               <Route path="/auth" element={<AuthPage />} />
+
+              {/* Reset password page - for setting new password after email link */}
+              <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
 
               {/* Pricing page - public, shows subscription options */}
               <Route path="/pricing" element={<PricingPage />} />

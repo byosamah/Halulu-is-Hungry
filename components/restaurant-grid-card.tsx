@@ -191,7 +191,7 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
                 {isRTL ? (
                   <>
                     <span className="text-sm text-brand-dark/80 leading-relaxed font-body line-clamp-2 text-right" dir="auto">
-                      "{pro}"
+                      {pro}
                     </span>
                     <span className="w-1 shrink-0 self-stretch rounded-full bg-brand-teal"></span>
                   </>
@@ -199,7 +199,7 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
                   <>
                     <span className="w-1 shrink-0 self-stretch rounded-full bg-brand-teal"></span>
                     <span className="text-sm text-brand-dark/80 leading-relaxed font-body line-clamp-2" dir="auto">
-                      "{pro}"
+                      {pro}
                     </span>
                   </>
                 )}
@@ -234,7 +234,7 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
                   {isRTL ? (
                     <>
                       <span className="text-xs text-brand-muted leading-relaxed font-body line-clamp-2 text-right" dir="auto">
-                        "{con}"
+                        {con}
                       </span>
                       <span className="w-1 shrink-0 self-stretch rounded-full bg-brand-muted/30"></span>
                     </>
@@ -242,7 +242,7 @@ const RestaurantGridCard: React.FC<RestaurantGridCardProps> = ({ restaurant, isT
                     <>
                       <span className="w-1 shrink-0 self-stretch rounded-full bg-brand-muted/30"></span>
                       <span className="text-xs text-brand-muted leading-relaxed font-body line-clamp-2" dir="auto">
-                        "{con}"
+                        {con}
                       </span>
                     </>
                   )}

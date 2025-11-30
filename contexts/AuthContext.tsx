@@ -35,6 +35,10 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   // Sign out the current user
   signOut: () => Promise<{ error: Error | null }>;
+  // Send password reset email
+  resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
+  // Update password (after reset link clicked)
+  updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
 }
 
 // Props for the provider component
@@ -228,6 +232,56 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
+  /**
+   * Send password reset email
+   *
+   * What happens:
+   * 1. Supabase sends an email with a reset link
+   * 2. Link contains a recovery token
+   * 3. User clicks link and goes to reset password page
+   */
+  const resetPasswordForEmail = useCallback(async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        // Where to redirect after clicking the reset link in email
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+
+      if (error) {
+        return { error };
+      }
+
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  }, []);
+
+  /**
+   * Update user's password
+   *
+   * What happens:
+   * 1. User is on reset password page (has recovery token from email)
+   * 2. User enters new password
+   * 3. Supabase updates the password
+   * 4. User can now sign in with new password
+   */
+  const updatePassword = useCallback(async (newPassword: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) {
+        return { error };
+      }
+
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  }, []);
+
   // ==================
   // CONTEXT VALUE
   // ==================
@@ -240,6 +294,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signIn,
     signInWithGoogle,
     signOut,
+    resetPasswordForEmail,
+    updatePassword,
   };
 
   return (

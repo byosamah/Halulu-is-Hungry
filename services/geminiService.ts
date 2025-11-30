@@ -98,8 +98,8 @@ export const findRestaurants = async (
     ${language === 'ar' ? `
     ⚠️ CRITICAL LANGUAGE REQUIREMENT - ARABIC ⚠️
     The user interface is in ARABIC. You MUST:
-    - Write ALL "pros" quotes in Arabic language (translate English reviews to Arabic)
-    - Write ALL "cons" quotes in Arabic language (translate English reviews to Arabic)
+    - Write ALL "pros" themes in Arabic language (translate themes to natural Arabic)
+    - Write ALL "cons" themes in Arabic language (translate themes to natural Arabic)
     - Use natural, colloquial Arabic that sounds authentic
     - Keep restaurant names in their original language (don't translate names)
     This is MANDATORY - do NOT return any English text in pros/cons arrays.
@@ -114,8 +114,8 @@ export const findRestaurants = async (
     2. **Crucially, rank the results based on a weighted score that considers both the Google rating and the number of reviews.** A restaurant with a slightly lower rating but a vastly larger number of reviews is a more reliable and generally better recommendation. For example, a restaurant with a 4.7 rating from 2000 reviews is superior to one with a 4.9 rating from 100 reviews.
     3. For each restaurant, deeply analyze its reviews to gauge public sentiment.
     4. Generate an "aiRating" on a scale of 1.0 to 5.0 (one decimal place). This rating **must reflect your weighted analysis** from step 2, combining rating value and review volume. It should NOT be just a reflection of the Google rating.
-    5. Extract three representative **direct quotes** for "pros" from the reviews. These should be actual snippets that capture common positive feedback.
-    6. Extract three representative **direct quotes** for "cons" from the reviews. These should be actual snippets that capture common negative feedback.
+    5. Identify the three most common POSITIVE THEMES from the reviews. Summarize what reviewers frequently praise in 1-2 sentences each.
+    6. Identify the three most common CONCERNS or NEGATIVE THEMES from the reviews. Summarize what reviewers frequently mention as downsides in 1-2 sentences each.
     7. Extract the official Google Maps star rating and the total number of reviews.
     8. **IMPORTANT: Return only UNIQUE restaurants. Do not include the same restaurant twice, even if it appears multiple times in search results. Each restaurant in your response must be distinct.**
 
@@ -124,10 +124,10 @@ export const findRestaurants = async (
     - "aiRating": number (e.g., 4.7 - your calculated weighted score)
     - "googleRating": number (e.g., 4.5 - the raw Google rating)
     - "googleReviewsCount": number (e.g., 1250)
-    - "pros": string[] (An array of exactly 3 **direct quotes** from positive reviews)
-    - "cons": string[] (An array of exactly 3 **direct quotes** from negative reviews)
+    - "pros": string[] (An array of exactly 3 common positive themes from reviews)
+    - "cons": string[] (An array of exactly 3 common concerns from reviews)
 
-    IMPORTANT: Do not include any text, explanations, or markdown formatting like \`\`\`json before or after the JSON array. The entire response must be only the JSON data. Each pro and con MUST be a direct quote from a review.
+    IMPORTANT: Do not include any text, explanations, or markdown formatting like \`\`\`json before or after the JSON array. The entire response must be only the JSON data. Each pro and con should be a concise summary of a common theme, not a made-up quote.
   `;
 
   // Wrap API call in retry logic to handle temporary rate limits

@@ -44,8 +44,8 @@ export const en = {
   aiScore: 'AI Score',
   googleLabel: 'Google:',
   googleRating: 'Google Maps Rating:',
-  peopleLove: 'People Love This!',
-  headsUp: 'Heads Up',
+  peopleLove: 'What People Say',
+  headsUp: 'Things to Know',
   letsGoHere: "Let's Go Here!",
   topPick: 'Top Pick',
   reviews: 'reviews',
@@ -264,6 +264,23 @@ export const en = {
     errorPasswordMismatch: 'Passwords do not match',
     errorPasswordTooShort: 'Password must be at least 6 characters',
     errorGeneric: 'Something went wrong. Please try again.',
+
+    // Forgot Password
+    forgotPassword: 'Forgot Password?',
+    forgotPasswordTitle: 'Reset Your Password',
+    forgotPasswordSubtitle: "Enter your email and we'll send you a reset link",
+    sendResetLink: 'Send Reset Link',
+    backToSignIn: 'Back to Sign In',
+    resetLinkSent: 'Check your email! We sent you a password reset link.',
+
+    // Reset Password Page
+    resetPasswordTitle: 'Create New Password',
+    resetPasswordSubtitle: 'Enter your new password below',
+    newPassword: 'New Password',
+    confirmNewPassword: 'Confirm New Password',
+    updatePassword: 'Update Password',
+    passwordUpdated: 'Password updated! You can now sign in.',
+    errorInvalidResetLink: 'Invalid or expired reset link. Please request a new one.',
 
     // Profile menu
     profile: 'Profile',

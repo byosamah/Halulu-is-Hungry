@@ -49,8 +49,8 @@ export const ar = {
   aiScore: 'تقييم الذكاء',
   googleLabel: 'قوقل:',
   googleRating: 'تقييم خرائط قوقل:',
-  peopleLove: 'الناس تحبه!',
-  headsUp: 'انتبه',
+  peopleLove: 'رأي الناس',
+  headsUp: 'معلومات مهمة',
   letsGoHere: 'يلا نروح!',
   topPick: 'الأفضل',
   reviews: 'تقييم',
@@ -269,6 +269,23 @@ export const ar = {
     errorPasswordMismatch: 'كلمات المرور ما تطابقت',
     errorPasswordTooShort: 'كلمة المرور لازم 6 حروف على الأقل',
     errorGeneric: 'صار شي غلط. جرب مرة ثانية.',
+
+    // Forgot Password - نسيت كلمة المرور
+    forgotPassword: 'نسيت كلمة المرور؟',
+    forgotPasswordTitle: 'إعادة تعيين كلمة المرور',
+    forgotPasswordSubtitle: 'أدخل إيميلك وبنرسلك رابط إعادة التعيين',
+    sendResetLink: 'إرسال رابط التعيين',
+    backToSignIn: 'رجوع لتسجيل الدخول',
+    resetLinkSent: 'راجع إيميلك! أرسلنا لك رابط إعادة تعيين كلمة المرور.',
+
+    // Reset Password Page - صفحة إعادة تعيين كلمة المرور
+    resetPasswordTitle: 'إنشاء كلمة مرور جديدة',
+    resetPasswordSubtitle: 'أدخل كلمة المرور الجديدة',
+    newPassword: 'كلمة المرور الجديدة',
+    confirmNewPassword: 'تأكيد كلمة المرور الجديدة',
+    updatePassword: 'تحديث كلمة المرور',
+    passwordUpdated: 'تم تحديث كلمة المرور! تقدر تسجل دخول الحين.',
+    errorInvalidResetLink: 'رابط إعادة التعيين غير صالح أو منتهي. اطلب رابط جديد.',
 
     // Profile menu - قائمة الملف الشخصي
     profile: 'الملف الشخصي',
