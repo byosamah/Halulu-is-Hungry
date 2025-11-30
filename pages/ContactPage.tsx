@@ -16,7 +16,6 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getRtlShadow } from '../utils/rtlShadow';
 import LanguageSwitcher from '../components/LanguageSwitcher';
-import { supabase } from '../lib/supabase';
 
 const ContactPage: React.FC = () => {
   const navigate = useNavigate();
@@ -52,13 +51,15 @@ const ContactPage: React.FC = () => {
     }
 
     try {
-      // Call the Supabase Edge Function to send email
-      const { error: fnError } = await supabase.functions.invoke('send-contact-email', {
-        body: { name, email, message },
+      // Call Vercel API route instead of Supabase Edge Function
+      const response = await fetch('/api/contact/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message }),
       });
 
-      if (fnError) {
-        throw fnError;
+      if (!response.ok) {
+        throw new Error('Failed to send');
       }
 
       // Success!

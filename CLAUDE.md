@@ -11,8 +11,9 @@ Restaurant discovery app using Google Gemini AI with Google Maps grounding. User
 - Framer Motion (animations)
 - @google/genai SDK (Gemini API)
 - React Router DOM v7
-- Supabase (auth, database, edge functions)
+- Supabase (auth, database)
 - Lemon Squeezy (payments)
+- Vercel (hosting + serverless API routes)
 
 ---
 
@@ -20,19 +21,35 @@ Restaurant discovery app using Google Gemini AI with Google Maps grounding. User
 
 ```
 /
-├── App.tsx                    # Router + auth guards
+├── App.tsx                    # Router + auth guards + Vercel Analytics
 ├── index.tsx                  # React root mount
 ├── index.html                 # HTML entry + SEO meta tags + JSON-LD schemas
 ├── index.css                  # Tailwind v4 + design tokens
 ├── types.ts                   # TypeScript interfaces
 ├── constants.ts               # Configuration values
 │
+├── api/                       # Vercel Serverless Functions (NEW)
+│   ├── search.ts              # Gemini AI restaurant search
+│   ├── auth/
+│   │   ├── signup.ts          # User registration
+│   │   ├── signin.ts          # User login
+│   │   ├── signout.ts         # User logout (logging)
+│   │   ├── reset-password.ts  # Password reset email
+│   │   └── update-password.ts # Set new password
+│   ├── usage/
+│   │   ├── index.ts           # GET user usage stats
+│   │   └── increment.ts       # POST increment search count
+│   └── webhooks/
+│       └── lemon-squeezy.ts   # Payment webhook handler
+│
 ├── pages/
 │   ├── LandingPage.tsx        # Marketing hero page
 │   ├── AppPage.tsx            # Search + results page
 │   ├── AuthPage.tsx           # Login/signup with Supabase
 │   ├── PricingPage.tsx        # Subscription plans (Lemon Squeezy)
-│   └── ProfilePage.tsx        # User profile + subscription management
+│   ├── ProfilePage.tsx        # User profile + subscription management
+│   ├── ContactPage.tsx        # Contact form (sends via Resend)
+│   └── ResetPasswordPage.tsx  # Password reset flow
 │
 ├── components/
 │   ├── premium-search.tsx     # Search bar + filters + buttons
@@ -47,12 +64,12 @@ Restaurant discovery app using Google Gemini AI with Google Maps grounding. User
 │   └── ui/                    # shadcn components
 │
 ├── contexts/
-│   ├── AuthContext.tsx        # Supabase auth state
-│   ├── UsageContext.tsx       # Search limits tracking
+│   ├── AuthContext.tsx        # Auth state (routes through /api/auth/*)
+│   ├── UsageContext.tsx       # Usage tracking (routes through /api/usage/*)
 │   └── LanguageContext.tsx    # i18n + RTL support
 │
 ├── services/
-│   └── geminiService.ts       # Gemini API integration
+│   └── geminiService.ts       # Calls /api/search (Gemini via Vercel)
 │
 ├── lib/
 │   ├── utils.ts               # Tailwind cn() helper
@@ -68,13 +85,17 @@ Restaurant discovery app using Google Gemini AI with Google Maps grounding. User
 │
 ├── supabase/
 │   ├── schema.sql             # Database schema
+│   ├── migrations/            # SQL migrations
 │   └── functions/
-│       └── lemon-squeezy-webhook/ # Payment webhook handler
+│       ├── lemon-squeezy-webhook/ # (Legacy - now on Vercel)
+│       └── send-contact-email/    # Contact form email sender
 │
 └── public/
-    ├── fonts/                 # Fredoka, Quicksand fonts
+    ├── fonts/                 # Fredoka, Teshrin fonts
     ├── logo.svg               # App logo
     ├── preview.png            # Social media preview image
+    ├── demo-en.gif            # English demo animation
+    ├── demo-ar.gif            # Arabic demo animation
     ├── robots.txt             # SEO + AI crawler permissions
     ├── sitemap.xml            # Site structure for search engines
     └── manifest.json          # PWA manifest
@@ -82,25 +103,52 @@ Restaurant discovery app using Google Gemini AI with Google Maps grounding. User
 
 ---
 
+## API Architecture (Vercel Serverless)
+
+All API calls now route through Vercel for logging visibility and security.
+
+### API Routes
+
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/search` | POST | Gemini AI restaurant search |
+| `/api/auth/signup` | POST | Create new user |
+| `/api/auth/signin` | POST | Login with email/password |
+| `/api/auth/signout` | POST | Log signout event |
+| `/api/auth/reset-password` | POST | Send reset email |
+| `/api/auth/update-password` | POST | Set new password |
+| `/api/usage` | GET | Get user's search usage |
+| `/api/usage/increment` | POST | Record a search |
+| `/api/webhooks/lemon-squeezy` | POST | Payment webhooks |
+
+### Benefits
+- **Gemini API key hidden** server-side (no longer exposed in browser!)
+- **All activity visible** in Vercel Logs
+- **Better debugging** - see every request/response
+
+---
+
 ## Key Features
 
-### Authentication (Supabase)
+### Authentication (Supabase + Vercel API)
 - Email/password signup with email verification
-- Magic link login
-- Session persistence
-- Profile management
+- Google OAuth (redirect-based, stays client-side)
+- Password reset flow
+- Session persistence via Supabase client
+- All auth events logged to Vercel
 
 ### Usage Limits
 - Free tier: 3 searches/month
 - Premium: 30 searches/month
 - Real-time counter in header
 - Upgrade prompts when limit reached
-- **Upgrade behavior:** When user upgrades, search count resets to 0 (full 30 searches)
-- **Cancellation behavior:** User keeps premium access until subscription period ends
+- **Upgrade behavior:** Search count resets to 0 (full 30 searches)
+- **Cancellation behavior:** User keeps premium access until period ends
 
 ### Payments (Lemon Squeezy)
 - Monthly subscription ($4.99)
-- Webhook handling via Supabase Edge Function
+- Yearly subscription (promotional pricing)
+- Webhook handling via Vercel `/api/webhooks/lemon-squeezy`
 - Subscription status sync to database
 - Customer portal for management
 
@@ -128,30 +176,33 @@ profiles (
   email text,
   display_name text,
   avatar_config jsonb,
+  is_premium boolean DEFAULT false,
+  subscription_status text,
+  subscription_id text,
+  subscription_variant text,
+  subscription_ends_at timestamp,
+  bonus_searches integer DEFAULT 0,
   created_at timestamp,
   updated_at timestamp
 )
 
 -- Search usage tracking
-usage_tracking (
-  id uuid PRIMARY KEY,
+search_usage (
   user_id uuid REFERENCES profiles,
+  month_year text,  -- Format: '2025-01'
   search_count integer DEFAULT 0,
-  last_search_date date,
-  created_at timestamp
+  last_search_at timestamp,
+  PRIMARY KEY (user_id, month_year)
 )
 
--- Subscription status
-subscriptions (
+-- Webhook idempotency
+webhook_events (
   id uuid PRIMARY KEY,
-  user_id uuid REFERENCES profiles,
-  lemon_squeezy_customer_id text,
-  lemon_squeezy_subscription_id text,
-  status text, -- 'active', 'cancelled', 'expired'
-  plan_type text, -- 'monthly', 'yearly'
-  current_period_end timestamp,
-  created_at timestamp,
-  updated_at timestamp
+  event_id text UNIQUE,
+  event_name text,
+  payload jsonb,
+  processed boolean DEFAULT false,
+  created_at timestamp
 )
 ```
 
@@ -159,17 +210,45 @@ subscriptions (
 
 ## Environment Variables
 
+### Local Development (.env.local)
 ```bash
-# .env.local
+# Gemini API (also needed in Vercel)
 GEMINI_API_KEY=your_gemini_key
 
-# Supabase (from project settings)
+# Supabase
 VITE_SUPABASE_URL=https://xxx.supabase.co
 VITE_SUPABASE_ANON_KEY=your_anon_key
 
-# Lemon Squeezy (for webhook verification)
-LEMON_SQUEEZY_WEBHOOK_SECRET=your_webhook_secret
+# Lemon Squeezy
+VITE_LEMON_SQUEEZY_STORE_SLUG=halulu
+VITE_LEMON_SQUEEZY_MONTHLY_UUID=xxx
+VITE_LEMON_SQUEEZY_YEARLY_UUID=xxx
+
+# Resend (for contact emails)
+RESEND_API_KEY=re_xxx
 ```
+
+### Vercel Environment Variables (Required)
+```bash
+# For API routes (server-side)
+GEMINI_API_KEY=your_gemini_key
+SUPABASE_URL=https://xxx.supabase.co           # Same as VITE_SUPABASE_URL
+SUPABASE_ANON_KEY=your_anon_key                # Same as VITE_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY=your_service_key     # From Supabase Settings → API
+LEMON_SQUEEZY_WEBHOOK_SECRET=your_webhook_secret
+RESEND_API_KEY=re_xxx
+
+# For client-side (VITE_ prefix)
+VITE_SUPABASE_URL=https://xxx.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key
+VITE_LEMON_SQUEEZY_STORE_SLUG=halulu
+VITE_LEMON_SQUEEZY_MONTHLY_UUID=xxx
+VITE_LEMON_SQUEEZY_YEARLY_UUID=xxx
+```
+
+**Important:** You need BOTH `SUPABASE_URL` and `VITE_SUPABASE_URL` in Vercel:
+- `VITE_*` = Available in browser (client-side React)
+- Without prefix = Available only on server (API routes)
 
 ---
 
@@ -232,9 +311,9 @@ npm install       # Install dependencies
 npm run dev       # Start dev server (port 3000)
 npm run build     # Production build
 
-# Supabase
+# Supabase Edge Functions (only for contact email now)
 supabase link --project-ref xxx
-supabase functions deploy lemon-squeezy-webhook --no-verify-jwt
+supabase functions deploy send-contact-email
 ```
 
 ---
@@ -247,7 +326,7 @@ supabase functions deploy lemon-squeezy-webhook --no-verify-jwt
 | Change Pro model | `constants.ts` → `AI_MODEL_NAME` |
 | Change Flash model | `constants.ts` → `AI_MODEL_NAME_FLASH` |
 | Update colors | `index.css` → `@theme` block |
-| Modify AI prompt | `geminiService.ts` → `findRestaurants()` |
+| Modify AI prompt | `api/search.ts` → prompt section |
 | Add translations | `translations/en.ts` + `translations/ar.ts` |
 | Update SEO meta | `index.html` → `<head>` section |
 
@@ -256,15 +335,16 @@ supabase functions deploy lemon-squeezy-webhook --no-verify-jwt
 ## Important Notes
 
 1. **Tailwind v4** - Use `@import "tailwindcss"` not `@tailwind`
-2. **API key** - Bundled client-side (visible in browser)
-3. **Webhook JWT** - Deploy with `--no-verify-jwt` for Lemon Squeezy webhooks
+2. **API key security** - Gemini key now hidden server-side via `/api/search`
+3. **Webhook URL** - Use `https://www.halulu.food/api/webhooks/lemon-squeezy`
 4. **Mobile UX** - All touch targets must be 44px+ minimum
 5. **RTL Support** - See detailed RTL section below
 6. **AI Crawlers** - robots.txt explicitly allows GPTBot, Claude, Perplexity, etc.
+7. **Vercel Logs** - All API activity visible in Vercel dashboard
 
 ---
 
-## ⚠️ RTL (Right-to-Left) Implementation Guide
+## RTL (Right-to-Left) Implementation Guide
 
 ### Critical Knowledge - DO NOT SKIP
 
@@ -275,7 +355,7 @@ supabase functions deploy lemon-squeezy-webhook --no-verify-jwt
 For flex containers that need different item ORDER in RTL vs LTR:
 
 ```tsx
-// ✅ CORRECT - Full control over RTL layout
+// CORRECT - Full control over RTL layout
 <div
   dir="ltr"  // Override parent's dir="rtl" to control flex order manually
   className={`flex items-center gap-2 ${isRTL ? 'justify-end' : ''}`}
@@ -298,34 +378,6 @@ For flex containers that need different item ORDER in RTL vs LTR:
 </div>
 ```
 
-### Why This Pattern Works
-1. `dir="ltr"` - Prevents parent's `dir="rtl"` from reversing flex order
-2. Conditional DOM order - YOU control the exact visual order
-3. `justify-end` for RTL - Aligns content to the right side
-4. 100% reliable - No CSS variant issues
-
-### What DOESN'T Work
-```tsx
-// ❌ BROKEN - CSS flex-row-reverse with isRTL conditional
-className={`flex ${isRTL ? 'flex-row-reverse' : ''}`}
-
-// ❌ BROKEN - Tailwind rtl: variant (may not compile)
-className="flex rtl:flex-row-reverse"
-
-// ❌ BROKEN - Relying on parent dir="rtl" alone
-// The parent's dir affects flex, causing double-reversal!
-```
-
-### Simple RTL Cases (No Order Change Needed)
-For elements that just need text/alignment to flip, use the parent's `dir` attribute:
-```tsx
-// ✅ OK - Just needs text direction, no order change
-<div className={`flex ${isRTL ? 'flex-row-reverse' : ''}`}>
-  <span>{text}</span>
-  <span>{icon}</span>
-</div>
-```
-
 ### Summary
 | Need | Solution |
 |------|----------|
@@ -336,57 +388,38 @@ For elements that just need text/alignment to flip, use the parent's `dir` attri
 
 ---
 
-## Recent Updates (2025-11-29)
+## Recent Updates (2025-11-30)
 
-### AI Model Switching by User Tier (Latest)
-- **Free users:** Gemini 2.5 Flash (50% cheaper)
-- **Premium users:** Gemini 2.5 Pro (higher quality)
-- `geminiService.ts` now accepts `isPremium` parameter
-- Model selection: `isPremium ? 'gemini-2.5-pro' : 'gemini-2.5-flash'`
-- Reduces free user API costs from $0.33/month to $0.16/month per user
+### Vercel API Routes Migration (Major)
+- **All API calls now route through Vercel** for logging visibility
+- Created `/api/search.ts` - Gemini AI search (API key now hidden!)
+- Created `/api/auth/*` - signup, signin, signout, reset-password, update-password
+- Created `/api/usage/*` - get usage stats, increment search count
+- Created `/api/webhooks/lemon-squeezy` - payment webhook handler
+- Updated `AuthContext.tsx` and `UsageContext.tsx` to use API routes
+- Added `@vercel/node` and `@vercel/analytics` packages
 
-### Subscription Usage Fix
-- **Upgrade reset:** When free user upgrades, search count resets to 0 (gives full 30 searches)
-- **Cancellation fix:** Cancelled users keep premium access until `ends_at` date
-- Fixed bug where `subscription_updated` would immediately revoke premium on cancellation
-- Webhook now checks if `ends_at` is in future before removing premium access
+### Webhook Signature Fix
+- Fixed "Invalid signature" error for Lemon Squeezy webhooks
+- Added raw body reading from stream for proper signature verification
+- Webhook now successfully processes subscription events
 
-### Pricing Update
-- Yearly plan now shows $4.99 promotional price
-- Updated pricing page with improved layout
+### Contact Page
+- Added `/contact` page with form
+- Supabase Edge Function `send-contact-email` using Resend API
 
-### Teshrin Arabic Font
-- Added Teshrin font family (9 weights) for Arabic text
-- Improved RTL typography and readability
-- Updated HeaderProfile, SearchCounter components
+### Password Reset
+- Full password reset flow implemented
+- `/auth/reset-password` page for setting new password
 
-### Arabic Brand Name Fix
-- Corrected spelling: "حالولو" → "حلولو" (6 instances in translations/ar.ts)
-- Brand name, loading text, story section all now use correct spelling
+### Profile Security
+- Users are signed out if their profile is deleted
+- Race condition fix in profile verification
 
-### SEO/GEO/AEO Implementation (2025-11-28)
-- Added 50+ meta tags (Open Graph, Twitter Cards, hreflang)
-- Created JSON-LD schemas (SoftwareApplication, FAQPage, WebSite)
-- Created robots.txt allowing 15+ AI crawlers
-- Created sitemap.xml with EN/AR language alternates
-- Added PWA manifest.json
-- Configured Vercel caching headers
-
-### Mobile UX Improvements
-- SearchCounter redesigned with neobrutalist style
-- All touch targets now meet 44px WCAG minimum
-- Stats grid responsive on small screens
-- Back buttons have proper tap areas
-
-### Authentication & Payments
-- Supabase auth integration (email/password, magic link)
-- Usage tracking with monthly limits (5 free, 50 premium)
-- Lemon Squeezy subscription integration
-- Webhook handler via Supabase Edge Function
-- Profile page with subscription management
-
-### Arabic (RTL) Support
-- Full Arabic translations (حلولو = Halulu)
-- RTL-aware layouts using `dir="rtl"`
-- Shadow direction flipping for RTL
-- Language switcher component
+### Previous Updates (2025-11-29)
+- AI Model switching: Free=Flash, Premium=Pro
+- Subscription fixes: Reset on upgrade, keep access until ends_at
+- Teshrin Arabic font added
+- Arabic brand name corrected to "حلولو"
+- SEO/GEO/AEO implementation
+- Mobile UX improvements

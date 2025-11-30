@@ -33,7 +33,6 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useUsage, SEARCH_LIMITS } from '../contexts/UsageContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { supabase } from '../lib/supabase';
 import { getAvatarForUser } from '../lib/avatarUtils';
 import { getRtlShadow } from '../utils/rtlShadow';
 
@@ -65,20 +64,18 @@ const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch profile data
+  // Fetch profile data via API route (visible in Vercel logs)
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
 
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+        // Call Vercel API route instead of Supabase directly
+        const response = await fetch(`/api/profile?userId=${user.id}`);
+        const data = await response.json();
 
-        if (error) {
-          console.error('Error fetching profile:', error);
+        if (!response.ok) {
+          console.error('Error fetching profile:', data.error);
           // Use defaults if profile not found
           const avatar = getAvatarForUser(user.id);
           setProfile({

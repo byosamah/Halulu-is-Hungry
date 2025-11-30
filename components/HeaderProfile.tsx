@@ -22,7 +22,6 @@ import { useUsage } from '../contexts/UsageContext';
 import { getRtlShadow } from '../utils/rtlShadow';
 import UserAvatar from './UserAvatar';
 import { getAvatarForUser } from '../lib/avatarUtils';
-import { supabase } from '../lib/supabase';
 
 const HeaderProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -37,20 +36,17 @@ const HeaderProfile: React.FC = () => {
   // Avatar state - fetched from database or generated as fallback
   const [avatar, setAvatar] = useState<{ emoji: string; colorName: string } | null>(null);
 
-  // Fetch avatar from database (same source as ProfilePage)
+  // Fetch avatar from database via API route (visible in Vercel logs)
   useEffect(() => {
     const fetchAvatar = async () => {
       if (!user?.id) return;
 
       try {
-        // Try to get stored avatar from profiles table
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('avatar_emoji, avatar_bg_color')
-          .eq('id', user.id)
-          .single();
+        // Call Vercel API route instead of Supabase directly
+        const response = await fetch(`/api/profile?userId=${user.id}`);
+        const data = await response.json();
 
-        if (data?.avatar_emoji && data?.avatar_bg_color) {
+        if (response.ok && data?.avatar_emoji && data?.avatar_bg_color) {
           // Use stored avatar from database
           setAvatar({
             emoji: data.avatar_emoji,

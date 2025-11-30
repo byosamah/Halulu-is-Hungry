@@ -52,17 +52,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // ==================
-  // HELPER: Verify profile exists
+  // HELPER: Verify profile exists (via API route for Vercel logs)
   // ==================
   const verifyProfileExists = async (userId: string): Promise<boolean> => {
     try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', userId)
-        .single();
+      // Call Vercel API route instead of Supabase directly
+      const response = await fetch('/api/auth/verify-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
 
-      if (error || !profile) {
+      const data = await response.json();
+
+      if (!data.exists) {
         console.warn('Profile not found for user - signing out');
         return false;
       }
