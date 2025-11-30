@@ -19,8 +19,8 @@ import {
   EMAIL_STYLES,
   getFontFamily,
   getShadow,
-} from '../styles';
-import { getEmailTranslations, isRTL as checkIsRTL, type EmailLanguage } from '../translations';
+} from '../styles.js';
+import { getEmailTranslations, isRTL as checkIsRTL, type EmailLanguage } from '../translations.js';
 
 // =============================================================================
 // TYPES

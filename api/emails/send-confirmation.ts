@@ -11,12 +11,12 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { sendEmail, isValidEmail } from '../lib/email/send-email';
+import { sendEmail, isValidEmail } from '../lib/email/send-email.js';
 import {
   confirmationEmailTemplate,
   getConfirmationEmailSubject,
-} from '../lib/email/templates/confirmation';
-import type { EmailLanguage } from '../lib/email/translations';
+} from '../lib/email/templates/confirmation.js';
+import type { EmailLanguage } from '../lib/email/translations.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log(`[EMAIL] send-confirmation request at ${new Date().toISOString()}`);
